@@ -16,14 +16,22 @@
 }
 
 .admin-logo {
-  padding: 2rem;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--color-primary);
-  border-bottom: 1px solid var(--border-color);
+  padding: 2.5rem 1rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 1rem;
+  background: linear-gradient(to bottom, rgba(255, 107, 0, 0.03), transparent);
+}
+
+.admin-logo img {
+  filter: drop-shadow(0 4px 12px rgba(255, 107, 0, 0.15));
+  transition: transform 0.3s ease;
+}
+
+.admin-logo img:hover {
+  transform: scale(1.05);
 }
 
 .admin-nav {

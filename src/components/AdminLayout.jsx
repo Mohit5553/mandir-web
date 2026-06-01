@@ -29,8 +29,7 @@ const AdminLayout = () => {
     <div className="admin-layout">
       <aside className="admin-sidebar" style={{ width: '280px' }}>
         <div className="admin-logo">
-          <img src="/src/assets/trust_logo.png" alt="Logo" style={{ height: '32px', width: '32px', borderRadius: '50%', marginRight: '10px' }} onError={(e) => e.target.style.display = 'none'} />
-          SMT Dashboard
+          <img src="/src/assets/logo.png" alt="Logo" style={{ height: '110px', width: '110px', borderRadius: '50%', objectFit: 'cover' }} />
         </div>
         <nav className="admin-nav">
           {menu.map(item => (
