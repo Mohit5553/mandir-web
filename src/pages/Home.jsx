@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Bell, Heart, ArrowRight } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const Home = () => {
   return (
@@ -14,7 +15,7 @@ const Home = () => {
         alignItems: 'center'
       }}>
         <div className="container" style={{ textAlign: 'center' }}>
-          <img src="/src/assets/trust_logo.png" alt="Trust Logo" style={{ height: '120px', width: '120px', borderRadius: '50%', marginBottom: '2rem', boxShadow: 'var(--shadow-lg)', border: '4px solid white' }} onError={(e) => e.target.style.display = 'none'} />
+          <img src={logo} alt="Trust Logo" style={{ height: '120px', width: '120px', borderRadius: '50%', marginBottom: '2rem', boxShadow: 'var(--shadow-lg)', border: '4px solid white' }} />
           <h1 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1.5rem', color: 'var(--color-primary-dark)', lineHeight: 1.2 }}>
             श्री मनवट बाबा <br /> महाशिव मन्दिर ट्रस्ट
           </h1>
