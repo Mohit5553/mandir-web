@@ -75,20 +75,38 @@ const Layout = () => {
           </div>
           <div className="footer-col">
             <h3>Quick Links</h3>
-            <ul>
-              <li><Link to="/events">Upcoming Events</Link></li>
-              <li><Link to="/donate">Make a Donation</Link></li>
-              <li><Link to="/contact">Contact Us</Link></li>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              <li style={{ marginBottom: '0.75rem' }}><Link to="/events" className="hover-link">Upcoming Events</Link></li>
+              <li style={{ marginBottom: '0.75rem' }}><Link to="/donate" className="hover-link">Make a Donation</Link></li>
+              <li style={{ marginBottom: '0.75rem' }}><Link to="/contact" className="hover-link">Contact Us</Link></li>
             </ul>
           </div>
           <div className="footer-col">
             <h3>Contact Info</h3>
-            <p><MapPin size={16}/> 123 Temple Road, Holy City</p>
-            <p><Phone size={16}/> +91 9876543210</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0, opacity: 0.9 }}>
+                <MapPin size={18} color="var(--color-primary)"/> Bairampur, Colonelganj, Gonda (U.P.)
+              </p>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0, opacity: 0.9 }}>
+                <Phone size={18} color="var(--color-primary)"/> +91 9792939973
+              </p>
+            </div>
+            
+            <div style={{ marginTop: '1.5rem', height: '120px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <iframe
+                title="Footer Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3550.941938596644!2d81.745494!3d27.126442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39908de75079a6db%3A0x633fa073998b36e8!2sShree%20Manvat%20Baba%20Mahashiv%20Mandir%20Trust!5e0!3m2!1sen!2sin!4v1718000000000"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2026 Shree Mandir Trust. All rights reserved.</p>
+          <p>&copy; 2026 Shree Manvat Baba Mandir Trust. All rights reserved.</p>
         </div>
       </footer>
     </div>
