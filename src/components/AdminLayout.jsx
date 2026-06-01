@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText } from 'lucide-react';
+import logo from '../assets/logo.png';
 import './Admin.css';
 
 const AdminLayout = () => {
@@ -29,7 +30,7 @@ const AdminLayout = () => {
     <div className="admin-layout">
       <aside className="admin-sidebar" style={{ width: '280px' }}>
         <div className="admin-logo">
-          <img src="/src/assets/logo.png" alt="Logo" style={{ height: '110px', width: '110px', borderRadius: '50%', objectFit: 'cover' }} />
+          <img src={logo} alt="Logo" style={{ height: '110px', width: '110px', borderRadius: '50%', objectFit: 'cover' }} />
         </div>
         <nav className="admin-nav">
           {menu.map(item => (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, X, Eye, Phone, MessageSquare, Share2, Printer, Calendar, Hash, Tag, IndianRupee, ShieldCheck, LayoutDashboard } from 'lucide-react';
+import logo from '../../assets/logo.png';
 import { api } from '../../services/api';
 
 const AdminDonations = () => {
@@ -117,7 +118,7 @@ const AdminDonations = () => {
                     <h1>SHREE MANVAT BABA MANDIR TRUST</h1>
                     <p>Bairampur, Colonelganj, Gonda (U.P.) - 271502</p>
                 </div>
-                <img src="/src/assets/logo.png" style="height: 80px; width: 80px; border-radius: 50%;" />
+                <img src="${logo}" style="height: 80px; width: 80px; border-radius: 50%;" />
             </div>
 
             <div class="receipt-meta">
@@ -307,7 +308,7 @@ const AdminDonations = () => {
               <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column' }}>
                  <div ref={receiptRef} className="receipt-preview" style={{ background: 'white', border: '2px solid #FF6B00', padding: '25px', borderRadius: '16px', flexGrow: 1 }}>
                     <div className="header" style={{ textAlign: 'center', borderBottom: '2px solid #fff5ed', paddingBottom: '15px', marginBottom: '15px' }}>
-                        <img src="/src/assets/logo.png" style={{ height: '60px', width: '60px', borderRadius: '50%', marginBottom: '5px' }} />
+                        <img src={logo} style={{ height: '60px', width: '60px', borderRadius: '50%', marginBottom: '5px' }} />
                         <div className="title" style={{ color: '#FF6B00', fontWeight: 800, fontSize: '16px', letterSpacing: '1px' }}>SHREE MANVAT BABA MANDIR TRUST</div>
                         <div style={{ fontSize: '10px', color: '#94a3b8' }}>RECEIPT NO: {selectedDonation._id.slice(-8).toUpperCase()}</div>
                     </div>

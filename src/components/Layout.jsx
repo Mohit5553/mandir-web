@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard } from 'lucide-react';
+import logo from '../assets/logo.png';
 import './Layout.css';
 
 const Layout = () => {
@@ -24,7 +25,7 @@ const Layout = () => {
       <header className="header glass">
         <div className="container header-content">
           <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/src/assets/logo.png" alt="Trust Logo" style={{ height: '70px', width: '70px', borderRadius: '50%', objectFit: 'cover', filter: 'drop-shadow(0 2px 8px rgba(255,107,0,0.2))' }} />
+            <img src={logo} alt="Trust Logo" style={{ height: '70px', width: '70px', borderRadius: '50%', objectFit: 'cover', filter: 'drop-shadow(0 2px 8px rgba(255,107,0,0.2))' }} />
           </Link>
           
           <nav className={`nav ${isMenuOpen ? 'nav-open' : ''}`}>
@@ -67,7 +68,7 @@ const Layout = () => {
         <div className="container footer-content">
           <div className="footer-col">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-              <img src="/src/assets/logo.png" alt="Trust Logo" style={{ height: '60px', width: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
+              <img src={logo} alt="Trust Logo" style={{ height: '60px', width: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
               <h3 style={{ margin: 0 }}>Shree Manvat Baba Mahashiv Mandir Trust</h3>
             </div>
             <p style={{opacity: 0.9}}>बैरमपुर, करनैलगंज - गोण्डा (उत्तर प्रदेश)</p>

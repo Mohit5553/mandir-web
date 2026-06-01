@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Building2, Utensils, Sprout, ShieldCheck, QrCode, CheckCircle2, Upload } from 'lucide-react';
+import qrCode from '../assets/donation_qr.png';
 import { api } from '../services/api';
 
 const Donate = () => {
@@ -128,7 +129,7 @@ const Donate = () => {
                 <button type="button" onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 600, cursor: 'pointer', marginBottom: '1rem' }}>← Back</button>
                 <div style={{ textAlign: 'center', marginBottom: '2rem', background: '#f9f9f9', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
                   <div style={{ background: 'white', padding: '0.5rem', display: 'inline-block', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)', marginBottom: '1rem' }}>
-                    <img src="/src/assets/donation_qr.png" alt="Payment QR" style={{ width: '220px', borderRadius: '4px' }} />
+                    <img src={qrCode} alt="Payment QR" style={{ width: '220px', borderRadius: '4px' }} />
                   </div>
                   <p style={{ fontWeight: 700, fontSize: '1.2rem', color: 'var(--color-primary)' }}>Payable Amount: ₹ {form.amount}</p>
                 </div>
