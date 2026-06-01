@@ -235,10 +235,28 @@ const AdminDonations = () => {
                     </span>
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <button onClick={() => setSelectedDonation(d)} className="btn-icon" style={{ background: '#f8fafc', color: '#64748b' }}><Eye size={18}/></button>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <button 
+                        onClick={() => setSelectedDonation(d)} 
+                        title="View Details"
+                        style={{ background: '#f1f5f9', color: '#64748b', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Eye size={16}/>
+                      </button>
                       {d.paymentStatus === 'Pending' && (
-                        <button onClick={() => handleUpdateStatus(d._id, 'Approved')} className="btn-icon" style={{ background: '#dcfce7', color: '#166534' }}><Check size={18}/></button>
+                        <>
+                          <button 
+                            onClick={() => handleUpdateStatus(d._id, 'Approved')} 
+                            title="Approve"
+                            style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.5rem 0.75rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <Check size={14}/> Approve
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateStatus(d._id, 'Rejected')} 
+                            title="Reject"
+                            style={{ background: '#fee2e2', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: '8px', padding: '0.5rem 0.75rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <X size={14}/> Reject
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>
@@ -287,15 +305,35 @@ const AdminDonations = () => {
                     ))}
                  </div>
 
-                 {selectedDonation.screenshot && (
-                    <div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.75rem' }}>TRANSACTION SCREENSHOT</div>
-                        <div style={{ border: '1.5px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: '#000', cursor: 'zoom-in', position: 'relative' }}>
-                            <img src={selectedDonation.screenshot} style={{ width: '100%', maxHeight: '350px', objectFit: 'contain' }} onClick={() => window.open(selectedDonation.screenshot)} />
-                            <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem' }}>Click to view full</div>
-                        </div>
+                 <div>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Tag size={13}/> PAYMENT SCREENSHOT
                     </div>
-                 )}
+                    {selectedDonation.screenshot ? (
+                      <div 
+                        onClick={() => window.open(selectedDonation.screenshot)} 
+                        style={{ border: '2px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: '#000', cursor: 'zoom-in', position: 'relative' }}>
+                        <img 
+                          src={selectedDonation.screenshot} 
+                          style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', display: 'block' }} 
+                          alt="Payment Proof"
+                        />
+                        <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600 }}>
+                          🔍 Click to Zoom
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ 
+                        border: '2px dashed #e2e8f0', borderRadius: '16px', 
+                        padding: '3rem 1rem', textAlign: 'center',
+                        background: '#f8fafc', color: '#94a3b8'
+                      }}>
+                        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📷</div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.25rem' }}>No Screenshot Uploaded</div>
+                        <div style={{ fontSize: '0.8rem' }}>Donor did not attach a payment proof</div>
+                      </div>
+                    )}
+                 </div>
 
                  <div style={{ marginTop: 'auto', display: 'flex', gap: '1rem' }}>
                     {selectedDonation.paymentStatus === 'Pending' && (
