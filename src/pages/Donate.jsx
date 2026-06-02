@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Heart, Building2, Utensils, Sprout, ShieldCheck, QrCode, CheckCircle2, Upload } from 'lucide-react';
-import qrCode from '../assets/donation_qr.png';
+import qrCode from '../assets/donation_qr.jpeg';
 import { api } from '../services/api';
 
 const Donate = () => {
-  const [step, setStep] = useState(1); 
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -99,28 +99,28 @@ const Donate = () => {
               <form onSubmit={handleNext}>
                 <h3 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Step 1: Your Details</h3>
                 <div style={{ marginBottom: '1.5rem' }}>
-                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Donation Type</label>
-                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Donation Type</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     {causes.map(c => (
-                      <div key={c.id} onClick={() => setForm({...form, category: c.id})} style={{ padding: '0.75rem', border: `2px solid ${form.category === c.id ? 'var(--color-primary)' : 'var(--border-color)'}`, borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', background: form.category === c.id ? 'var(--color-primary-alpha)' : 'transparent' }}>
+                      <div key={c.id} onClick={() => setForm({ ...form, category: c.id })} style={{ padding: '0.75rem', border: `2px solid ${form.category === c.id ? 'var(--color-primary)' : 'var(--border-color)'}`, borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', background: form.category === c.id ? 'var(--color-primary-alpha)' : 'transparent' }}>
                         <div style={{ color: form.category === c.id ? 'var(--color-primary)' : '#666' }}>{c.icon}</div>
                         <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{c.title}</span>
                       </div>
                     ))}
-                   </div>
+                  </div>
                 </div>
                 <div style={{ marginBottom: '1.5rem' }}>
-                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Amount (₹)</label>
-                   <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Amount (₹)</label>
+                  <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
                     {amounts.map(amt => (
-                      <button key={amt} type="button" onClick={() => setForm({...form, amount: amt})} style={{ flex: 1, padding: '0.6rem', borderRadius: 'var(--radius-sm)', border: `2px solid ${form.amount === amt ? 'var(--color-primary)' : 'var(--border-color)'}`, background: form.amount === amt ? 'var(--color-primary)' : 'transparent', color: form.amount === amt ? 'white' : 'inherit', fontWeight: 600 }}>{amt}</button>
+                      <button key={amt} type="button" onClick={() => setForm({ ...form, amount: amt })} style={{ flex: 1, padding: '0.6rem', borderRadius: 'var(--radius-sm)', border: `2px solid ${form.amount === amt ? 'var(--color-primary)' : 'var(--border-color)'}`, background: form.amount === amt ? 'var(--color-primary)' : 'transparent', color: form.amount === amt ? 'white' : 'inherit', fontWeight: 600 }}>{amt}</button>
                     ))}
-                   </div>
-                   <input type="number" placeholder="Other Amount" style={inputStyle} value={form.amount} onChange={(e) => setForm({...form, amount: e.target.value})} />
+                  </div>
+                  <input type="number" placeholder="Other Amount" style={inputStyle} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                  <input type="text" placeholder="Name" required style={inputStyle} value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-                  <input type="tel" placeholder="Mobile" required style={inputStyle} value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                  <input type="text" placeholder="Name" required style={inputStyle} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+                  <input type="tel" placeholder="Mobile" required style={inputStyle} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem' }}>Next: Scan & Pay</button>
               </form>
@@ -135,10 +135,10 @@ const Donate = () => {
                 </div>
                 <div style={{ marginBottom: '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>UTR / Transaction ID</label>
-                  <input type="text" required placeholder="Enter Transaction ID" style={inputStyle} value={form.utr} onChange={e => setForm({...form, utr: e.target.value})} />
+                  <input type="text" required placeholder="Enter Transaction ID" style={inputStyle} value={form.utr} onChange={e => setForm({ ...form, utr: e.target.value })} />
                 </div>
                 <div style={{ marginBottom: '2rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}><Upload size={18}/> Upload Screenshot</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}><Upload size={18} /> Upload Screenshot</label>
                   <input type="file" accept="image/*" onChange={handleFileChange} style={inputStyle} />
                   {form.screenshot && <p style={{ fontSize: '0.8rem', color: 'green', marginTop: '0.5rem' }}>Photo selected ✓</p>}
                 </div>
