@@ -1,10 +1,11 @@
-import React from 'react';
+import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText, Menu } from 'lucide-react';
 import logo from '../assets/logo.png';
 import './Admin.css';
 
 const AdminLayout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,6 +19,7 @@ const AdminLayout = () => {
   const menu = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
     { name: 'Users', path: '/admin/users', icon: <Users size={20} /> },
+    { name: 'Trust Management', path: '/admin/trust-management', icon: <Users size={20} /> },
     { name: 'Donations', path: '/admin/donations', icon: <Heart size={20} /> },
     { name: 'Events', path: '/admin/events', icon: <Calendar size={20} /> },
     { name: 'News', path: '/admin/news', icon: <Newspaper size={20} /> },
@@ -28,7 +30,13 @@ const AdminLayout = () => {
 
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar" style={{ width: '280px' }}>
+      <button
+        className={`admin-sidebar-backdrop ${isSidebarOpen ? 'show' : ''}`}
+        type="button"
+        aria-label="Close admin navigation"
+        onClick={() => setIsSidebarOpen(false)}
+      />
+      <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`} style={{ width: '280px' }}>
         <div className="admin-logo">
           <img src={logo} alt="Logo" style={{ height: '110px', width: '110px', borderRadius: '50%', objectFit: 'cover' }} />
         </div>
@@ -38,6 +46,7 @@ const AdminLayout = () => {
               key={item.path}
               to={item.path}
               className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`}
+              onClick={() => setIsSidebarOpen(false)}
             >
               {item.icon} {item.name}
             </Link>
@@ -52,7 +61,15 @@ const AdminLayout = () => {
 
       <main className="admin-main">
         <header className="admin-header glass">
-          <div>
+          <div className="admin-header-left">
+            <button
+              className="admin-menu-btn"
+              type="button"
+              aria-label="Open admin navigation"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={22} />
+            </button>
             <h2 style={{ fontSize: '1.25rem' }}>Admin Portal</h2>
           </div>
           <div className="admin-profile">

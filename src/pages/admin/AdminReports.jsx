@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Download, FileText, PieChart, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Download, PieChart, TrendingUp } from 'lucide-react';
 import { api } from '../../services/api';
 
 const AdminReports = () => {
@@ -19,7 +19,7 @@ const AdminReports = () => {
 
   return (
     <div className="reports-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+      <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>Trust Reports</h1>
           <p className="text-light">Analyze donations and activities.</p>
@@ -29,7 +29,7 @@ const AdminReports = () => {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
         <div className="content-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <div style={{ background: 'var(--color-primary-alpha)', p: '0.5rem', borderRadius: '4px' }}><PieChart size={24} color="var(--color-primary)" /></div>
@@ -51,7 +51,7 @@ const AdminReports = () => {
             <div style={{ background: 'var(--color-primary-alpha)', p: '0.5rem', borderRadius: '4px' }}><TrendingUp size={24} color="var(--color-primary)" /></div>
             <h3 style={{ margin: 0 }}>Trust Activity Summary</h3>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ padding: '1.5rem', textAlign: 'center', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
               <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Total Devotees</p>
               <h2 style={{ margin: 0 }}>{data.counts.users}</h2>

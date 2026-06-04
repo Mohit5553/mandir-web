@@ -1,81 +1,83 @@
-// Configuration for API Endpoints
+// Configuration for API endpoints.
 const RENDER_URL = 'https://mandir-backend-8pc7.onrender.com/api';
 const LOCAL_URL = 'http://localhost:5000/api';
 
-// Default to Render, but we will detect local automatically
-let API_BASE = RENDER_URL;
+const isLocalFrontend = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const isCapacitorApp = Boolean(window.Capacitor);
 
-/**
- * Fast check to see if local backend is running.
- * If successful, we switch the base URL to local.
- */
-const detectBackend = async () => {
-    if (window.location.hostname === 'localhost') {
-        try {
-            // Quick ping to check if local server is alive
-            const response = await fetch(`${LOCAL_URL}/stats/dashboard`, { method: 'GET' });
-            if (response.ok) {
-                console.log('🔌 Local Backend Detected - Using http://localhost:5000');
-                API_BASE = LOCAL_URL;
-                return LOCAL_URL;
-            }
-        } catch (err) {
-            console.log('🌐 Local Backend not found - Falling back to Render');
-        }
-    }
-    return RENDER_URL;
-};
-
-// Initialize detection
-detectBackend();
+// Browser localhost uses local backend; Android/iOS Capacitor builds use Render.
+const API_BASE = import.meta.env.VITE_USE_LOCAL_API === 'true' || (isLocalFrontend && !isCapacitorApp) ? LOCAL_URL : RENDER_URL;
 
 const getAuthHeaders = () => {
-    return { 'Content-Type': 'application/json' };
+  return { 'Content-Type': 'application/json' };
 };
 
 export const api = {
-    // Shared fetch wrapper to always use the latest detected BASE_URL
-    call: async (endpoint, options = {}) => {
-        // If it's the first time on localhost, we might want to wait for detection
-        // but for simplicity, we use the variable that gets updated
-        return fetch(`${API_BASE}${endpoint}`, options).then(r => r.json());
-    },
+  call: async (endpoint, options = {}) => {
+    let response;
 
-    // Auth
-    login: (data) => api.call('/auth/login', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    register: (data) => api.call('/auth/register', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    getUsers: () => api.call('/auth/'),
-    updateUser: (id, data) => api.call(`/auth/users/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    deleteUser: (id) => api.call(`/auth/users/${id}`, { method: 'DELETE' }),
+    try {
+      response = await fetch(`${API_BASE}${endpoint}`, options);
+    } catch (error) {
+      return { message: `Unable to connect to API server: ${error.message}` };
+    }
 
-    // Events
-    getEvents: () => api.call('/events'),
-    createEvent: (data) => api.call('/events', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    updateEvent: (id, data) => api.call(`/events/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    deleteEvent: (id) => api.call(`/events/${id}`, { method: 'DELETE' }),
+    const text = await response.text();
 
-    // News
-    getNews: () => api.call('/news'),
-    createNews: (data) => api.call('/news', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    updateNews: (id, data) => api.call(`/news/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    deleteNews: (id) => api.call(`/news/${id}`, { method: 'DELETE' }),
+    try {
+      const data = text ? JSON.parse(text) : {};
+      return response.ok ? data : { message: data.message || `Request failed with status ${response.status}` };
+    } catch {
+      return { message: `Request failed with status ${response.status}` };
+    }
+  },
 
-    // Donations
-    getDonations: () => api.call('/donations'),
-    createDonation: (data) => api.call('/donations/create-order', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    updateDonationStatus: (id, status) => api.call(`/donations/status/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ status }) }),
+  // Auth
+  login: (data) => api.call('/auth/login', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  register: (data) => api.call('/auth/register', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  getUsers: () => api.call('/auth/'),
+  updateUser: (id, data) => api.call(`/auth/users/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteUser: (id) => api.call(`/auth/users/${id}`, { method: 'DELETE' }),
 
-    // Gallery
-    getGallery: () => api.call('/gallery'),
-    addGalleryItem: (data) => api.call('/gallery', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    deleteGalleryItem: (id) => api.call(`/gallery/${id}`, { method: 'DELETE' }),
+  // Events
+  getEvents: () => api.call('/events'),
+  createEvent: (data) => api.call('/events', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateEvent: (id, data) => api.call(`/events/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteEvent: (id) => api.call(`/events/${id}`, { method: 'DELETE' }),
 
-    // Stats & Dashboard
-    getDashboardStats: () => api.call('/stats/dashboard'),
+  // News
+  getNews: () => api.call('/news'),
+  createNews: (data) => api.call('/news', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateNews: (id, data) => api.call(`/news/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteNews: (id) => api.call(`/news/${id}`, { method: 'DELETE' }),
 
-    // Notifications & Contact
-    getNotifications: () => api.call('/notifications'),
-    sendNotification: (data) => api.call('/notifications', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    sendContact: (data) => api.call('/contact', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
-    getContactMessages: () => api.call('/contact'),
+  // Donations
+  getDonations: () => api.call('/donations'),
+  createDonation: (data) => api.call('/donations/create-order', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  createAdminDonation: (data) => api.call('/donations/admin-create', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateDonationStatus: (id, status) => api.call(`/donations/status/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ status }) }),
+  sendDonationReceipt: (id) => api.call(`/donations/${id}/send-receipt`, { method: 'POST', headers: getAuthHeaders() }),
+
+  // Gallery
+  getGallery: () => api.call('/gallery'),
+  addGalleryItem: (data) => api.call('/gallery', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteGalleryItem: (id) => api.call(`/gallery/${id}`, { method: 'DELETE' }),
+
+  // Trust Management
+  getTrustManagement: () => api.call('/trust-management'),
+  addTrustCategory: (data) => api.call('/trust-management/categories', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateTrustCategory: (id, data) => api.call(`/trust-management/categories/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteTrustCategory: (id) => api.call(`/trust-management/categories/${id}`, { method: 'DELETE' }),
+  addTrustMember: (data) => api.call('/trust-management/members', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateTrustMember: (id, data) => api.call(`/trust-management/members/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteTrustMember: (id) => api.call(`/trust-management/members/${id}`, { method: 'DELETE' }),
+
+  // Stats & Dashboard
+  getDashboardStats: () => api.call('/stats/dashboard'),
+
+  // Notifications & Contact
+  getNotifications: () => api.call('/notifications'),
+  sendNotification: (data) => api.call('/notifications', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  sendContact: (data) => api.call('/contact', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  getContactMessages: () => api.call('/contact'),
 };

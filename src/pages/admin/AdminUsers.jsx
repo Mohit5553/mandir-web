@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { UserPlus, Trash2, Edit2, X } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -15,6 +15,7 @@ const AdminUsers = () => {
       .finally(() => setLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchUsers(); }, []);
 
   const handleSubmit = async (e) => {
@@ -46,7 +47,7 @@ const AdminUsers = () => {
     try {
       await api.deleteUser(id);
       fetchUsers();
-    } catch (error) {
+    } catch {
       alert('Delete failed');
     }
   };
@@ -55,7 +56,7 @@ const AdminUsers = () => {
     <div>
       <h1 style={{ marginBottom: '2rem' }}>User Management</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem' }}>
         <div className="content-card" style={{ height: 'fit-content', position: 'sticky', top: '100px' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {editingId ? <Edit2 size={20} /> : <UserPlus size={20} />}
@@ -99,7 +100,7 @@ const AdminUsers = () => {
           </form>
         </div>
 
-        <div className="content-card">
+        <div className="content-card table-scroll">
           <h3 style={{ marginBottom: '1.5rem' }}>All Team Members ({users.length})</h3>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>

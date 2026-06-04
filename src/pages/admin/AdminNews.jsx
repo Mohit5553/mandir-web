@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, Image as ImageIcon, Video, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, Edit2, X, FileText } from 'lucide-react';
 import { api } from '../../services/api';
 
 const AdminNews = () => {
@@ -69,7 +69,7 @@ const AdminNews = () => {
     <div>
       <h1 style={{ marginBottom: '2rem' }}>News Management (Full CRUD)</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem' }}>
         <div className="content-card" style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {editingId ? <Edit2 size={20} color="var(--color-primary)" /> : <Plus size={20} />}
@@ -113,7 +113,7 @@ const AdminNews = () => {
           <h3 style={{ marginBottom: '1.5rem' }}>Published News ({news.length})</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
             {news.map(item => (
-              <div key={item._id} className="news-item-row" style={{ display: 'flex', gap: '1.5rem', padding: '1.2rem', border: '1px solid var(--border-color)', borderRadius: '12px', transition: '0.2s' }}>
+              <div key={item._id} className="news-item-row responsive-row" style={{ display: 'flex', gap: '1.5rem', padding: '1.2rem', border: '1px solid var(--border-color)', borderRadius: '12px', transition: '0.2s' }}>
                 <div style={{ width: '100px', height: '100px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9' }}>
                    {item.images?.[0] ? <img src={item.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText color="#94a3b8" /></div>}
                 </div>

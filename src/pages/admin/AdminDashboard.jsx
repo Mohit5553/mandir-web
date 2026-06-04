@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, Users, Newspaper, Calendar, ArrowUpRight } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -16,6 +16,7 @@ const AdminDashboard = () => {
       .catch(err => console.error('Error fetching dashboard stats:', err));
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchStats(); }, []);
 
   if (loading || !stats) return <div className="p-4">Loading dashboard statistics...</div>;
@@ -33,7 +34,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="dashboard">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+      <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.2rem' }}>Dashboard Overview</h1>
           <p className="text-light">Welcome back, Super Admin</p>
@@ -41,7 +42,7 @@ const AdminDashboard = () => {
         <button onClick={fetchStats} className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>Refresh Data</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+      <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
         {topCards.map((card, idx) => (
           <div key={idx} className="content-card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem' }}>
             <div style={{ background: card.color, width: '50px', height: '50px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -55,7 +56,7 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
+      <div className="admin-dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
         <div className="content-card">
           <h3 style={{ marginBottom: '1.5rem' }}>Donation by Category (INR)</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
              </div>
              <div style={{ padding: '1rem', border: '1px solid #f0f0f0', borderRadius: '12px' }}>
                 <p style={{ fontSize: '0.9rem', marginBottom: '1rem', color: '#666' }}>Post new temple news or organize a religious event.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <a href="/admin/news" className="btn btn-outline" style={{ textAlign: 'center', textDecoration: 'none', fontSize: '0.85rem' }}>News</a>
                   <a href="/admin/events" className="btn btn-outline" style={{ textAlign: 'center', textDecoration: 'none', fontSize: '0.85rem' }}>Events</a>
                 </div>

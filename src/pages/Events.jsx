@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, MapPin, Clock } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Calendar as CalendarIcon, MapPin, Search, X } from 'lucide-react';
 import { api } from '../services/api';
 
 const fallbackEvents = [
@@ -11,6 +11,8 @@ const fallbackEvents = [
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [timeFilter, setTimeFilter] = useState('all');
 
   useEffect(() => {
     api.getEvents()
@@ -21,6 +23,26 @@ const Events = () => {
       .catch(() => setEvents(fallbackEvents))
       .finally(() => setLoading(false));
   }, []);
+
+  const filteredEvents = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return events.filter((event) => {
+      const searchable = `${event.title || ''} ${event.location || ''} ${event.description || ''}`.toLowerCase();
+      const matchesSearch = !term || searchable.includes(term);
+      const isDaily = event.date === 'Everyday';
+      const eventDate = isDaily ? null : new Date(event.date);
+      const isUpcoming = isDaily || (eventDate instanceof Date && !Number.isNaN(eventDate.getTime()) && eventDate >= today);
+      const isPast = !isDaily && eventDate instanceof Date && !Number.isNaN(eventDate.getTime()) && eventDate < today;
+
+      if (timeFilter === 'upcoming') return matchesSearch && isUpcoming;
+      if (timeFilter === 'past') return matchesSearch && isPast;
+      if (timeFilter === 'daily') return matchesSearch && isDaily;
+      return matchesSearch;
+    });
+  }, [events, query, timeFilter]);
 
   return (
     <div className="events-page">
@@ -35,12 +57,38 @@ const Events = () => {
 
       <section className="section">
         <div className="container">
+          <div className="filter-panel" style={{ maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto' }}>
+            <div style={{ position: 'relative' }}>
+              <Search size={18} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
+              <input
+                className="filter-input"
+                type="search"
+                placeholder="Search events, location, or details"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={{ paddingLeft: '2.5rem' }}
+              />
+            </div>
+            <select className="filter-select" value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
+              <option value="all">All events</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="daily">Daily events</option>
+              <option value="past">Past events</option>
+            </select>
+            <button className="btn btn-outline" type="button" onClick={() => { setQuery(''); setTimeFilter('all'); }}>
+              <X size={16} /> Clear
+            </button>
+            <div className="filter-count">{filteredEvents.length} events found</div>
+          </div>
+
           {loading ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-light)' }}>Loading events...</div>
+          ) : filteredEvents.length === 0 ? (
+            <div className="empty-state" style={{ maxWidth: '900px', margin: '0 auto' }}>No events found. Try another search or filter.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '900px', margin: '0 auto' }}>
-              {events.map(event => (
-                <div key={event._id} className="content-card" style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+              {filteredEvents.map(event => (
+                <div key={event._id} className="content-card responsive-row" style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
                   <div style={{ background: 'var(--color-primary-alpha)', padding: '1.5rem', borderRadius: 'var(--radius-md)', textAlign: 'center', minWidth: '100px' }}>
                     <CalendarIcon size={32} color="var(--color-primary)" style={{ marginBottom: '0.5rem' }} />
                     <div style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.85rem' }}>

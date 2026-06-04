@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard } from 'lucide-react';
 import logo from '../assets/logo.png';
+import LanguageToggle from './LanguageToggle';
 import './Layout.css';
 
 const Layout = () => {
@@ -38,6 +39,7 @@ const Layout = () => {
             <Link to="/donate" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>
               <Heart size={18} /> Donate Now
             </Link>
+            <LanguageToggle onSelect={() => setIsMenuOpen(false)} />
             {adminUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '1rem' }}>
                 <Link to="/admin" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem' }} onClick={() => setIsMenuOpen(false)}>
@@ -63,6 +65,19 @@ const Layout = () => {
       <main className="main-content">
         <Outlet />
       </main>
+
+      <a
+        className="whatsapp-float"
+        href="https://wa.me/919792939973?text=Namaste%2C%20I%20want%20to%20contact%20Shree%20Manvat%20Baba%20Mahashiv%20Mandir%20Trust."
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+        title="Chat on WhatsApp"
+      >
+        <svg viewBox="0 0 32 32" aria-hidden="true" className="whatsapp-logo">
+          <path d="M16.04 3.2c-7.03 0-12.75 5.65-12.75 12.61 0 2.23.6 4.41 1.74 6.32L3.2 28.8l6.86-1.79a12.93 12.93 0 0 0 5.98 1.5c7.03 0 12.75-5.65 12.75-12.61S23.07 3.2 16.04 3.2Zm0 22.96c-1.88 0-3.72-.5-5.33-1.46l-.38-.22-4.07 1.06 1.09-3.92-.25-.4a10.19 10.19 0 0 1-1.58-5.41c0-5.68 4.72-10.3 10.52-10.3s10.52 4.62 10.52 10.3-4.72 10.35-10.52 10.35Zm5.77-7.72c-.32-.16-1.88-.92-2.17-1.02-.29-.11-.5-.16-.71.16-.21.31-.81 1.02-.99 1.23-.18.21-.37.24-.69.08-.32-.16-1.34-.49-2.55-1.55-.94-.83-1.58-1.85-1.76-2.16-.18-.31-.02-.48.14-.64.14-.14.32-.37.48-.55.16-.18.21-.31.32-.52.11-.21.05-.39-.03-.55-.08-.16-.71-1.69-.97-2.32-.26-.61-.52-.53-.71-.54h-.61c-.21 0-.55.08-.84.39-.29.31-1.1 1.07-1.1 2.6s1.13 3.02 1.29 3.23c.16.21 2.22 3.35 5.38 4.7.75.32 1.34.51 1.8.65.76.24 1.45.21 1.99.13.61-.09 1.88-.76 2.15-1.5.26-.73.26-1.36.18-1.5-.08-.13-.29-.21-.61-.37Z" />
+        </svg>
+      </a>
       
       <footer className="footer bg-primary text-inverse">
         <div className="container footer-content">

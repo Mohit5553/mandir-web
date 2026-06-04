@@ -1,12 +1,36 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Check, X, Eye, Phone, MessageSquare, Share2, Printer, Calendar, Hash, Tag, IndianRupee, ShieldCheck, LayoutDashboard } from 'lucide-react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { Check, X, Eye, Phone, Share2, Printer, Calendar, Tag, ShieldCheck, LayoutDashboard, Search, Plus, Banknote, QrCode, Mail, Upload, Camera } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import qrCode from '../../assets/donation_qr.jpeg';
 import { api } from '../../services/api';
+
+const donationCategories = ['General Donation', 'Construction Fund', 'Annadan', 'Gau Seva'];
+const initialAdminForm = {
+  name: '',
+  email: '',
+  phone: '',
+  amount: '',
+  category: 'General Donation',
+  paymentMode: 'Cash',
+  utr: '',
+  screenshot: ''
+};
 
 const AdminDonations = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [adminForm, setAdminForm] = useState(initialAdminForm);
   const [selectedDonation, setSelectedDonation] = useState(null);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState('');
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
   const receiptRef = useRef();
 
   const fetchDonations = () => {
@@ -16,20 +40,192 @@ const AdminDonations = () => {
       .finally(() => setLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchDonations(); }, []);
 
   const handleUpdateStatus = async (id, status) => {
     if (!window.confirm(`Are you sure you want to ${status} this donation?`)) return;
     try {
-      await api.updateDonationStatus(id, status);
+      const updatedDonation = await api.updateDonationStatus(id, status);
       fetchDonations();
-    } catch (error) {
+      if (status === 'Approved') {
+        if (updatedDonation?.receiptEmail?.sent) {
+          alert('Donation approved and receipt email sent to customer.');
+        } else if (updatedDonation?.receiptEmail?.reason) {
+          alert(`Donation approved, but receipt email was not sent: ${updatedDonation.receiptEmail.reason}`);
+        } else if (updatedDonation?.receiptEmail?.error) {
+          alert(`Donation approved, but receipt email failed: ${updatedDonation.receiptEmail.error}`);
+        }
+      }
+    } catch {
       alert('Error updating status');
+    }
+  };
+
+  const handleSendReceipt = async (donation) => {
+    if (!donation.email) {
+      alert('This donation has no customer email address.');
+      return;
+    }
+
+    try {
+      const result = await api.sendDonationReceipt(donation._id);
+      if (result?.receiptEmail?.sent) {
+        alert(`Receipt email sent to ${donation.email}.`);
+      } else if (result?.receiptEmail?.reason) {
+        alert(`Receipt email was not sent: ${result.receiptEmail.reason}`);
+      } else if (result?.receiptEmail?.error) {
+        alert(`Receipt email failed: ${result.receiptEmail.error}`);
+      } else {
+        alert(result?.message || 'Receipt email was not sent.');
+      }
+    } catch {
+      alert('Error sending receipt email.');
+    }
+  };
+
+  const resetAdminForm = () => {
+    setAdminForm(initialAdminForm);
+    setShowCreateModal(false);
+    closeCamera();
+  };
+
+  const handleAdminScreenshotChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAdminForm((current) => ({ ...current, screenshot: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
+
+  const openCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError('Camera is not supported in this browser.');
+      return;
+    }
+
+    setCameraError('');
+    setCameraOpen(true);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+    } catch (error) {
+      setCameraError(error.name === 'NotAllowedError' ? 'Please allow camera permission and try again.' : 'Unable to open camera. Please use Upload instead.');
+      setCameraOpen(false);
+      stopCamera();
+    }
+  };
+
+  const closeCamera = () => {
+    stopCamera();
+    setCameraOpen(false);
+  };
+
+  const captureAdminScreenshot = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    setAdminForm((current) => ({ ...current, screenshot: canvas.toDataURL('image/jpeg', 0.9) }));
+    closeCamera();
+  };
+
+  const handleCreateDonation = async (e) => {
+    e.preventDefault();
+
+    if (adminForm.paymentMode === 'UPI' && !adminForm.utr.trim() && !adminForm.screenshot) {
+      alert('Please enter UTR / Transaction ID or upload/capture payment screenshot for UPI donation.');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const response = await api.createAdminDonation({
+        ...adminForm,
+        amount: Number(adminForm.amount)
+      });
+
+      if (response?.message) {
+        alert(response.message);
+        return;
+      }
+
+      if (response?.receiptEmail?.sent) {
+        alert(`Donation saved and receipt email sent to ${response.email}.`);
+      } else if (response?.receiptEmail?.reason) {
+        alert(`Donation saved, but receipt email was not sent: ${response.receiptEmail.reason}`);
+      } else if (response?.receiptEmail?.error) {
+        alert(`Donation saved, but receipt email failed: ${response.receiptEmail.error}`);
+      } else {
+        alert('Donation saved.');
+      }
+
+      resetAdminForm();
+      fetchDonations();
+    } catch {
+      alert('Error creating donation');
+    } finally {
+      setCreating(false);
     }
   };
 
   const statusColor = { Approved: '#166534', Pending: '#92400e', Rejected: '#b91c1c' };
   const statusBg = { Approved: '#dcfce7', Pending: '#fef3c7', Rejected: '#fee2e2' };
+
+  const categories = useMemo(() => {
+    return [...new Set(donations.map((d) => d.category).filter(Boolean))];
+  }, [donations]);
+
+  const filteredDonations = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const last7 = new Date(today);
+    last7.setDate(today.getDate() - 7);
+    const last30 = new Date(today);
+    last30.setDate(today.getDate() - 30);
+
+    return donations.filter((d) => {
+      const searchable = `${d.name || ''} ${d.email || ''} ${d.phone || ''} ${d.utr || ''} ${d.category || ''} ${d.paymentMode || ''} ${d.amount || ''}`.toLowerCase();
+      const created = new Date(d.createdAt);
+      const matchesSearch = !term || searchable.includes(term);
+      const matchesStatus = statusFilter === 'All' || d.paymentStatus === statusFilter;
+      const matchesCategory = categoryFilter === 'All' || d.category === categoryFilter;
+      const matchesDate =
+        dateFilter === 'all' ||
+        (dateFilter === 'today' && created >= today) ||
+        (dateFilter === '7days' && created >= last7) ||
+        (dateFilter === '30days' && created >= last30);
+
+      return matchesSearch && matchesStatus && matchesCategory && matchesDate;
+    });
+  }, [donations, query, statusFilter, categoryFilter, dateFilter]);
 
   const handlePrint = () => {
     const receiptId = selectedDonation._id.slice(-8).toUpperCase();
@@ -132,7 +328,7 @@ const AdminDonations = () => {
                 </div>
                 <div class="meta-box" style="text-align: right;">
                     <h4>Payment Mode</h4>
-                    <p>Online (UPI)</p>
+                    <p>${selectedDonation.paymentMode || 'UPI'}</p>
                 </div>
             </div>
 
@@ -140,6 +336,7 @@ const AdminDonations = () => {
                 <thead>
                     <tr>
                         <th>Donor Name</th>
+                        <th>Email</th>
                         <th>Category</th>
                         <th>Transaction ID (UTR)</th>
                         <th style="text-align: right;">Amount</th>
@@ -148,6 +345,7 @@ const AdminDonations = () => {
                 <tbody>
                     <tr>
                         <td>${selectedDonation.name}</td>
+                        <td>${selectedDonation.email || 'N/A'}</td>
                         <td>${selectedDonation.category}</td>
                         <td style="font-family: monospace;">${selectedDonation.utr || 'N/A'}</td>
                         <td style="text-align: right; font-weight: 800;">₹ ${selectedDonation.amount}</td>
@@ -163,7 +361,7 @@ const AdminDonations = () => {
             <div class="footer">
                 <div class="legal">
                     <p>Contact: +91 9792939973</p>
-                    <p>Email: mandirtrust@gmail.com</p>
+                    <p>Email: mahashivmandirtrusts@gmail.com</p>
                     <p style="margin-top: 20px;">* This is an electronically generated document.<br/>No hand signature is required for verification.</p>
                 </div>
                 <div class="signature-box">
@@ -189,24 +387,66 @@ const AdminDonations = () => {
 
   return (
     <div className="admin-donations">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+      <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Donation Management</h1>
           <p style={{ color: '#64748b' }}>Manage and verify trust contributions</p>
         </div>
-        <button onClick={fetchDonations} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            Refresh Data
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <button onClick={() => setShowCreateModal(true)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Plus size={18} /> Create Donation
+          </button>
+          <button onClick={fetchDonations} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Refresh Data
+          </button>
+        </div>
       </div>
 
-      <div className="content-card" style={{ overflowX: 'auto', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+      <div className="filter-panel">
+        <div style={{ position: 'relative' }}>
+          <Search size={18} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
+          <input
+            className="filter-input"
+            type="search"
+            placeholder="Search donor, email, phone, UTR, category, payment, amount"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={{ paddingLeft: '2.5rem' }}
+          />
+        </div>
+        <select className="filter-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="All">All status</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <select className="filter-select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <option value="All">All categories</option>
+          {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+        </select>
+        <select className="filter-select" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
+          <option value="all">Any date</option>
+          <option value="today">Today</option>
+          <option value="7days">Last 7 days</option>
+          <option value="30days">Last 30 days</option>
+        </select>
+        <button className="btn btn-outline" type="button" onClick={() => { setQuery(''); setStatusFilter('All'); setCategoryFilter('All'); setDateFilter('all'); }}>
+          <X size={16} /> Clear
+        </button>
+        <div className="filter-count">{filteredDonations.length} donations found</div>
+      </div>
+
+      <div className="content-card table-scroll" style={{ overflowX: 'auto', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
         {loading ? (
           <div style={{ padding: '4rem', textAlign: 'center', color: '#94a3b8' }}>Loading contributions...</div>
+        ) : filteredDonations.length === 0 ? (
+          <div className="empty-state">No donations match your search or filters.</div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 0.5rem' }}>
             <thead>
               <tr style={{ textAlign: 'left', color: '#64748b', fontSize: '0.9rem' }}>
                 <th style={{ padding: '1rem' }}>DONOR</th>
+                <th style={{ padding: '1rem' }}>EMAIL</th>
                 <th style={{ padding: '1rem' }}>UTR / TRANS ID</th>
                 <th style={{ padding: '1rem' }}>AMOUNT</th>
                 <th style={{ padding: '1rem' }}>STATUS</th>
@@ -214,7 +454,7 @@ const AdminDonations = () => {
               </tr>
             </thead>
             <tbody>
-              {donations.map(d => (
+              {filteredDonations.map(d => (
                 <tr key={d._id} style={{ background: '#fff' }}>
                   <td style={{ padding: '1.25rem 1rem' }}>
                     <div style={{ fontWeight: 700, fontSize: '1rem' }}>{d.name}</div>
@@ -223,8 +463,11 @@ const AdminDonations = () => {
                     </div>
                   </td>
                   <td style={{ padding: '1rem' }}>
+                    <div style={{ fontWeight: 600, color: '#334155', wordBreak: 'break-word' }}>{d.email || 'N/A'}</div>
+                  </td>
+                  <td style={{ padding: '1rem' }}>
                     <div style={{ fontWeight: 600, color: 'var(--color-primary)', fontFamily: 'monospace' }}>{d.utr || 'N/A'}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{new Date(d.createdAt).toLocaleDateString()}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{d.paymentMode || 'UPI'} | {new Date(d.createdAt).toLocaleDateString()}</div>
                   </td>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem' }}>₹{d.amount?.toLocaleString('en-IN')}</div>
@@ -258,6 +501,15 @@ const AdminDonations = () => {
                           </button>
                         </>
                       )}
+                      {d.paymentStatus === 'Approved' && (
+                        <button
+                          onClick={() => handleSendReceipt(d)}
+                          title="Send receipt email"
+                          style={{ background: '#fff7ed', color: 'var(--color-primary)', border: '1px solid #fed7aa', borderRadius: '8px', padding: '0.5rem 0.75rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                        >
+                          <Mail size={14}/> Send Mail
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -266,6 +518,154 @@ const AdminDonations = () => {
           </table>
         )}
       </div>
+
+      {showCreateModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.72)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1.5rem', backdropFilter: 'blur(4px)' }}>
+          <div className="content-card" style={{ width: '100%', maxWidth: '760px', maxHeight: '90vh', overflowY: 'auto', padding: 0, borderRadius: '20px', border: 'none' }}>
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 2 }}>
+              <div>
+                <h3 style={{ margin: 0 }}>Create Donation</h3>
+                <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>Record an offline trust contribution</p>
+              </div>
+              <button onClick={resetAdminForm} type="button" style={{ border: 'none', background: '#f1f5f9', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDonation} style={{ padding: '1.5rem', display: 'grid', gap: '1.25rem' }}>
+              <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  Donor Name
+                  <input required className="form-input" value={adminForm.name} onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })} placeholder="Enter donor name" />
+                </label>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  Email
+                  <input className="form-input" type="email" value={adminForm.email} onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })} placeholder="Enter email address" />
+                </label>
+              </div>
+
+              <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  Mobile Number
+                  <input required className="form-input" type="tel" value={adminForm.phone} onChange={(e) => setAdminForm({ ...adminForm, phone: e.target.value })} placeholder="Enter mobile number" />
+                </label>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  Amount
+                  <input required className="form-input" type="number" min="1" value={adminForm.amount} onChange={(e) => setAdminForm({ ...adminForm, amount: e.target.value })} placeholder="Enter amount" />
+                </label>
+              </div>
+
+              <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  Category
+                  <select required className="form-input" value={adminForm.category} onChange={(e) => setAdminForm({ ...adminForm, category: e.target.value })}>
+                    {donationCategories.map((category) => <option key={category} value={category}>{category}</option>)}
+                  </select>
+                </label>
+              </div>
+
+              <div>
+                <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.6rem' }}>Payment Mode</div>
+                <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  {[
+                    { mode: 'Cash', icon: <Banknote size={20} /> },
+                    { mode: 'UPI', icon: <QrCode size={20} /> }
+                  ].map((item) => (
+                    <button
+                      key={item.mode}
+                      type="button"
+                      onClick={() => setAdminForm({
+                        ...adminForm,
+                        paymentMode: item.mode,
+                        utr: item.mode === 'Cash' ? '' : adminForm.utr,
+                        screenshot: item.mode === 'Cash' ? '' : adminForm.screenshot
+                      })}
+                      style={{
+                        minHeight: '54px',
+                        border: `2px solid ${adminForm.paymentMode === item.mode ? 'var(--color-primary)' : 'var(--border-color)'}`,
+                        background: adminForm.paymentMode === item.mode ? 'var(--color-primary-alpha)' : '#fff',
+                        color: adminForm.paymentMode === item.mode ? 'var(--color-primary)' : '#334155',
+                        borderRadius: '10px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem'
+                      }}
+                    >
+                      {item.icon} {item.mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {adminForm.paymentMode === 'UPI' && (
+                <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: '1.25rem', alignItems: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem' }}>
+                  <div style={{ background: '#fff', borderRadius: '10px', padding: '0.75rem', display: 'flex', justifyContent: 'center', boxShadow: 'var(--shadow-sm)' }}>
+                    <img src={qrCode} alt="Payment QR" style={{ width: '190px', maxWidth: '100%', borderRadius: '6px' }} />
+                  </div>
+                  <div style={{ display: 'grid', gap: '1rem' }}>
+                    <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                      UTR / Transaction ID
+                      <input className="form-input" value={adminForm.utr} onChange={(e) => setAdminForm({ ...adminForm, utr: e.target.value })} placeholder="Enter UPI transaction ID" />
+                    </label>
+                    <div>
+                      <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Payment Screenshot</div>
+                      <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                        <label className="form-input" style={{ minHeight: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 700, color: '#334155', background: '#fff' }}>
+                          <Upload size={18} /> Upload
+                          <input type="file" accept="image/*" onChange={handleAdminScreenshotChange} style={{ display: 'none' }} />
+                        </label>
+                        <button type="button" onClick={openCamera} className="form-input" style={{ minHeight: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 700, color: 'var(--color-primary)', background: 'var(--color-primary-alpha)', borderColor: 'var(--color-primary)' }}>
+                          <Camera size={18} /> Capture
+                        </button>
+                      </div>
+                      <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.85rem' }}>Enter transaction ID or attach payment proof.</p>
+                      {cameraError && <p style={{ color: '#b91c1c', fontSize: '0.85rem', fontWeight: 600, marginTop: '0.75rem' }}>{cameraError}</p>}
+                      {adminForm.screenshot && (
+                        <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#166534', fontSize: '0.85rem', fontWeight: 700 }}>
+                          <img src={adminForm.screenshot} alt="Selected payment proof" style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #bbf7d0' }} />
+                          Photo selected
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.5rem' }}>
+                <button type="button" onClick={resetAdminForm} className="btn btn-outline">Cancel</button>
+                <button type="submit" disabled={creating} className="btn btn-primary">
+                  {creating ? 'Saving...' : 'Save Donation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {cameraOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.82)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ width: '100%', maxWidth: '560px', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }}>
+            <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
+              <h3 style={{ margin: 0 }}>Capture Screenshot</h3>
+              <button type="button" onClick={closeCamera} style={{ width: '36px', height: '36px', borderRadius: '50%', border: 'none', background: '#f1f5f9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ background: '#020617', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <video ref={videoRef} playsInline muted style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+            <div style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button type="button" onClick={closeCamera} className="btn btn-outline">Cancel</button>
+              <button type="button" onClick={captureAdminScreenshot} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Camera size={18} /> Take Photo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* DETAILED ATTRATIVE MODAL */}
       {selectedDonation && (
@@ -280,23 +680,25 @@ const AdminDonations = () => {
                     </div>
                     <div>
                         <h3 style={{ margin: 0 }}>Donation Details</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Transaction ID: {selectedDonation.utr || 'N/A'}</p>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Payment: {selectedDonation.paymentMode || 'UPI'} | Transaction ID: {selectedDonation.utr || 'N/A'}</p>
                     </div>
                 </div>
                 <button onClick={() => setSelectedDonation(null)} style={{ border: 'none', background: '#f1f5f9', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20}/></button>
             </div>
 
-            <div style={{ padding: '2rem', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
+            <div className="admin-modal-grid" style={{ padding: '2rem', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
               
               {/* Left Column: Full Details */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                 <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                     
                     {[
                       { label: 'Donor Name', val: selectedDonation.name, icon: <LayoutDashboard size={14}/> },
+                      { label: 'Email', val: selectedDonation.email || 'N/A', icon: <Mail size={14}/> },
                       { label: 'Mobile Number', val: selectedDonation.phone, icon: <Phone size={14}/> },
                       { label: 'Donation Date', val: new Date(selectedDonation.createdAt).toLocaleDateString(), icon: <Calendar size={14}/> },
                       { label: 'Category', val: selectedDonation.category, icon: <Tag size={14}/> },
+                      { label: 'Payment Mode', val: selectedDonation.paymentMode || 'UPI', icon: <QrCode size={14}/> },
                     ].map(item => (
                       <div key={item.label}>
                         <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{item.icon} {item.label.toUpperCase()}</div>
@@ -353,8 +755,10 @@ const AdminDonations = () => {
 
                     {[
                         { l: 'Donor', v: selectedDonation.name },
+                        { l: 'Email', v: selectedDonation.email || 'N/A' },
                         { l: 'Contact', v: selectedDonation.phone },
                         { l: 'Category', v: selectedDonation.category },
+                        { l: 'Payment', v: selectedDonation.paymentMode || 'UPI' },
                         { l: 'Trans ID', v: selectedDonation.utr || 'N/A' },
                         { l: 'Date', v: new Date(selectedDonation.createdAt).toLocaleDateString() },
                     ].map(row => (

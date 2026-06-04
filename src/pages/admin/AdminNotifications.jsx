@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Send } from 'lucide-react';
 import { api } from '../../services/api';
 
 const AdminNotifications = () => {
@@ -14,12 +14,25 @@ const AdminNotifications = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await api.sendNotification(form);
-    setSent(`Notification "${form.title}" sent successfully!`);
-    setForm({ title: '', message: '', type: 'General' });
-    await fetchNotifications();
+    const result = await api.sendNotification(form);
+
+    if (result?.emailResult?.sent) {
+      setSent(`Notification "${form.title}" emailed to ${result.emailResult.recipientCount} recipients.`);
+    } else if (result?.emailResult?.reason) {
+      setSent(`Notification saved, but email was not sent: ${result.emailResult.reason}`);
+    } else if (result?.emailResult?.error) {
+      setSent(`Notification saved, but email failed: ${result.emailResult.error}`);
+    } else {
+      setSent(result?.message || `Notification "${form.title}" saved.`);
+    }
+
+    if (!result?.message?.startsWith('Server error')) {
+      setForm({ title: '', message: '', type: 'General' });
+      await fetchNotifications();
+    }
+
     setLoading(false);
-    setTimeout(() => setSent(''), 4000);
+    setTimeout(() => setSent(''), 6000);
   };
 
   const inputStyle = { width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontSize: '1rem', fontFamily: 'inherit' };
@@ -27,7 +40,7 @@ const AdminNotifications = () => {
   return (
     <div>
       <h1 style={{ marginBottom: '2rem' }}>Notification Management</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         <div className="content-card">
           <h3 style={{ marginBottom: '1.5rem' }}>Send New Notification</h3>
           {sent && <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#dcfce7', color: '#166534', borderRadius: 'var(--radius-sm)', fontWeight: 500 }}>{sent}</div>}

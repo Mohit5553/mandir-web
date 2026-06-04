@@ -1,5 +1,4 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import AdminLayout from './components/AdminLayout';
 
@@ -22,6 +21,7 @@ import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminReports from './pages/admin/AdminReports';
 import AdminGallery from './pages/admin/AdminGallery';
+import AdminTrustManagement from './pages/admin/AdminTrustManagement';
 
 // Guard: redirect to login if not authenticated
 const RequireAuth = ({ children }) => {
@@ -30,6 +30,8 @@ const RequireAuth = ({ children }) => {
 };
 
 function App() {
+  const Router = window.Capacitor ? HashRouter : BrowserRouter;
+
   return (
     <Router>
       <Routes>
@@ -56,6 +58,7 @@ function App() {
           <Route path="donations" element={<AdminDonations />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="trust-management" element={<AdminTrustManagement />} />
           <Route path="gallery" element={<AdminGallery />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="*" element={<div className="content-card" style={{textAlign: 'center', padding: '4rem'}}><h3>Module Under Development</h3></div>} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, Users, Newspaper, Calendar, Bell } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -34,7 +34,7 @@ const Dashboard = () => {
         <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-light)' }}>Loading reports...</div>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+          <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
             {stats.map((s, i) => (
               <div key={i} className="stat-card">
                 <div className="stat-icon">{s.icon}</div>
@@ -47,7 +47,7 @@ const Dashboard = () => {
           </div>
 
           {reports?.donations?.categoryBreakdown && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+            <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
               <div className="content-card">
                 <h3 style={{ marginBottom: '1.5rem' }}>Donation by Category</h3>
                 {Object.entries(reports.donations.categoryBreakdown).map(([cat, data]) => (

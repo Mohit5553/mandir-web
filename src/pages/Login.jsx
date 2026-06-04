@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -92,7 +92,7 @@ const Login = () => {
               <input
                 type="email"
                 required
-                placeholder="admin@mandir.com"
+                placeholder="Enter admin email"
                 style={inputStyle}
                 value={form.email}
                 onChange={e => setForm({ ...form, email: e.target.value })}
@@ -138,11 +138,6 @@ const Login = () => {
               {loading ? 'Signing In...' : '🔐 Sign In to Dashboard'}
             </button>
           </form>
-
-          <div style={{ textAlign: 'center', marginTop: '1.5rem', padding: '1rem', background: 'var(--color-primary-alpha)', borderRadius: 'var(--radius-sm)' }}>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', marginBottom: '0.25rem' }}>Default credentials:</p>
-            <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)' }}>admin@mandir.com / mandir123</p>
-          </div>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--color-text-light)', fontSize: '0.9rem' }}>

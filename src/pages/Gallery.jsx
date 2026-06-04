@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Image, Video } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -18,6 +18,7 @@ const Gallery = () => {
 
   useEffect(() => {
     const type = filter === 'all' ? null : filter;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     api.getGallery(type)
       .then(data => {
@@ -41,7 +42,7 @@ const Gallery = () => {
 
       <section className="section">
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '3rem' }}>
+          <div className="responsive-actions" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
             {['all', 'image', 'video'].map(f => (
               <button
                 key={f}
@@ -58,11 +59,20 @@ const Gallery = () => {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-light)' }}>Loading gallery...</div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
-              {media.map(item => (
+            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+              {media.map(item => {
+                const mediaUrl = item.imageUrl || item.url;
+
+                return (
                 <div key={item._id} className="content-card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}>
-                  <div style={{ position: 'relative' }}>
-                    <img src={item.url} alt={item.title} style={{ width: '100%', height: '220px', objectFit: 'cover', display: 'block' }} />
+                  <div style={{ position: 'relative', height: '220px', background: '#fff5ed' }}>
+                    {mediaUrl ? (
+                      <img src={mediaUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    ) : (
+                      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-light)' }}>
+                        <Image size={36} />
+                      </div>
+                    )}
                     {item.type === 'video' && (
                       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'rgba(0,0,0,0.55)', padding: '1rem', borderRadius: '50%', color: 'white' }}>
                         <Video size={28} />
@@ -71,7 +81,8 @@ const Gallery = () => {
                   </div>
                   <div style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>{item.title}</div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

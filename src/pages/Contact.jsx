@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, ShieldCheck, Map as MapIcon } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -49,7 +49,7 @@ const Contact = () => {
       </section>
 
       <section className="section" style={{ background: '#fdfcfb' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '4rem', alignItems: 'start' }}>
+        <div className="container responsive-two-col" style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '4rem', alignItems: 'start' }}>
           
           <div className="content-card" style={{ padding: '2.5rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
@@ -90,7 +90,7 @@ const Contact = () => {
               {[
                 { icon: <MapPin size={24} />, title: 'Location', text: 'Shree Manvat Baba Mahashiv Mandir Trust, Bairampur, Colonelganj, Gonda (U.P.) - 271502' },
                 { icon: <Phone size={24} />, title: 'Direct Reach', text: '+91 9792939973' },
-                { icon: <Mail size={24} />, title: 'Email Info', text: 'mandirtrust@gmail.com' },
+                { icon: <Mail size={24} />, title: 'Email Info', text: 'mahashivmandirtrusts@gmail.com' },
                 { icon: <Clock size={24} />, title: 'Pooja Timings', text: 'Mon-Sun: 05:00 AM – 09:00 PM' },
               ].map(({ icon, title, text }) => (
                 <div key={title} style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.75rem' }}>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Clock, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Trash2, Edit2, X } from 'lucide-react';
 import { api } from '../../services/api';
 
 const AdminEvents = () => {
@@ -61,7 +61,7 @@ const AdminEvents = () => {
     <div>
       <h1 style={{ marginBottom: '2rem' }}>Events Management</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
         <div className="content-card" style={{ height: 'fit-content', position: 'sticky', top: '100px' }}>
           <h3 style={{ marginBottom: '1.5rem' }}>{editingId ? 'Edit Event' : 'Create New Event'}</h3>
           <form onSubmit={handleSubmit}>
@@ -70,7 +70,7 @@ const AdminEvents = () => {
               <input type="text" required style={inputStyle} value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <input type="date" required style={inputStyle} value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
               <input type="time" required style={inputStyle} value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
             </div>

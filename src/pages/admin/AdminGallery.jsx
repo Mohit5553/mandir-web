@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, Trash2, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -67,7 +67,7 @@ const AdminGallery = () => {
       setPreview('');
       setCaption('');
       fetchGallery();
-    } catch (err) {
+    } catch {
       setError('Upload failed. Image may be too large. Try a smaller image.');
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ const AdminGallery = () => {
       <h1 style={{ marginBottom: '0.5rem' }}>Gallery Management</h1>
       <p style={{ color: '#64748b', marginBottom: '2rem' }}>Upload and manage temple photos</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2rem', alignItems: 'start' }}>
         
         {/* Upload Form */}
         <div className="content-card" style={{ height: 'fit-content', borderRadius: '16px' }}>
@@ -141,7 +141,7 @@ const AdminGallery = () => {
               <p>No photos yet. Upload your first photo!</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
+            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
               {images.map(img => (
                 <div key={img._id} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
                   <img 
