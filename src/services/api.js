@@ -63,6 +63,12 @@ export const api = {
   addGalleryItem: (data) => api.call('/gallery', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteGalleryItem: (id) => api.call(`/gallery/${id}`, { method: 'DELETE' }),
 
+  // Home Carousel
+  getCarousel: (activeOnly = false) => api.call(`/carousel${activeOnly ? '?active=true' : ''}`),
+  addCarouselItem: (data) => api.call('/carousel', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateCarouselItem: (id, data) => api.call(`/carousel/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteCarouselItem: (id) => api.call(`/carousel/${id}`, { method: 'DELETE' }),
+
   // Trust Management
   getTrustManagement: () => api.call('/trust-management'),
   addTrustCategory: (data) => api.call('/trust-management/categories', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
@@ -74,6 +80,7 @@ export const api = {
 
   // Stats & Dashboard
   getDashboardStats: () => api.call('/stats/dashboard'),
+  getReports: () => api.call('/reports'),
 
   // Notifications & Contact
   getNotifications: () => api.call('/notifications'),

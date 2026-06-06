@@ -27,6 +27,11 @@
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--color-primary);
+  transition: transform 0.25s ease;
+}
+
+.logo:hover {
+  transform: translateY(-2px) scale(1.03);
 }
 
 .logo-text {
@@ -50,6 +55,7 @@
 .nav a:not(.btn):hover,
 .nav a.active:not(.btn) {
   color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .nav a:not(.btn)::after {
@@ -81,6 +87,12 @@
   font-size: 0.86rem;
   font-weight: 700;
   white-space: nowrap;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.language-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .language-toggle button {
@@ -159,6 +171,7 @@ body {
 .footer-col a:hover {
   opacity: 1;
   padding-left: 0.5rem;
+  color: #fff;
 }
 
 .footer-col p {
@@ -192,18 +205,30 @@ body {
   justify-content: center;
   box-shadow: 0 14px 28px rgba(37, 211, 102, 0.32);
   border: 3px solid #fff;
+  animation: whatsappPulse 2.2s ease-in-out infinite;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .whatsapp-float:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px) scale(1.04);
   box-shadow: 0 18px 34px rgba(37, 211, 102, 0.42);
+  animation-play-state: paused;
 }
 
 .whatsapp-logo {
   width: 34px;
   height: 34px;
   fill: currentColor;
+}
+
+@keyframes whatsappPulse {
+  0%,
+  100% {
+    box-shadow: 0 14px 28px rgba(37, 211, 102, 0.32), 0 0 0 0 rgba(37, 211, 102, 0.26);
+  }
+  50% {
+    box-shadow: 0 18px 34px rgba(37, 211, 102, 0.42), 0 0 0 12px rgba(37, 211, 102, 0);
+  }
 }
 
 @media (max-width: 900px) {
@@ -253,6 +278,7 @@ body {
   
   .nav.nav-open {
     display: flex;
+    animation: mobileMenuIn 0.25s ease both;
   }
   
   .mobile-menu-btn {
@@ -273,6 +299,24 @@ body {
     bottom: 18px;
     width: 54px;
     height: 54px;
+  }
+}
+
+@keyframes mobileMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-float,
+  .nav.nav-open {
+    animation: none;
   }
 }
 

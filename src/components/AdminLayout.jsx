@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText, Menu, PanelsTopLeft } from 'lucide-react';
 import logo from '../assets/logo.png';
 import './Admin.css';
 
@@ -24,6 +24,7 @@ const AdminLayout = () => {
     { name: 'Events', path: '/admin/events', icon: <Calendar size={20} /> },
     { name: 'News', path: '/admin/news', icon: <Newspaper size={20} /> },
     { name: 'Gallery', path: '/admin/gallery', icon: <ImageIcon size={20} /> },
+    { name: 'Home Carousel', path: '/admin/carousel', icon: <PanelsTopLeft size={20} /> },
     { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={20} /> },
     { name: 'Reports', path: '/admin/reports', icon: <FileText size={20} /> }
   ];
