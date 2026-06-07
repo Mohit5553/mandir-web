@@ -11,6 +11,8 @@ import Gallery from './pages/Gallery';
 import Donate from './pages/Donate';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -23,6 +25,8 @@ import AdminReports from './pages/admin/AdminReports';
 import AdminGallery from './pages/admin/AdminGallery';
 import AdminTrustManagement from './pages/admin/AdminTrustManagement';
 import AdminCarousel from './pages/admin/AdminCarousel';
+import AdminSiteContent from './pages/admin/AdminSiteContent';
+import AdminVolunteers from './pages/admin/AdminVolunteers';
 
 // Guard: redirect to login if not authenticated
 const RequireAuth = ({ children }) => {
@@ -45,7 +49,9 @@ function App() {
           <Route path="gallery" element={<Gallery />} />
           <Route path="donate" element={<Donate />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="*" element={<div className="container" style={{padding: '5rem 0', textAlign: 'center', minHeight: '50vh'}}><h2>Page Not Found</h2></div>} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="*" element={<div className="container" style={{ padding: '5rem 0', textAlign: 'center', minHeight: '50vh' }}><h2>Page Not Found</h2></div>} />
         </Route>
 
         {/* Admin Login */}
@@ -62,8 +68,10 @@ function App() {
           <Route path="trust-management" element={<AdminTrustManagement />} />
           <Route path="gallery" element={<AdminGallery />} />
           <Route path="carousel" element={<AdminCarousel />} />
+          <Route path="site-content" element={<AdminSiteContent />} />
+          <Route path="volunteers" element={<AdminVolunteers />} />
           <Route path="reports" element={<AdminReports />} />
-          <Route path="*" element={<div className="content-card" style={{textAlign: 'center', padding: '4rem'}}><h3>Module Under Development</h3></div>} />
+          <Route path="*" element={<div className="content-card" style={{ textAlign: 'center', padding: '4rem' }}><h3>Module Under Development</h3></div>} />
         </Route>
       </Routes>
     </Router>

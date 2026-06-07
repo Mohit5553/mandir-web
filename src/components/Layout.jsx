@@ -1,12 +1,13 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard } from 'lucide-react';
+import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck } from 'lucide-react';
 import logo from '../assets/logo.png';
 import LanguageToggle from './LanguageToggle';
 import './Layout.css';
 
 const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,6 +17,12 @@ const Layout = () => {
 
   const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null');
 
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('adminUser');
     navigate('/');
@@ -23,12 +30,12 @@ const Layout = () => {
 
   return (
     <div className="layout">
-      <header className="header glass">
+      <header className={`header${scrolled ? ' scrolled' : ''}`}>
         <div className="container header-content">
           <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
             <img src={logo} alt="Trust Logo" style={{ height: '70px', width: '70px', borderRadius: '50%', objectFit: 'cover', filter: 'drop-shadow(0 2px 8px rgba(255,107,0,0.2))' }} />
           </Link>
-          
+
           <nav className={`nav ${isMenuOpen ? 'nav-open' : ''}`}>
             <Link to="/" className={isActive('/')} onClick={() => setIsMenuOpen(false)}>Home</Link>
             <Link to="/about" className={isActive('/about')} onClick={() => setIsMenuOpen(false)}>About Us</Link>
@@ -55,17 +62,18 @@ const Layout = () => {
               </Link>
             )}
           </nav>
-          
+
           <button className="mobile-menu-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </header>
-      
+
       <main className="main-content">
         <Outlet />
       </main>
 
+      {/* Floating WhatsApp */}
       <a
         className="whatsapp-float"
         href="https://wa.me/919792939973?text=Namaste%2C%20I%20want%20to%20contact%20Shree%20Manvat%20Baba%20Mahashiv%20Mandir%20Trust."
@@ -78,39 +86,104 @@ const Layout = () => {
           <path d="M16.04 3.2c-7.03 0-12.75 5.65-12.75 12.61 0 2.23.6 4.41 1.74 6.32L3.2 28.8l6.86-1.79a12.93 12.93 0 0 0 5.98 1.5c7.03 0 12.75-5.65 12.75-12.61S23.07 3.2 16.04 3.2Zm0 22.96c-1.88 0-3.72-.5-5.33-1.46l-.38-.22-4.07 1.06 1.09-3.92-.25-.4a10.19 10.19 0 0 1-1.58-5.41c0-5.68 4.72-10.3 10.52-10.3s10.52 4.62 10.52 10.3-4.72 10.35-10.52 10.35Zm5.77-7.72c-.32-.16-1.88-.92-2.17-1.02-.29-.11-.5-.16-.71.16-.21.31-.81 1.02-.99 1.23-.18.21-.37.24-.69.08-.32-.16-1.34-.49-2.55-1.55-.94-.83-1.58-1.85-1.76-2.16-.18-.31-.02-.48.14-.64.14-.14.32-.37.48-.55.16-.18.21-.31.32-.52.11-.21.05-.39-.03-.55-.08-.16-.71-1.69-.97-2.32-.26-.61-.52-.53-.71-.54h-.61c-.21 0-.55.08-.84.39-.29.31-1.1 1.07-1.1 2.6s1.13 3.02 1.29 3.23c.16.21 2.22 3.35 5.38 4.7.75.32 1.34.51 1.8.65.76.24 1.45.21 1.99.13.61-.09 1.88-.76 2.15-1.5.26-.73.26-1.36.18-1.5-.08-.13-.29-.21-.61-.37Z" />
         </svg>
       </a>
-      
-      <footer className="footer bg-primary text-inverse">
-        <div className="container footer-content">
-          <div className="footer-col">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-              <img src={logo} alt="Trust Logo" style={{ height: '60px', width: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
-              <h3 style={{ margin: 0 }}>Shree Manvat Baba Mahashiv Mandir Trust</h3>
+
+      {/* Floating Donate Button */}
+      <Link
+        to="/donate"
+        className="donate-float"
+        aria-label="Donate Now"
+        title="Donate Now"
+      >
+        <Heart size={22} />
+        <span>Donate</span>
+      </Link>
+
+      <footer className="footer custom-premium-footer">
+        <div className="container footer-content premium-grid">
+          <div className="footer-col brand-col">
+            <div className="footer-brand">
+              <img src={logo} alt="Trust Logo" className="footer-logo premium-shadow" />
+              <h3>Shree Manvat Baba Mahashiv Mandir Trust</h3>
             </div>
-            <p style={{opacity: 0.9}}>बैरमपुर, करनैलगंज - गोण्डा (उत्तर प्रदेश)</p>
+            <p className="brand-desc">
+              A sacred place of worship, peace, and spiritual growth. Join our faithful community to spread harmony and devotion.
+            </p>
+            <div className="social-links">
+              <a href="#" className="social-icon" aria-label="Facebook">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+              </a>
+              <a href="#" className="social-icon" aria-label="Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              </a>
+              <a href="#" className="social-icon" aria-label="Twitter">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+              </a>
+              <a href="#" className="social-icon" aria-label="YouTube">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+              </a>
+            </div>
           </div>
-          <div className="footer-col">
-            <h3>Quick Links</h3>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '0.75rem' }}><Link to="/events" className="hover-link">Upcoming Events</Link></li>
-              <li style={{ marginBottom: '0.75rem' }}><Link to="/donate" className="hover-link">Make a Donation</Link></li>
-              <li style={{ marginBottom: '0.75rem' }}><Link to="/contact" className="hover-link">Contact Us</Link></li>
+
+          <div className="footer-col links-col">
+            <h3>Explore</h3>
+            <ul className="premium-links">
+              <li>
+                <Link to="/about" className="hover-link">
+                  <Info size={16} className="link-icon" /> About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/events" className="hover-link">
+                  <Calendar size={16} className="link-icon" /> Upcoming Events
+                </Link>
+              </li>
+              <li>
+                <Link to="/gallery" className="hover-link">
+                  <ImageIcon size={16} className="link-icon" /> Gallery
+                </Link>
+              </li>
+              <li>
+                <Link to="/donate" className="hover-link highlight-link">
+                  <Heart size={16} className="link-icon" /> Make a Donation
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-and-conditions" className="hover-link">
+                  <FileText size={16} className="link-icon" /> Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy-policy" className="hover-link">
+                  <ShieldCheck size={16} className="link-icon" /> Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
-          <div className="footer-col">
+
+          <div className="footer-col contact-col">
             <h3>Contact Info</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <p style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0, opacity: 0.9 }}>
-                <MapPin size={18} color="var(--color-primary)"/> Bairampur, Colonelganj, Gonda (U.P.)
+            <div className="premium-contact-details">
+              <p>
+                <MapPin size={20} className="contact-icon" />
+                <span>Bairampur, Colonelganj, Gonda (U.P.) - 271502</span>
               </p>
-              <p style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0, opacity: 0.9 }}>
-                <Phone size={18} color="var(--color-primary)"/> +91 9792939973
+              <p>
+                <Phone size={20} className="contact-icon" />
+                <span>+91 9792939973</span>
+              </p>
+              <p>
+                <Mail size={20} className="contact-icon" />
+                <span>mahashivmandirtrusts@gmail.com</span>
               </p>
             </div>
-            
-            <div style={{ marginTop: '1.5rem', height: '120px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+          </div>
+
+          <div className="footer-col map-col">
+            <h3>Temple Location</h3>
+            <div className="map-container premium-shadow">
               <iframe
                 title="Footer Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3550.941938596644!2d81.745494!3d27.126442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39908de75079a6db%3A0x633fa073998b36e8!2sShree%20Manvat%20Baba%20Mahashiv%20Mandir%20Trust!5e0!3m2!1sen!2sin!4v1718000000000"
+                src="https://maps.google.com/maps?q=27.1941132,81.6734072&hl=en&z=17&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -120,8 +193,9 @@ const Layout = () => {
             </div>
           </div>
         </div>
-        <div className="footer-bottom">
-          <p>&copy; 2026 Shree Manvat Baba Mandir Trust. All rights reserved.</p>
+        
+        <div className="footer-bottom premium-bottom">
+          <p>&copy; {new Date().getFullYear()} Shree Manvat Baba Mandir Trust. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -9,6 +9,7 @@ const AdminGallery = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [preview, setPreview] = useState('');
+  const [featuredOnHome, setFeaturedOnHome] = useState(false);
 
   const fetchGallery = () => {
     api.getGallery().then(data => setImages(Array.isArray(data) ? data : []));
@@ -61,11 +62,13 @@ const AdminGallery = () => {
       await api.addGalleryItem({ 
         imageUrl,           // Compressed Base64
         title: caption || 'Gallery Photo',
-        type: 'image'
+        type: 'image',
+        featuredOnHome
       });
       setImageUrl('');
       setPreview('');
       setCaption('');
+      setFeaturedOnHome(false);
       fetchGallery();
     } catch {
       setError('Upload failed. Image may be too large. Try a smaller image.');
@@ -80,6 +83,11 @@ const AdminGallery = () => {
       await api.deleteGalleryItem(id);
       fetchGallery();
     } catch { setError('Delete failed'); }
+  };
+
+  const toggleFeatured = async (item) => {
+    await api.updateGalleryItem(item._id, { featuredOnHome: !item.featuredOnHome });
+    fetchGallery();
   };
 
   return (
@@ -126,6 +134,10 @@ const AdminGallery = () => {
                 onChange={e => setCaption(e.target.value)} 
               />
             </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', fontWeight: 700, color: '#475569' }}>
+              <input type="checkbox" checked={featuredOnHome} onChange={e => setFeaturedOnHome(e.target.checked)} />
+              Featured on Home Page
+            </label>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.9rem' }} disabled={loading}>
               {loading ? 'Uploading...' : '📸 Add to Gallery'}
             </button>
@@ -153,6 +165,14 @@ const AdminGallery = () => {
                   {img.title && img.title !== 'Gallery Photo' && (
                     <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>{img.title}</div>
                   )}
+                  <div style={{ padding: '0 0.75rem 0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: img.featuredOnHome ? '#c2410c' : '#94a3b8' }}>
+                      {img.featuredOnHome ? 'Featured on Home' : 'Not Featured'}
+                    </span>
+                    <button type="button" className="btn btn-outline" style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem' }} onClick={() => toggleFeatured(img)}>
+                      {img.featuredOnHome ? 'Unfeature' : 'Feature'}
+                    </button>
+                  </div>
                   <button 
                     onClick={() => handleDelete(img._id)} 
                     style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(239,68,68,0.9)', color: 'white', border: 'none', padding: '0.4rem', borderRadius: '6px', cursor: 'pointer' }}>

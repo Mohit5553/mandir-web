@@ -4,7 +4,7 @@ import { api } from '../../services/api';
 
 const AdminEvents = () => {
   const [events, setEvents] = useState([]);
-  const [form, setForm] = useState({ title: '', description: '', date: '', time: '', location: '', imageUrl: '' });
+  const [form, setForm] = useState({ title: '', description: '', date: '', time: '', location: '', imageUrl: '', featuredOnHome: false });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ const AdminEvents = () => {
     } else {
       await api.createEvent(form);
     }
-    setForm({ title: '', description: '', date: '', time: '', location: '', imageUrl: '' });
+    setForm({ title: '', description: '', date: '', time: '', location: '', imageUrl: '', featuredOnHome: false });
     fetchEvents();
     setLoading(false);
   };
@@ -44,7 +44,8 @@ const AdminEvents = () => {
       date: event.date ? event.date.split('T')[0] : '',
       time: event.time || '',
       location: event.location || '',
-      imageUrl: event.imageUrl || ''
+      imageUrl: event.imageUrl || '',
+      featuredOnHome: Boolean(event.featuredOnHome)
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -86,11 +87,16 @@ const AdminEvents = () => {
               <textarea rows="4" required style={{...inputStyle, resize: 'vertical'}} value={form.description} onChange={e => setForm({...form, description: e.target.value})}></textarea>
             </div>
 
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', fontWeight: 700, color: '#475569' }}>
+              <input type="checkbox" checked={form.featuredOnHome} onChange={e => setForm({ ...form, featuredOnHome: e.target.checked })} />
+              Featured on Home Page
+            </label>
+
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button type="submit" className="btn btn-primary" style={{ flexGrow: 1 }} disabled={loading}>
                 {editingId ? 'Update Event' : 'Create Event'}
               </button>
-              {editingId && <button onClick={() => {setEditingId(null); setForm({title:'',description:'',date:'',time:'',location:'',imageUrl:''})}} className="btn btn-outline" type="button"><X size={20}/></button>}
+              {editingId && <button onClick={() => {setEditingId(null); setForm({title:'',description:'',date:'',time:'',location:'',imageUrl:'',featuredOnHome:false})}} className="btn btn-outline" type="button"><X size={20}/></button>}
             </div>
           </form>
         </div>
@@ -105,7 +111,10 @@ const AdminEvents = () => {
                 <div style={{ height: '150px', background: '#f8fafc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>No Image</div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', mt: '1rem', alignItems: 'center', marginTop: '1rem' }}>
-                <h4 style={{ margin: 0 }}>{event.title}</h4>
+                <div>
+                  <h4 style={{ margin: 0 }}>{event.title}</h4>
+                  {event.featuredOnHome && <span style={{ display: 'inline-flex', padding: '0.2rem 0.55rem', borderRadius: '999px', background: '#fff7ed', color: '#c2410c', fontSize: '0.75rem', fontWeight: 800, marginTop: '0.35rem' }}>Featured on Home</span>}
+                </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button onClick={() => handleEdit(event)} className="btn-icon"><Edit2 size={16}/></button>
                   <button onClick={() => handleDelete(event._id)} className="btn-icon" style={{ borderColor: '#fee2e2' }}><Trash2 size={16} color="#ef4444" /></button>

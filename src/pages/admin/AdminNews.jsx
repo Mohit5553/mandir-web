@@ -4,7 +4,7 @@ import { api } from '../../services/api';
 
 const AdminNews = () => {
   const [news, setNews] = useState([]);
-  const [form, setForm] = useState({ title: '', content: '', mediaUrl: '', mediaType: 'image' });
+  const [form, setForm] = useState({ title: '', content: '', mediaUrl: '', mediaType: 'image', featuredOnHome: false });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +18,8 @@ const AdminNews = () => {
       title: form.title,
       content: form.content,
       images: form.mediaType === 'image' && form.mediaUrl ? [form.mediaUrl] : [],
-      videos: form.mediaType === 'video' && form.mediaUrl ? [form.mediaUrl] : []
+      videos: form.mediaType === 'video' && form.mediaUrl ? [form.mediaUrl] : [],
+      featuredOnHome: form.featuredOnHome
     };
     
     if (editingId) {
@@ -28,7 +29,7 @@ const AdminNews = () => {
       await api.createNews(newsData);
     }
     
-    setForm({ title: '', content: '', mediaUrl: '', mediaType: 'image' });
+    setForm({ title: '', content: '', mediaUrl: '', mediaType: 'image', featuredOnHome: false });
     fetchNews();
     setLoading(false);
   };
@@ -39,14 +40,15 @@ const AdminNews = () => {
       title: item.title,
       content: item.content,
       mediaUrl: item.images?.[0] || item.videos?.[0] || '',
-      mediaType: item.videos?.length > 0 ? 'video' : 'image'
+      mediaType: item.videos?.length > 0 ? 'video' : 'image',
+      featuredOnHome: Boolean(item.featuredOnHome)
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setForm({ title: '', content: '', mediaUrl: '', mediaType: 'image' });
+    setForm({ title: '', content: '', mediaUrl: '', mediaType: 'image', featuredOnHome: false });
   };
 
   const handleFileChange = (e) => {
@@ -95,6 +97,11 @@ const AdminNews = () => {
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Content</label>
               <textarea rows="6" required style={{...inputStyle, resize: 'vertical'}} value={form.content} onChange={e => setForm({...form, content: e.target.value})}></textarea>
             </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', fontWeight: 700, color: '#475569' }}>
+              <input type="checkbox" checked={form.featuredOnHome} onChange={e => setForm({ ...form, featuredOnHome: e.target.checked })} />
+              Featured on Home Page
+            </label>
             
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button type="submit" className="btn btn-primary" style={{ flexGrow: 1, padding: '1rem' }} disabled={loading}>
@@ -126,6 +133,7 @@ const AdminNews = () => {
                     </div>
                   </div>
                   <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0' }}>{new Date(item.createdAt).toLocaleDateString()}</p>
+                  {item.featuredOnHome && <span style={{ display: 'inline-flex', padding: '0.2rem 0.55rem', borderRadius: '999px', background: '#fff7ed', color: '#c2410c', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>Featured on Home</span>}
                   <p style={{ fontSize: '0.9rem', color: '#444', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.content}</p>
                 </div>
               </div>

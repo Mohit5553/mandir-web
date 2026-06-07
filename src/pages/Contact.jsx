@@ -35,7 +35,7 @@ const Contact = () => {
   };
 
   // Google Maps Embed URL for Shree Manvat Baba Mahashiv Mandir Trust
-  const mapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3550.941938596644!2d81.745494!3d27.126442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39908de75079a6db%3A0x633fa073998b36e8!2sShree%20Manvat%20Baba%20Mahashiv%20Mandir%20Trust!5e0!3m2!1sen!2sin!4v1718000000000!5m2!1sen!2sin";
+  const mapEmbedUrl = "https://maps.google.com/maps?q=27.1941132,81.6734072&hl=en&z=17&output=embed";
 
   return (
     <div className="contact-page">

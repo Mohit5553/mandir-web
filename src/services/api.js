@@ -61,6 +61,7 @@ export const api = {
   // Gallery
   getGallery: () => api.call('/gallery'),
   addGalleryItem: (data) => api.call('/gallery', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateGalleryItem: (id, data) => api.call(`/gallery/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteGalleryItem: (id) => api.call(`/gallery/${id}`, { method: 'DELETE' }),
 
   // Home Carousel
@@ -74,6 +75,9 @@ export const api = {
   addTrustCategory: (data) => api.call('/trust-management/categories', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   updateTrustCategory: (id, data) => api.call(`/trust-management/categories/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteTrustCategory: (id) => api.call(`/trust-management/categories/${id}`, { method: 'DELETE' }),
+  addTrustRole: (data) => api.call('/trust-management/roles', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateTrustRole: (id, data) => api.call(`/trust-management/roles/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteTrustRole: (id) => api.call(`/trust-management/roles/${id}`, { method: 'DELETE' }),
   addTrustMember: (data) => api.call('/trust-management/members', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   updateTrustMember: (id, data) => api.call(`/trust-management/members/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteTrustMember: (id) => api.call(`/trust-management/members/${id}`, { method: 'DELETE' }),
@@ -81,6 +85,15 @@ export const api = {
   // Stats & Dashboard
   getDashboardStats: () => api.call('/stats/dashboard'),
   getReports: () => api.call('/reports'),
+
+  // Site Content
+  getSiteContent: () => api.call('/site-content'),
+  updateSiteContent: (data) => api.call('/site-content', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+
+  // Volunteers
+  getVolunteers: () => api.call('/volunteers'),
+  createVolunteer: (data) => api.call('/volunteers', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateVolunteer: (id, data) => api.call(`/volunteers/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify(data) }),
 
   // Notifications & Contact
   getNotifications: () => api.call('/notifications'),
