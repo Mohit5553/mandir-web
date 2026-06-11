@@ -79,7 +79,7 @@ const Login = () => {
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>🕉️</div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #FF6B00, #FF8533)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>
-            Shree Mandir Trust
+            Shree Manvat Baba Mahashiv Mandir
           </h1>
           <p style={{ color: 'var(--color-text-light)', fontSize: '1rem' }}>Administrator Login</p>
         </div>

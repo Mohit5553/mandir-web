@@ -224,7 +224,7 @@ const AdminContact = () => {
                     {msg.isRead ? 'Mark Unread' : 'Mark Read'}
                   </button>
                 )}
-                <a href={`mailto:${msg.email}?subject=Reply to your query - Shree Mandir Trust&body=Dear ${msg.name},%0D%0A%0D%0AThank you for contacting Shree Mandir Trust.%0D%0A%0D%0A[Write your response here]%0D%0A%0D%0ARegards,%0D%0ATrust Admin`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', fontSize: '0.82rem', textDecoration: 'none', fontWeight: 700 }}>
+                <a href={`mailto:${msg.email}?subject=Reply to your query - Shree Manvat Baba Mahashiv Mandir&body=Dear ${msg.name},%0D%0A%0D%0AThank you for contacting Shree Manvat Baba Mahashiv Mandir.%0D%0A%0D%0A[Write your response here]%0D%0A%0D%0ARegards,%0D%0ATrust Admin`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', fontSize: '0.82rem', textDecoration: 'none', fontWeight: 700 }}>
                   <Reply size={15} /> Reply via Email
                 </a>
               </div>

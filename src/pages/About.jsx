@@ -105,7 +105,7 @@ const About = () => {
         <div className="container">
           <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem' }}>About Our Trust</h1>
           <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
-            Learn about our history, our mission, and the people behind Shree Mandir Trust.
+            Learn about our history, our mission, and the people behind Shree Manvat Baba Mahashiv Mandir Trust.
           </p>
         </div>
       </section>
