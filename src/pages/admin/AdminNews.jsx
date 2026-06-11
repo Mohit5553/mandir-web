@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, FileText } from 'lucide-react';
 import { api } from '../../services/api';
+import { hasPermission } from '../../hooks/usePermission';
 
 const AdminNews = () => {
+  const canCreate = hasPermission('News', 'create');
+  const canUpdate = hasPermission('News', 'update');
+  const canDelete = hasPermission('News', 'delete');
   const [news, setNews] = useState([]);
   const [form, setForm] = useState({ title: '', content: '', mediaUrl: '', mediaType: 'image', featuredOnHome: false });
   const [editingId, setEditingId] = useState(null);
@@ -69,9 +73,10 @@ const AdminNews = () => {
 
   return (
     <div>
-      <h1 style={{ marginBottom: '2rem' }}>News Management (Full CRUD)</h1>
+      <h1 style={{ marginBottom: '2rem' }}>News Management</h1>
 
-      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: canCreate ? 'minmax(300px, 1fr) 2fr' : '1fr', gap: '2rem' }}>
+        {canCreate && (
         <div className="content-card" style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {editingId ? <Edit2 size={20} color="var(--color-primary)" /> : <Plus size={20} />}
@@ -115,6 +120,7 @@ const AdminNews = () => {
             </div>
           </form>
         </div>
+        )}
 
         <div className="content-card">
           <h3 style={{ marginBottom: '1.5rem' }}>Published News ({news.length})</h3>
@@ -128,8 +134,8 @@ const AdminNews = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <h4 style={{ margin: 0 }}>{item.title}</h4>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button onClick={() => handleEdit(item)} className="btn-icon" title="Edit"><Edit2 size={16} /></button>
-                      <button onClick={() => handleDelete(item._id)} className="btn-icon" style={{ borderColor: '#fee2e2' }} title="Delete"><Trash2 size={16} color="#ef4444" /></button>
+                      {canUpdate && <button onClick={() => handleEdit(item)} className="btn-icon" title="Edit"><Edit2 size={16} /></button>}
+                      {canDelete && <button onClick={() => handleDelete(item._id)} className="btn-icon" style={{ borderColor: '#fee2e2' }} title="Delete"><Trash2 size={16} color="#ef4444" /></button>}
                     </div>
                   </div>
                   <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0' }}>{new Date(item.createdAt).toLocaleDateString()}</p>

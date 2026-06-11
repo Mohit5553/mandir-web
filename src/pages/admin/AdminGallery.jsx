@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Upload, Trash2, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { api } from '../../services/api';
+import { hasPermission } from '../../hooks/usePermission';
 
 const AdminGallery = () => {
+  const canCreate = hasPermission('Gallery', 'create');
+  const canUpdate = hasPermission('Gallery', 'update');
+  const canDelete = hasPermission('Gallery', 'delete');
   const [images, setImages] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
   const [caption, setCaption] = useState('');
@@ -95,9 +99,10 @@ const AdminGallery = () => {
       <h1 style={{ marginBottom: '0.5rem' }}>Gallery Management</h1>
       <p style={{ color: '#64748b', marginBottom: '2rem' }}>Upload and manage temple photos</p>
 
-      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: canCreate ? '350px 1fr' : '1fr', gap: '2rem', alignItems: 'start' }}>
         
         {/* Upload Form */}
+        {canCreate && (
         <div className="content-card" style={{ height: 'fit-content', borderRadius: '16px' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Upload size={20} color="var(--color-primary)"/> Add New Photo
@@ -143,6 +148,7 @@ const AdminGallery = () => {
             </button>
           </form>
         </div>
+        )}
 
         {/* Gallery Grid */}
         <div className="content-card" style={{ borderRadius: '16px' }}>
@@ -173,11 +179,13 @@ const AdminGallery = () => {
                       {img.featuredOnHome ? 'Unfeature' : 'Feature'}
                     </button>
                   </div>
+                  {canDelete && (
                   <button 
                     onClick={() => handleDelete(img._id)} 
                     style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(239,68,68,0.9)', color: 'white', border: 'none', padding: '0.4rem', borderRadius: '6px', cursor: 'pointer' }}>
                     <Trash2 size={15}/>
                   </button>
+                  )}
                 </div>
               ))}
             </div>

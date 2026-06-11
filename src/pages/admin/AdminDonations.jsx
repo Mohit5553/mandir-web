@@ -3,6 +3,7 @@ import { Check, X, Eye, Phone, Share2, Printer, Calendar, Tag, ShieldCheck, Layo
 import logo from '../../assets/logo.png';
 import qrCode from '../../assets/donation_qr.jpeg';
 import { api } from '../../services/api';
+import { hasPermission } from '../../hooks/usePermission';
 
 const donationCategories = ['General Donation', 'Construction Fund', 'Annadan', 'Gau Seva'];
 const initialAdminForm = {
@@ -17,6 +18,8 @@ const initialAdminForm = {
 };
 
 const AdminDonations = () => {
+  const canCreate = hasPermission('Donations', 'create');
+  const canUpdate = hasPermission('Donations', 'update');
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -393,9 +396,11 @@ const AdminDonations = () => {
           <p style={{ color: '#64748b' }}>Manage and verify trust contributions</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {canCreate && (
           <button onClick={() => setShowCreateModal(true)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Plus size={18} /> Create Donation
           </button>
+          )}
           <button onClick={fetchDonations} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               Refresh Data
           </button>
@@ -485,7 +490,7 @@ const AdminDonations = () => {
                         style={{ background: '#f1f5f9', color: '#64748b', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Eye size={16}/>
                       </button>
-                      {d.paymentStatus === 'Pending' && (
+                      {d.paymentStatus === 'Pending' && canUpdate && (
                         <>
                           <button 
                             onClick={() => handleUpdateStatus(d._id, 'Approved')} 

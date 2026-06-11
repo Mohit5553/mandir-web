@@ -1,13 +1,15 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck } from 'lucide-react';
+import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio } from 'lucide-react';
 import logo from '../assets/logo.png';
 import LanguageToggle from './LanguageToggle';
+import { api } from '../services/api';
 import './Layout.css';
 
 const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  const [isLive, setIsLive] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -23,6 +25,22 @@ const Layout = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  React.useEffect(() => {
+    const checkLiveStatus = async () => {
+      try {
+        const data = await api.getLiveStatus();
+        if (data && typeof data.isLive === 'boolean') {
+          setIsLive(data.isLive);
+        }
+      } catch (err) {
+        console.error('Failed to fetch live status:', err);
+      }
+    };
+    checkLiveStatus();
+    const timer = setInterval(checkLiveStatus, 15000);
+    return () => clearInterval(timer);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('adminUser');
     navigate('/');
@@ -36,19 +54,50 @@ const Layout = () => {
             <img src={logo} alt="Trust Logo" style={{ height: '70px', width: '70px', borderRadius: '50%', objectFit: 'cover', filter: 'drop-shadow(0 2px 8px rgba(255,107,0,0.2))' }} />
           </Link>
 
-          <nav className={`nav ${isMenuOpen ? 'nav-open' : ''}`}>
+          {/* Centered Navigation Links */}
+          <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
             <Link to="/" className={isActive('/')} onClick={() => setIsMenuOpen(false)}>Home</Link>
             <Link to="/about" className={isActive('/about')} onClick={() => setIsMenuOpen(false)}>About Us</Link>
             <Link to="/news" className={isActive('/news')} onClick={() => setIsMenuOpen(false)}>News</Link>
             <Link to="/events" className={isActive('/events')} onClick={() => setIsMenuOpen(false)}>Events</Link>
             <Link to="/gallery" className={isActive('/gallery')} onClick={() => setIsMenuOpen(false)}>Gallery</Link>
             <Link to="/contact" className={isActive('/contact')} onClick={() => setIsMenuOpen(false)}>Contact</Link>
-            <Link to="/donate" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>
-              <Heart size={18} /> Donate Now
-            </Link>
+            {isLive && (
+              <Link 
+                to="/live" 
+                className={`${isActive('/live')} nav-live-link ${isLive ? 'online' : 'offline'}`} 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Live Darshan
+                <span className={`live-indicator-dot ${isLive ? 'online' : 'offline'}`} title={isLive ? "Darshan is Live Now!" : "Darshan is Offline"}></span>
+              </Link>
+            )}
+            
+            {/* Mobile Actions Drawer Wrapper */}
+            <div className="mobile-actions-wrapper">
+              <LanguageToggle onSelect={() => setIsMenuOpen(false)} />
+              {adminUser ? (
+                <div>
+                  <Link to="/admin" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem' }} onClick={() => setIsMenuOpen(false)}>
+                    <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                  <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} style={{ background: 'transparent', color: 'var(--color-text-light)', border: '1px solid var(--border-color)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', fontWeight: 500, fontSize: '0.9rem', cursor: 'pointer' }}>
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link to="/admin/login" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.6rem 1.2rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem', border: '1px solid rgba(255,107,0,0.2)' }} onClick={() => setIsMenuOpen(false)}>
+                  <LogIn size={16} /> Login
+                </Link>
+              )}
+            </div>
+          </nav>
+
+          {/* Desktop-only Header Actions */}
+          <div className="header-actions">
             <LanguageToggle onSelect={() => setIsMenuOpen(false)} />
             {adminUser ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Link to="/admin" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem' }} onClick={() => setIsMenuOpen(false)}>
                   <LayoutDashboard size={16} /> Dashboard
                 </Link>
@@ -58,10 +107,10 @@ const Layout = () => {
               </div>
             ) : (
               <Link to="/admin/login" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.6rem 1.2rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem', border: '1px solid rgba(255,107,0,0.2)' }} onClick={() => setIsMenuOpen(false)}>
-                <LogIn size={16} /> Admin Login
+                <LogIn size={16} /> Login
               </Link>
             )}
-          </nav>
+          </div>
 
           <button className="mobile-menu-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}

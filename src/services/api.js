@@ -35,9 +35,18 @@ export const api = {
   // Auth
   login: (data) => api.call('/auth/login', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   register: (data) => api.call('/auth/register', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  forgotPassword: (email) => api.call('/auth/forgot-password', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ email }) }),
+  resetPassword: (token, password) => api.call('/auth/reset-password', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ token, password }) }),
   getUsers: () => api.call('/auth/'),
   updateUser: (id, data) => api.call(`/auth/users/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteUser: (id) => api.call(`/auth/users/${id}`, { method: 'DELETE' }),
+
+  // Roles (RBAC)
+  getRoles: () => api.call('/roles'),
+  createRole: (data) => api.call('/roles', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  updateRole: (id, data) => api.call(`/roles/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  deleteRole: (id) => api.call(`/roles/${id}`, { method: 'DELETE' }),
+
 
   // Events
   getEvents: () => api.call('/events'),
@@ -100,4 +109,12 @@ export const api = {
   sendNotification: (data) => api.call('/notifications', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   sendContact: (data) => api.call('/contact', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   getContactMessages: () => api.call('/contact'),
+  deleteContactMessage: (id) => api.call(`/contact/${id}`, { method: 'DELETE' }),
+  toggleContactRead: (id) => api.call(`/contact/${id}/read`, { method: 'PATCH' }),
+
+  // Live Stream
+  getLiveStatus: () => api.call('/live/status'),
+  updateLiveStatus: (data) => api.call('/live/status', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  getLiveChat: () => api.call('/live/chat'),
+  clearLiveChat: () => api.call('/live/chat', { method: 'DELETE' }),
 };

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Edit2, X } from 'lucide-react';
 import { api } from '../../services/api';
+import { hasPermission } from '../../hooks/usePermission';
 
 const AdminEvents = () => {
+  const canCreate = hasPermission('Events', 'create');
+  const canUpdate = hasPermission('Events', 'update');
+  const canDelete = hasPermission('Events', 'delete');
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({ title: '', description: '', date: '', time: '', location: '', imageUrl: '', featuredOnHome: false });
   const [editingId, setEditingId] = useState(null);
@@ -62,7 +66,8 @@ const AdminEvents = () => {
     <div>
       <h1 style={{ marginBottom: '2rem' }}>Events Management</h1>
 
-      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: canCreate ? '1.2fr 1fr' : '1fr', gap: '2rem' }}>
+        {canCreate && (
         <div className="content-card" style={{ height: 'fit-content', position: 'sticky', top: '100px' }}>
           <h3 style={{ marginBottom: '1.5rem' }}>{editingId ? 'Edit Event' : 'Create New Event'}</h3>
           <form onSubmit={handleSubmit}>
@@ -100,6 +105,7 @@ const AdminEvents = () => {
             </div>
           </form>
         </div>
+        )}
 
         <div className="content-card">
           <h3 style={{ marginBottom: '1.5rem' }}>Active Events ({events.length})</h3>
@@ -116,8 +122,8 @@ const AdminEvents = () => {
                   {event.featuredOnHome && <span style={{ display: 'inline-flex', padding: '0.2rem 0.55rem', borderRadius: '999px', background: '#fff7ed', color: '#c2410c', fontSize: '0.75rem', fontWeight: 800, marginTop: '0.35rem' }}>Featured on Home</span>}
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => handleEdit(event)} className="btn-icon"><Edit2 size={16}/></button>
-                  <button onClick={() => handleDelete(event._id)} className="btn-icon" style={{ borderColor: '#fee2e2' }}><Trash2 size={16} color="#ef4444" /></button>
+                  {canUpdate && <button onClick={() => handleEdit(event)} className="btn-icon"><Edit2 size={16}/></button>}
+                  {canDelete && <button onClick={() => handleDelete(event._id)} className="btn-icon" style={{ borderColor: '#fee2e2' }}><Trash2 size={16} color="#ef4444" /></button>}
                 </div>
               </div>
             </div>

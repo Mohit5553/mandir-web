@@ -32,12 +32,14 @@ const AdminDashboard = () => {
     { title: "Pending Approvals", value: stats.counts.pendingDonations, icon: <ArrowUpRight color="#FF6B00" />, color: "#FFF0E6" }
   ];
 
+  const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+
   return (
     <div className="dashboard">
       <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.2rem' }}>Dashboard Overview</h1>
-          <p className="text-light">Welcome back, Super Admin</p>
+          <p className="text-light">Welcome back, {user.name || 'Admin'}</p>
         </div>
         <button onClick={fetchStats} className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>Refresh Data</button>
       </div>

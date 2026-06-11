@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AlertCircle, Image as ImageIcon, ToggleLeft, ToggleRight, Trash2, Upload, Video } from 'lucide-react';
 import { api } from '../../services/api';
+import { hasPermission } from '../../hooks/usePermission';
 
 const emptyForm = {
   title: '',
@@ -11,6 +12,9 @@ const emptyForm = {
 };
 
 const AdminCarousel = () => {
+  const canCreate = hasPermission('Home Carousel', 'create');
+  const canUpdate = hasPermission('Home Carousel', 'update');
+  const canDelete = hasPermission('Home Carousel', 'delete');
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [preview, setPreview] = useState('');
@@ -127,7 +131,8 @@ const AdminCarousel = () => {
       <h1 style={{ marginBottom: '0.5rem' }}>Home Carousel</h1>
       <p style={{ color: '#64748b', marginBottom: '2rem' }}>Upload photos or videos that rotate behind the home page hero.</p>
 
-      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: canCreate ? '360px 1fr' : '1fr', gap: '2rem', alignItems: 'start' }}>
+        {canCreate && (
         <div className="content-card" style={{ height: 'fit-content' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Upload size={20} color="var(--color-primary)" /> Add Media
@@ -189,6 +194,7 @@ const AdminCarousel = () => {
             </button>
           </form>
         </div>
+        )}
 
         <div className="content-card">
           <h3 style={{ marginBottom: '1.5rem' }}>Carousel Media ({items.length})</h3>
@@ -231,6 +237,7 @@ const AdminCarousel = () => {
                         {item.isActive ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
                         {item.isActive ? 'Active' : 'Hidden'}
                       </button>
+                      {canDelete && (
                       <button
                         type="button"
                         onClick={() => handleDelete(item._id)}
@@ -239,6 +246,7 @@ const AdminCarousel = () => {
                       >
                         <Trash2 size={17} />
                       </button>
+                      )}
                     </div>
                   </div>
                 </div>

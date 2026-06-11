@@ -165,7 +165,7 @@ const AdminTrustManagement = () => {
     }
 
     await fetchTrust();
-    setMessage(editingRoleId ? 'Role updated' : 'Role added');
+    setMessage(editingRoleId ? 'Designation updated' : 'Designation added');
     resetRoleForm();
     setLoading(false);
   };
@@ -181,12 +181,12 @@ const AdminTrustManagement = () => {
   };
 
   const handleDeleteRole = async (role) => {
-    if (!window.confirm(`Delete role "${role.name}"?`)) return;
+    if (!window.confirm(`Delete designation "${role.name}"?`)) return;
     const response = await api.deleteTrustRole(role._id);
     if (response?.message && response.message !== 'Role deleted') {
       setMessage(response.message);
     } else {
-      setMessage('Role deleted');
+      setMessage('Designation deleted');
       await fetchTrust();
     }
   };
@@ -293,7 +293,7 @@ const AdminTrustManagement = () => {
            Members <span className="admin-tab-count">{members.length}</span>
          </button>
          <button type="button" className={`admin-tab ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => { setActiveTab('roles'); setShowRoleForm(false); }}>
-           Roles <span className="admin-tab-count">{roles.length}</span>
+           Designations <span className="admin-tab-count">{roles.length}</span>
          </button>
          <button type="button" className={`admin-tab ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => { setActiveTab('categories'); setShowCategoryForm(false); }}>
            Categories <span className="admin-tab-count">{categories.length}</span>
@@ -362,15 +362,15 @@ const AdminTrustManagement = () => {
         <div style={{ display: 'grid', gap: '1.5rem' }}>
           <div className="content-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0 }}>Role Management</h2>
-              {!showRoleForm && <button className="btn btn-primary" onClick={() => { resetRoleForm(); setShowRoleForm(true); }}><FolderPlus size={18} /> Add Role</button>}
+              <h2 style={{ margin: 0 }}>Designation Management</h2>
+              {!showRoleForm && <button className="btn btn-primary" onClick={() => { resetRoleForm(); setShowRoleForm(true); }}><FolderPlus size={18} /> Add Designation</button>}
             </div>
           </div>
           {showRoleForm && (
           <div className="content-card">
-            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FolderPlus size={20} color="var(--color-primary)" /> {editingRoleId ? 'Edit Role' : 'Add Role'}</h3>
+            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FolderPlus size={20} color="var(--color-primary)" /> {editingRoleId ? 'Edit Designation' : 'Add Designation'}</h3>
             <form onSubmit={handleRoleSubmit}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Role Name</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Designation Name</label>
               <input required placeholder="अध्यक्ष" style={{ ...inputStyle, marginBottom: '1rem' }} value={roleForm.name} onChange={e => setRoleForm({ ...roleForm, name: e.target.value })} />
 
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Order</label>
@@ -378,7 +378,7 @@ const AdminTrustManagement = () => {
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 1 }}>
-                  {editingRoleId ? 'Update Role' : 'Add Role'}
+                  {editingRoleId ? 'Update Designation' : 'Add Designation'}
                 </button>
                 <button type="button" className="btn btn-outline" onClick={resetRoleForm}><X size={20} /></button>
               </div>
@@ -417,7 +417,7 @@ const AdminTrustManagement = () => {
           <div className="content-card">
             <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={20} color="var(--color-primary)" /> {editingMemberId ? 'Edit Member' : 'Add Member'}</h3>
             <form onSubmit={handleMemberSubmit} className="admin-member-form-two-column">
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Role</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Designation</label>
               <select required style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.role} onChange={e => setMemberForm({ ...memberForm, role: e.target.value })}>
                 {sortedRoles.map(role => (
                   <option key={role._id || role.key} value={role.name}>{role.name}</option>
