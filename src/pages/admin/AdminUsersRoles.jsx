@@ -521,10 +521,10 @@ const AdminUsersRoles = () => {
                         </p>
                       </div>
                       <div style={{ display:'flex', gap:'0.4rem' }}>
-                        {canUpdateRoles && (
+                        {canUpdateRoles && (isSuperAdmin || role.name.toLowerCase() !== 'admin') && (
                           <button onClick={() => openEditRole(role)} className="btn-icon" title="Edit"><Edit2 size={14} /></button>
                         )}
-                        {canDeleteRoles && (
+                        {canDeleteRoles && (isSuperAdmin || role.name.toLowerCase() !== 'admin') && (
                           <button onClick={() => handleRoleDelete(role._id, role.name)} className="btn-icon" style={{ borderColor:'#fee2e2' }}><Trash2 size={14} color="#ef4444" /></button>
                         )}
                       </div>

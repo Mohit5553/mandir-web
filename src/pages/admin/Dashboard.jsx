@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Heart, Users, Newspaper, Calendar, Bell } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { api } from '../../services/api';
 
 const Dashboard = () => {
@@ -48,14 +49,26 @@ const Dashboard = () => {
 
           {reports?.donations?.categoryBreakdown && (
             <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
-              <div className="content-card">
+              <div className="content-card" style={{ minHeight: '400px' }}>
                 <h3 style={{ marginBottom: '1.5rem' }}>Donation by Category</h3>
-                {Object.entries(reports.donations.categoryBreakdown).map(([cat, data]) => (
-                  <div key={cat} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
-                    <span>{cat}</span>
-                    <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{fmt(data.total)} ({data.count})</span>
-                  </div>
-                ))}
+                <div style={{ height: '300px', width: '100%' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={Object.entries(reports.donations.categoryBreakdown).map(([name, data]) => ({ name, Total: data.total }))}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="name" stroke="var(--color-text-light)" />
+                      <YAxis stroke="var(--color-text-light)" />
+                      <RechartsTooltip 
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                        formatter={(value) => `₹ ${value.toLocaleString('en-IN')}`}
+                      />
+                      <Legend />
+                      <Bar dataKey="Total" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
 
               <div className="content-card">

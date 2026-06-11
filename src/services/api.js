@@ -107,6 +107,7 @@ export const api = {
   // Notifications & Contact
   getNotifications: () => api.call('/notifications'),
   sendNotification: (data) => api.call('/notifications', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  registerDeviceToken: (token, platform) => api.call('/notifications/register-token', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ token, platform }) }),
   sendContact: (data) => api.call('/contact', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   getContactMessages: () => api.call('/contact'),
   deleteContactMessage: (id) => api.call(`/contact/${id}`, { method: 'DELETE' }),

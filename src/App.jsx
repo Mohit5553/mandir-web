@@ -31,7 +31,7 @@ import AdminSiteContent from './pages/admin/AdminSiteContent';
 import AdminVolunteers from './pages/admin/AdminVolunteers';
 import AdminLiveStream from './pages/admin/AdminLiveStream';
 import AdminContact from './pages/admin/AdminContact';
-
+import { usePushNotifications } from './hooks/usePushNotifications';
 // Guard: redirect to login if not authenticated
 const RequireAuth = ({ children }) => {
   const user = localStorage.getItem('adminUser');
@@ -40,6 +40,7 @@ const RequireAuth = ({ children }) => {
 
 function App() {
   const Router = window.Capacitor ? HashRouter : BrowserRouter;
+  usePushNotifications();
 
   return (
     <Router>
