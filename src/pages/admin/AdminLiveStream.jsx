@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../services/api';
 import { hasPermission } from '../../hooks/usePermission';
 import { io } from 'socket.io-client';
-import { Play, Square, Video, VideoOff, Settings, Users, MessageSquare, Trash2, Shield, Radio, Sparkles } from 'lucide-react';
+import { Play, Square, Video, VideoOff, Settings, Users, MessageSquare, Trash2, Shield, Radio, Sparkles, RefreshCw } from 'lucide-react';
 import './AdminLiveStream.css';
 
 const SOCKET_URL = import.meta.env.VITE_USE_LOCAL_API === 'true' || 
@@ -24,6 +24,7 @@ const AdminLiveStream = () => {
   // WebRTC States
   const [cameraActive, setCameraActive] = useState(false);
   const [localStream, setLocalStream] = useState(null);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' is front, 'environment' is back camera
   
   const [isLoading, setIsLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
@@ -385,7 +386,11 @@ const AdminLiveStream = () => {
       try {
         setErrorMessage('');
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { 
+            width: { ideal: 1280 }, 
+            height: { ideal: 720 },
+            facingMode: facingMode
+          },
           audio: true
         });
         if (localVideoRef.current) {
@@ -398,6 +403,58 @@ const AdminLiveStream = () => {
         console.error('Webcam access failed:', err);
         setErrorMessage('Could not access Webcam or Microphone. Please check browser permissions.');
       }
+    }
+  };
+
+  // Switch camera direction
+  const switchCamera = async () => {
+    if (!cameraActive || !localStreamRef.current) return;
+    const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newFacingMode);
+    
+    try {
+      setErrorMessage('');
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 },
+          facingMode: newFacingMode
+        }
+      });
+      
+      const oldVideoTrack = localStreamRef.current.getVideoTracks()[0];
+      if (oldVideoTrack) {
+        oldVideoTrack.stop();
+      }
+      
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      const audioTracks = localStreamRef.current.getAudioTracks();
+      
+      const combinedTracks = [];
+      if (newVideoTrack) combinedTracks.push(newVideoTrack);
+      combinedTracks.push(...audioTracks);
+      
+      const combinedStream = new MediaStream(combinedTracks);
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = combinedStream;
+      }
+      
+      setLocalStream(combinedStream);
+      localStreamRef.current = combinedStream;
+      
+      // Replace the video track in all active RTCPeerConnections
+      if (newVideoTrack) {
+        Object.values(peerConnectionsRef.current).forEach((pc) => {
+          const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
+          if (sender) {
+            sender.replaceTrack(newVideoTrack);
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Failed to switch camera:', err);
+      setErrorMessage('Could not access the requested camera direction.');
     }
   };
 
@@ -434,7 +491,11 @@ const AdminLiveStream = () => {
     if (streamType === 'webrtc' && !activeStream) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { 
+            width: { ideal: 1280 }, 
+            height: { ideal: 720 },
+            facingMode: facingMode
+          },
           audio: true
         });
         if (localVideoRef.current) {
@@ -606,14 +667,26 @@ const AdminLiveStream = () => {
                     <p>Camera is currently off</p>
                   </div>
                 )}
-                <button
-                  type="button"
-                  onClick={toggleCamera}
-                  className={`btn-camera-toggle ${cameraActive ? 'active' : ''}`}
-                >
-                  {cameraActive ? <VideoOff size={18} /> : <Video size={18} />}
-                  {cameraActive ? 'Deactivate Camera' : 'Activate Camera'}
-                </button>
+                <div className="webrtc-controls-container">
+                  <button
+                    type="button"
+                    onClick={toggleCamera}
+                    className={`btn-camera-toggle ${cameraActive ? 'active' : ''}`}
+                  >
+                    {cameraActive ? <VideoOff size={18} /> : <Video size={18} />}
+                    {cameraActive ? 'Deactivate Camera' : 'Activate Camera'}
+                  </button>
+                  {cameraActive && (
+                    <button
+                      type="button"
+                      onClick={switchCamera}
+                      className="btn-camera-switch"
+                    >
+                      <RefreshCw size={18} />
+                      Switch Camera
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="static-preview-box" style={{ width: '100%', height: '100%' }}>

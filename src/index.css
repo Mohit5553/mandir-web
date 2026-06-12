@@ -11,7 +11,8 @@
   --color-primary-alpha-2: rgba(255, 107, 0, 0.2);
 
   /* White Palette & Neutrals */
-  --color-bg: #FCF9F2; /* Warm Ivory */
+  --color-bg: #FCF9F2;
+  /* Warm Ivory */
   --color-bg-alt: #F8F4E6;
   /* Slightly off-white for depth */
   --color-surface: #FFFFFF;
@@ -48,7 +49,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   scroll-behavior: smooth;
   max-width: 100vw;
   overflow-x: hidden;
@@ -62,7 +64,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
 }
 
@@ -108,18 +115,20 @@ button {
   position: relative;
   overflow: hidden;
 }
+
 .bg-mandala::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at center, rgba(255,107,0,0.04) 0%, transparent 60%);
+  background-image: radial-gradient(circle at center, rgba(255, 107, 0, 0.04) 0%, transparent 60%);
   background-size: 800px 800px;
   background-position: center;
   background-repeat: no-repeat;
   pointer-events: none;
   z-index: 0;
 }
-.bg-mandala > * {
+
+.bg-mandala>* {
   position: relative;
   z-index: 1;
 }
@@ -293,12 +302,10 @@ button {
 
 .home-hero-overlay {
   z-index: 1;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.1) 0%,
-    rgba(0, 0, 0, 0.45) 50%,
-    rgba(0, 0, 0, 0.72) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.45) 50%,
+      rgba(0, 0, 0, 0.72) 100%);
 }
 
 .home-hero-content {

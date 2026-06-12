@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio } from 'lucide-react';
+import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio, Home, Newspaper } from 'lucide-react';
 import logo from '../assets/logo.png';
 import LanguageToggle from './LanguageToggle';
 import { api } from '../services/api';
@@ -54,40 +54,100 @@ const Layout = () => {
             <img src={logo} alt="Trust Logo" style={{ height: '70px', width: '70px', borderRadius: '50%', objectFit: 'cover', filter: 'drop-shadow(0 2px 8px rgba(255,107,0,0.2))' }} />
           </Link>
 
-          {/* Centered Navigation Links */}
+          {/* Mobile Overlay Backdrop */}
+          {isMenuOpen && (
+            <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)} />
+          )}
+
+          {/* Centered Navigation Links / Drawer */}
           <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-            <Link to="/" className={isActive('/')} onClick={() => setIsMenuOpen(false)}>Home</Link>
-            <Link to="/about" className={isActive('/about')} onClick={() => setIsMenuOpen(false)}>About Us</Link>
-            <Link to="/news" className={isActive('/news')} onClick={() => setIsMenuOpen(false)}>News</Link>
-            <Link to="/events" className={isActive('/events')} onClick={() => setIsMenuOpen(false)}>Events</Link>
-            <Link to="/gallery" className={isActive('/gallery')} onClick={() => setIsMenuOpen(false)}>Gallery</Link>
-            <Link to="/contact" className={isActive('/contact')} onClick={() => setIsMenuOpen(false)}>Contact</Link>
-            {isLive && (
-              <Link 
-                to="/live" 
-                className={`${isActive('/live')} nav-live-link ${isLive ? 'online' : 'offline'}`} 
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Live Darshan
-                <span className={`live-indicator-dot ${isLive ? 'online' : 'offline'}`} title={isLive ? "Darshan is Live Now!" : "Darshan is Offline"}></span>
+            {/* Drawer Header for Mobile */}
+            <div className="drawer-header">
+              <div className="drawer-brand">
+                <img src={logo} alt="Trust Logo" className="drawer-logo" />
+                <span className="drawer-title">Mandir Trust</span>
+              </div>
+              <button type="button" className="drawer-close-btn" onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="drawer-menu-items">
+              <Link to="/" className={isActive('/')} onClick={() => setIsMenuOpen(false)}>
+                <div className="link-text-group">
+                  <Home size={20} className="menu-icon" />
+                  <span>Home</span>
+                </div>
+                <ChevronRight size={16} className="menu-arrow" />
               </Link>
-            )}
+              <Link to="/about" className={isActive('/about')} onClick={() => setIsMenuOpen(false)}>
+                <div className="link-text-group">
+                  <Info size={20} className="menu-icon" />
+                  <span>About Us</span>
+                </div>
+                <ChevronRight size={16} className="menu-arrow" />
+              </Link>
+              <Link to="/news" className={isActive('/news')} onClick={() => setIsMenuOpen(false)}>
+                <div className="link-text-group">
+                  <Newspaper size={20} className="menu-icon" />
+                  <span>News</span>
+                </div>
+                <ChevronRight size={16} className="menu-arrow" />
+              </Link>
+              <Link to="/events" className={isActive('/events')} onClick={() => setIsMenuOpen(false)}>
+                <div className="link-text-group">
+                  <Calendar size={20} className="menu-icon" />
+                  <span>Events</span>
+                </div>
+                <ChevronRight size={16} className="menu-arrow" />
+              </Link>
+              <Link to="/gallery" className={isActive('/gallery')} onClick={() => setIsMenuOpen(false)}>
+                <div className="link-text-group">
+                  <ImageIcon size={20} className="menu-icon" />
+                  <span>Gallery</span>
+                </div>
+                <ChevronRight size={16} className="menu-arrow" />
+              </Link>
+              <Link to="/contact" className={isActive('/contact')} onClick={() => setIsMenuOpen(false)}>
+                <div className="link-text-group">
+                  <Phone size={20} className="menu-icon" />
+                  <span>Contact</span>
+                </div>
+                <ChevronRight size={16} className="menu-arrow" />
+              </Link>
+              {isLive && (
+                <Link 
+                  to="/live" 
+                  className={`${isActive('/live')} nav-live-link ${isLive ? 'online' : 'offline'}`} 
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <div className="link-text-group">
+                    <Radio size={20} className="menu-icon" />
+                    <span>Live Darshan</span>
+                  </div>
+                  <span className={`live-indicator-dot ${isLive ? 'online' : 'offline'}`} title={isLive ? "Darshan is Live Now!" : "Darshan is Offline"}></span>
+                </Link>
+              )}
+            </div>
             
             {/* Mobile Actions Drawer Wrapper */}
             <div className="mobile-actions-wrapper">
+              <div className="drawer-section-title">Language / भाषा</div>
               <LanguageToggle onSelect={() => setIsMenuOpen(false)} />
+              
+              <div className="drawer-section-title" style={{ marginTop: '1.25rem' }}>Account / खाता</div>
               {adminUser ? (
                 <div>
-                  <Link to="/admin" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem' }} onClick={() => setIsMenuOpen(false)}>
-                    <LayoutDashboard size={16} /> Dashboard
+                  <Link to="/admin" className="btn btn-dashboard" onClick={() => setIsMenuOpen(false)}>
+                    <LayoutDashboard size={18} /> Dashboard
                   </Link>
-                  <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} style={{ background: 'transparent', color: 'var(--color-text-light)', border: '1px solid var(--border-color)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', fontWeight: 500, fontSize: '0.9rem', cursor: 'pointer' }}>
+                  <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="btn btn-logout">
                     Logout
                   </button>
                 </div>
               ) : (
-                <Link to="/admin/login" className="btn" style={{ background: 'var(--color-primary-alpha)', color: 'var(--color-primary)', padding: '0.6rem 1.2rem', borderRadius: 'var(--radius-full)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem', border: '1px solid rgba(255,107,0,0.2)' }} onClick={() => setIsMenuOpen(false)}>
-                  <LogIn size={16} /> Login
+                <Link to="/admin/login" className="btn btn-login" onClick={() => setIsMenuOpen(false)}>
+                  <LogIn size={18} /> Login
                 </Link>
               )}
             </div>
