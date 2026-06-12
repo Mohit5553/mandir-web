@@ -543,6 +543,19 @@ body {
   display: none;
 }
 
+.drawer-menu-items {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.link-text-group {
+  display: inline-flex;
+  align-items: center;
+}
+
 @media (max-width: 1150px) {
   .header-content {
     height: 72px;
@@ -648,6 +661,7 @@ body {
     font-weight: 800;
     background: var(--gradient-primary);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 

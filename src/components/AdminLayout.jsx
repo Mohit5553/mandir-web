@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText, Menu, PanelsTopLeft, Settings2, HandHeart, Video, ShieldCheck, Mail } from 'lucide-react';
+import { LayoutDashboard, Users, Heart, Image as ImageIcon, Calendar, Newspaper, Bell, LogOut, FileText, Menu, PanelsTopLeft, Settings2, HandHeart, Video, ShieldCheck, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import logo from '../assets/logo.png';
 import './Admin.css';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => localStorage.getItem('adminSidebarCollapsed') === 'true');
+
+  const toggleCollapse = () => {
+    const nextVal = !isCollapsed;
+    setIsCollapsed(nextVal);
+    localStorage.setItem('adminSidebarCollapsed', String(nextVal));
+  };
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -76,17 +83,17 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="admin-layout">
+    <div className={`admin-layout ${isCollapsed ? 'collapsed' : ''}`}>
       <button
         className={`admin-sidebar-backdrop ${isSidebarOpen ? 'show' : ''}`}
         type="button"
         aria-label="Close admin navigation"
         onClick={() => setIsSidebarOpen(false)}
       />
-      <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`} style={{ width: '280px' }}>
+      <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="admin-logo">
-          <img src={logo} alt="Logo" style={{ height: '70px', width: '70px', borderRadius: '50%', objectFit: 'cover' }} />
-          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-primary)', textAlign: 'center', letterSpacing: '0.5px', lineHeight: 1.3 }}>MANDIR TRUST</div>
+          <img src={logo} alt="Logo" style={{ height: isCollapsed ? '42px' : '70px', width: isCollapsed ? '42px' : '70px', borderRadius: '50%', objectFit: 'cover', transition: 'width 0.3s, height 0.3s' }} />
+          {!isCollapsed && <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-primary)', textAlign: 'center', letterSpacing: '0.5px', lineHeight: 1.3 }}>MANDIR TRUST</div>}
         </div>
         <nav className="admin-nav">
           {filteredMenu.map(item => (
@@ -96,13 +103,22 @@ const AdminLayout = () => {
               className={`admin-nav-item ${(location.pathname === item.path || (item.path === '/admin/users' && location.pathname === '/admin/roles')) ? 'active' : ''}`}
               onClick={() => setIsSidebarOpen(false)}
             >
-              {item.icon} {item.name}
+              {item.icon} <span className="nav-item-label">{item.name}</span>
             </Link>
           ))}
         </nav>
         <div className="admin-nav-bottom">
-          <button className="admin-nav-item" style={{ color: '#b91c1c', border: 'none', background: 'none', cursor: 'pointer', width: '100%', justifyContent: 'flex-start' }} onClick={handleLogout}>
-            <LogOut size={20} /> Logout
+          <button 
+            type="button"
+            onClick={toggleCollapse} 
+            className="admin-nav-item collapse-btn"
+            style={{ border: 'none', background: 'none', cursor: 'pointer', width: '100%', marginBottom: '0.5rem' }}
+          >
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            <span className="nav-item-label">Collapse Menu</span>
+          </button>
+          <button className="admin-nav-item" style={{ color: '#b91c1c', border: 'none', background: 'none', cursor: 'pointer', width: '100%' }} onClick={handleLogout}>
+            <LogOut size={20} /> <span className="nav-item-label">Logout</span>
           </button>
         </div>
       </aside>

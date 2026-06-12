@@ -9,6 +9,7 @@
   display: none;
 }
 
+/* Sidebar default styles */
 .admin-sidebar {
   width: 260px;
   background: var(--color-surface);
@@ -21,6 +22,7 @@
   height: 100vh;
   overflow: hidden;
   z-index: 20;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .admin-logo {
@@ -90,6 +92,7 @@
   flex-direction: column;
   min-width: 0;
   margin-left: 260px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .admin-header {
@@ -227,7 +230,36 @@
 
 @media (max-width: 1024px) {
   .admin-main {
-    margin-left: 0;
+    margin-left: 0 !important;
+  }
+  
+  /* Force sidebar drawer to display fully expanded on mobile viewports */
+  .admin-layout.collapsed .admin-sidebar {
+    width: 260px !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease, width 0s !important;
+  }
+  
+  .admin-layout.collapsed .admin-sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .admin-layout.collapsed .nav-item-label {
+    display: inline !important;
+  }
+  
+  .admin-layout.collapsed .admin-nav-item {
+    justify-content: flex-start !important;
+    padding: 0.6rem 0.75rem !important;
+    gap: 0.65rem !important;
+  }
+  
+  .admin-layout.collapsed .admin-nav-bottom {
+    padding: 1rem !important;
+  }
+  
+  .collapse-btn {
+    display: none !important;
   }
   
   .admin-sidebar {
@@ -345,4 +377,27 @@
   .admin-member-form-two-column {
     grid-template-columns: 1fr;
   }
+}
+
+/* Collapsed sidebar layout styles (Desktop only) */
+.admin-layout.collapsed .admin-sidebar {
+  width: 80px;
+}
+
+.admin-layout.collapsed .admin-main {
+  margin-left: 80px;
+}
+
+.admin-layout.collapsed .nav-item-label {
+  display: none;
+}
+
+.admin-layout.collapsed .admin-nav-item {
+  justify-content: center;
+  padding: 0.65rem 0;
+  gap: 0;
+}
+
+.admin-layout.collapsed .admin-nav-bottom {
+  padding: 1rem 0.5rem;
 }
