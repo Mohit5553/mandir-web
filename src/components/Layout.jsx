@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio, Home, Newspaper } from 'lucide-react';
+import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio, Home, Newspaper, Download } from 'lucide-react';
 import logo from '../assets/logo.png';
 import LanguageToggle from './LanguageToggle';
 import { api } from '../services/api';
@@ -116,9 +116,9 @@ const Layout = () => {
                 <ChevronRight size={16} className="menu-arrow" />
               </Link>
               {isLive && (
-                <Link 
-                  to="/live" 
-                  className={`${isActive('/live')} nav-live-link ${isLive ? 'online' : 'offline'}`} 
+                <Link
+                  to="/live"
+                  className={`${isActive('/live')} nav-live-link ${isLive ? 'online' : 'offline'}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <div className="link-text-group">
@@ -129,12 +129,12 @@ const Layout = () => {
                 </Link>
               )}
             </div>
-            
+
             {/* Mobile Actions Drawer Wrapper */}
             <div className="mobile-actions-wrapper">
               <div className="drawer-section-title">Language / भाषा</div>
               <LanguageToggle onSelect={() => setIsMenuOpen(false)} />
-              
+
               <div className="drawer-section-title" style={{ marginTop: '1.25rem' }}>Account / खाता</div>
               {adminUser ? (
                 <div>
@@ -266,6 +266,11 @@ const Layout = () => {
                   <ShieldCheck size={16} className="link-icon" /> Privacy Policy
                 </Link>
               </li>
+              <li>
+                <a href="/mandir-app.apk" download className="hover-link" style={{ fontWeight: 'bold', color: '#ffffff' }}>
+                  <Download size={16} className="link-icon" /> Download App (APK)
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -302,7 +307,7 @@ const Layout = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="footer-bottom premium-bottom">
           <p>&copy; {new Date().getFullYear()} Shree Manvat Baba Mandir Trust. All rights reserved.</p>
         </div>
