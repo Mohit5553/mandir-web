@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio, Home, Newspaper, Download } from 'lucide-react';
+import { Heart, MapPin, Phone, Menu, X, LogIn, LayoutDashboard, ChevronRight, Calendar, Mail, Info, Image as ImageIcon, FileText, ShieldCheck, Radio, Home, Newspaper, Download, Users } from 'lucide-react';
 import logo from '../assets/logo.png';
 import LanguageToggle from './LanguageToggle';
 import { api } from '../services/api';
@@ -10,6 +10,7 @@ const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const [isLive, setIsLive] = React.useState(false);
+  const [visitorCount, setVisitorCount] = React.useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -20,6 +21,26 @@ const Layout = () => {
   const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null');
 
   React.useEffect(() => {
+    const handleVisitorTracking = async () => {
+      try {
+        if (!sessionStorage.getItem('hasVisited')) {
+          const res = await api.incrementVisitorCount();
+          if (res && res.count) {
+            setVisitorCount(res.count);
+            sessionStorage.setItem('hasVisited', 'true');
+          }
+        } else {
+          const res = await api.getVisitorCount();
+          if (res && res.count) {
+            setVisitorCount(res.count);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to track visitor:', err);
+      }
+    };
+    handleVisitorTracking();
+
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -310,6 +331,12 @@ const Layout = () => {
 
         <div className="footer-bottom premium-bottom">
           <p>&copy; {new Date().getFullYear()} Shree Manvat Baba Mandir Trust. All rights reserved.</p>
+          <p style={{ marginTop: '0.6rem', fontSize: '0.95rem', color: 'rgba(255,255,255,0.95)' }}>
+            Designed & Developed by <strong>Mohit Maurya</strong> | <a href="tel:+916387725553" style={{ color: '#ffffff', textDecoration: 'underline' }}>+91 6387725553</a>
+          </p>
+          <p style={{ marginTop: '0.6rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+            <Users size={14} /> Total Visitors: <strong>{visitorCount > 0 ? visitorCount.toLocaleString() : '...'}</strong>
+          </p>
         </div>
       </footer>
     </div>

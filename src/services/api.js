@@ -118,4 +118,12 @@ export const api = {
   updateLiveStatus: (data) => api.call('/live/status', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   getLiveChat: () => api.call('/live/chat'),
   clearLiveChat: () => api.call('/live/chat', { method: 'DELETE' }),
+
+  // Stats & Visitors
+  incrementVisitorCount: () => api.call('/stats/visit', { method: 'POST' }),
+  getVisitorCount: () => api.call('/stats/visitors'),
+
+  // Reviews
+  submitReview: (data) => api.call('/reviews', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  getReviews: () => api.call('/reviews'),
 };

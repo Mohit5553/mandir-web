@@ -20,6 +20,7 @@ import {
   Users
 } from 'lucide-react';
 import { api } from '../services/api';
+import ReviewSection from '../components/ReviewSection';
 
 const fallbackSections = [
   { key: 'announcement', label: 'Announcement Bar', enabled: true, order: 1 },
@@ -626,6 +627,7 @@ const Home = () => {
       </section>
 
       {sortedSections.map((section) => renderSection(section.key))}
+      <ReviewSection />
     </div>
   );
 };
