@@ -1,15 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="hi">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/src/assets/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="google" content="notranslate" />
     <meta name="theme-color" content="#FF6000" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Shree Manvat Baba Mahashiv Mandir Trust</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.log('PWA ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

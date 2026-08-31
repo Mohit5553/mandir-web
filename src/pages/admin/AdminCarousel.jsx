@@ -128,14 +128,18 @@ const AdminCarousel = () => {
 
   return (
     <div>
-      <h1 style={{ marginBottom: '0.5rem' }}>Home Carousel</h1>
-      <p style={{ color: '#64748b', marginBottom: '2rem' }}>Upload photos or videos that rotate behind the home page hero.</p>
+      <div className="page-toolbar" style={{ marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ marginBottom: '0.4rem' }}>होमपेज बैनर एवं मीडिया कैरोसेल</h1>
+          <p className="text-light">मुख्य पृष्ठ के ऊपरी बैनर में घूमने वाली फोटो एवं वीडियो मीडिया का प्रबंधन करें</p>
+        </div>
+      </div>
 
       <div className="admin-page-grid" style={{ display: 'grid', gridTemplateColumns: canCreate ? '360px 1fr' : '1fr', gap: '2rem', alignItems: 'start' }}>
         {canCreate && (
         <div className="content-card" style={{ height: 'fit-content' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Upload size={20} color="var(--color-primary)" /> Add Media
+            <Upload size={20} color="var(--color-primary)" /> मीडिया जोड़ें
           </h3>
 
           {error && (
@@ -145,7 +149,7 @@ const AdminCarousel = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Photo or Video</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>फोटो या वीडियो फ़ाइल *</label>
             <input
               type="file"
               accept="image/*,video/*"
@@ -158,21 +162,21 @@ const AdminCarousel = () => {
                 {form.mediaType === 'video' ? (
                   <video src={preview} controls muted style={{ width: '100%', height: '190px', objectFit: 'cover', display: 'block' }} />
                 ) : (
-                  <img src={preview} alt="Preview" style={{ width: '100%', height: '190px', objectFit: 'cover', display: 'block' }} />
+                  <img src={preview} alt="पूर्वावलोकन" style={{ width: '100%', height: '190px', objectFit: 'cover', display: 'block' }} />
                 )}
               </div>
             )}
 
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Title</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>मीडिया का नाम / शीर्षक</label>
             <input
               type="text"
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
-              placeholder="Media title"
+              placeholder="जैसे: महाशिवरात्रि मंदिर दर्शन"
               style={{ width: '100%', padding: '0.75rem', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.95rem', marginBottom: '1rem' }}
             />
 
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Sort Order</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>क्रम संख्या (Sort Order)</label>
             <input
               type="number"
               value={form.sortOrder}
@@ -186,22 +190,22 @@ const AdminCarousel = () => {
                 checked={form.isActive}
                 onChange={e => setForm({ ...form, isActive: e.target.checked })}
               />
-              Active on home page
+              होमपेज पर सक्रिय (Active) रखें
             </label>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.9rem' }} disabled={loading}>
-              {loading ? 'Uploading...' : 'Add to Carousel'}
+              {loading ? 'अपलोड हो रहा है...' : 'कैरोसेल में जोड़ें'}
             </button>
           </form>
         </div>
         )}
 
         <div className="content-card">
-          <h3 style={{ marginBottom: '1.5rem' }}>Carousel Media ({items.length})</h3>
+          <h3 style={{ marginBottom: '1.5rem' }}>कैरोसेल मीडिया प्रविष्टियां ({items.length})</h3>
           {items.length === 0 ? (
             <div className="empty-state">
               <ImageIcon size={44} style={{ marginBottom: '1rem', opacity: 0.45 }} />
-              <p>No carousel media yet.</p>
+              <p>कोई कैरोसेल मीडिया उपलब्ध नहीं है। पहली फोटो या वीडियो अपलोड करें!</p>
             </div>
           ) : (
             <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
@@ -217,10 +221,10 @@ const AdminCarousel = () => {
                   <div style={{ padding: '0.85rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: item.mediaType === 'video' ? '#7c3aed' : 'var(--color-primary)', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                       {item.mediaType === 'video' ? <Video size={15} /> : <ImageIcon size={15} />}
-                      {item.mediaType}
+                      {item.mediaType === 'video' ? 'वीडियो' : 'फोटो'}
                     </div>
                     <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '0.4rem', overflowWrap: 'anywhere' }}>{item.title}</div>
-                    <label style={{ display: 'block', color: '#64748b', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.35rem' }}>Sort Order</label>
+                    <label style={{ display: 'block', color: '#64748b', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.35rem' }}>क्रम संख्या</label>
                     <input
                       type="number"
                       defaultValue={item.sortOrder}
@@ -235,14 +239,15 @@ const AdminCarousel = () => {
                         style={{ flex: 1, padding: '0.55rem 0.7rem', fontSize: '0.85rem' }}
                       >
                         {item.isActive ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
-                        {item.isActive ? 'Active' : 'Hidden'}
+                        {item.isActive ? 'सक्रिय' : 'छिपा हुआ'}
                       </button>
                       {canDelete && (
                       <button
                         type="button"
                         onClick={() => handleDelete(item._id)}
                         style={{ width: '42px', borderRadius: '8px', background: '#fee2e2', color: '#b91c1c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        aria-label="Delete carousel media"
+                        aria-label="मीडिया हटाएं"
+                        title="मीडिया हटाएं"
                       >
                         <Trash2 size={17} />
                       </button>

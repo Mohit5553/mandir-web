@@ -33,9 +33,9 @@ const Gallery = () => {
     <div className="gallery-page">
       <section className="section bg-primary" style={{ padding: '2rem 0', color: 'white', textAlign: 'center' }}>
         <div className="container">
-          <h1 style={{ fontSize: '2.1rem', fontWeight: 800, marginBottom: '0.4rem' }}>Photo & Video Gallery</h1>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 800, marginBottom: '0.4rem' }}>छायाचित्र एवं वीडियो गैलरी</h1>
           <p style={{ fontSize: '1rem', opacity: 0.95, maxWidth: '650px', margin: '0 auto', lineHeight: 1.4 }}>
-            Catch glimpses of our vibrant festivals, poojas, and community service activities.
+            मंदिर के प्रमुख उत्सवों, पूजा-अर्चना एवं जनकल्याणकारी सेवा कार्यों की मनमोहक झलकियाँ देखें।
           </p>
         </div>
       </section>
@@ -51,13 +51,13 @@ const Gallery = () => {
               >
                 {f === 'image' && <Image size={18} />}
                 {f === 'video' && <Video size={18} />}
-                {f === 'all' ? 'All Media' : f === 'image' ? 'Photos' : 'Videos'}
+                {f === 'all' ? 'सभी मीडिया' : f === 'image' ? 'तस्वीरें' : 'वीडियो'}
               </button>
             ))}
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-light)' }}>Loading gallery...</div>
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-light)' }}>गैलरी लोड हो रही है...</div>
           ) : (
             <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
               {media.map(item => {
@@ -67,7 +67,15 @@ const Gallery = () => {
                 <div key={item._id} className="content-card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}>
                   <div style={{ position: 'relative', height: '220px', background: '#fff5ed' }}>
                     {mediaUrl ? (
-                      <img src={mediaUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      <img
+                        src={mediaUrl}
+                        alt={item.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop';
+                        }}
+                      />
                     ) : (
                       <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-light)' }}>
                         <Image size={36} />

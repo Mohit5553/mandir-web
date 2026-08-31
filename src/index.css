@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap');
 
 :root {
-  --font-heading: 'Playfair Display', serif;
+  --font-heading: 'Hind', sans-serif;
   /* Vibrant Orange Palette */
   --color-primary: #FF6B00;
   /* Pure vibrant orange */
@@ -57,7 +57,7 @@ body {
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Hind', sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
@@ -1246,15 +1246,15 @@ button {
 
 @media (max-width: 900px) {
   .container {
-    padding: 0 1.25rem;
+    padding: 0 1rem;
   }
 
   .section {
-    padding: 3.5rem 0;
+    padding: 1.5rem 0;
   }
 
   .section.bg-primary {
-    padding: 3rem 0 !important;
+    padding: 1.5rem 0 !important;
   }
 
   .section.bg-primary h1,
@@ -1489,6 +1489,39 @@ button {
 }
 
 @media (max-width: 768px) {
+  .section {
+    padding: 1.1rem 0 !important;
+  }
+
+  .home-slim-section {
+    padding: 0.65rem 0 !important;
+  }
+
+  .home-section-heading {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .home-section-heading h2 {
+    font-size: 1.45rem !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  .home-section-heading p {
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .home-volunteer-grid {
+    gap: 1.25rem !important;
+  }
+
+  .home-transparency-band,
+  .home-testimonial-band,
+  .home-preview-section,
+  .review-section {
+    padding: 1.15rem 0 !important;
+  }
+
   .section.bg-primary {
     padding: 0.85rem 1rem !important;
   }

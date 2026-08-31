@@ -41,28 +41,28 @@ const AdminLayout = () => {
 
   // All menus grouped with section headers
   const ALL_MENU_ITEMS = [
-    { section: 'MAIN' },
-    { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={19} /> },
-    { name: 'Donations', path: '/admin/donations', icon: <Heart size={19} /> },
-    { name: 'Reports', path: '/admin/reports', icon: <FileText size={19} /> },
+    { section: 'मुख्य' },
+    { name: 'डैशबोर्ड', apiKey: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={19} /> },
+    { name: 'दान प्रबंधन', apiKey: 'Donations', path: '/admin/donations', icon: <Heart size={19} /> },
+    { name: 'रिपोर्ट्स', apiKey: 'Reports', path: '/admin/reports', icon: <FileText size={19} /> },
 
-    { section: 'MANAGEMENT' },
-    { name: 'Users & Roles', path: '/admin/users', icon: <Users size={19} /> },
-    { name: 'Trust Management', path: '/admin/trust-management', icon: <Users size={19} /> },
-    { name: 'Volunteer Requests', path: '/admin/volunteers', icon: <HandHeart size={19} /> },
-    { name: 'Contact Messages', path: '/admin/contact', icon: <Mail size={19} /> },
+    { section: 'प्रबंधन' },
+    { name: 'उपयोगकर्ता एवं भूमिकाएं', apiKey: 'Users', path: '/admin/users', icon: <Users size={19} /> },
+    { name: 'ट्रस्ट प्रबंधन', apiKey: 'Trust Management', path: '/admin/trust-management', icon: <Users size={19} /> },
+    { name: 'स्वयंसेवक अनुरोध', apiKey: 'Volunteers', path: '/admin/volunteers', icon: <HandHeart size={19} /> },
+    { name: 'संपर्क संदेश', apiKey: 'Contact', path: '/admin/contact', icon: <Mail size={19} /> },
 
-    { section: 'CONTENT & MEDIA' },
-    { name: 'Events', path: '/admin/events', icon: <Calendar size={19} /> },
-    { name: 'News', path: '/admin/news', icon: <Newspaper size={19} /> },
-    { name: 'Gallery', path: '/admin/gallery', icon: <ImageIcon size={19} /> },
-    { name: 'Home Carousel', path: '/admin/carousel', icon: <PanelsTopLeft size={19} /> },
-    { name: 'Homepage Content', path: '/admin/site-content', icon: <Settings2 size={19} /> },
-    { name: 'Live Stream', path: '/admin/live', icon: <Video size={19} /> },
-    { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={19} /> },
+    { section: 'सामग्री एवं मीडिया' },
+    { name: 'घटनाएँ', apiKey: 'Events', path: '/admin/events', icon: <Calendar size={19} /> },
+    { name: 'समाचार', apiKey: 'News', path: '/admin/news', icon: <Newspaper size={19} /> },
+    { name: 'गैलरी', apiKey: 'Gallery', path: '/admin/gallery', icon: <ImageIcon size={19} /> },
+    { name: 'होमपेज बैनर', apiKey: 'Carousel', path: '/admin/carousel', icon: <PanelsTopLeft size={19} /> },
+    { name: 'वेबसाइट सामग्री', apiKey: 'Site Content', path: '/admin/site-content', icon: <Settings2 size={19} /> },
+    { name: 'लाइव स्ट्रीम', apiKey: 'Live Stream', path: '/admin/live', icon: <Video size={19} /> },
+    { name: 'सूचनाएँ', apiKey: 'Notifications', path: '/admin/notifications', icon: <Bell size={19} /> },
 
-    { section: 'SYSTEM & AUDIT' },
-    { name: 'Audit Logs', path: '/admin/audit-logs', icon: <ScrollText size={19} /> },
+    { section: 'सिस्टम एवं ऑडिट' },
+    { name: 'ऑडिट लॉग्स', apiKey: 'Audit Logs', path: '/admin/audit-logs', icon: <ScrollText size={19} /> },
   ];
 
   // Get permissions from localStorage (set on login)
@@ -70,21 +70,22 @@ const AdminLayout = () => {
     try { return JSON.parse(localStorage.getItem('adminPermissions') || '[]'); } catch { return []; }
   })();
 
-  const canViewMenu = (menuName) => {
+  const canViewMenu = (item) => {
     if (isSuperAdmin) return true;
-    if (menuName === 'Users & Roles') {
+    const apiKey = item.apiKey || item.name;
+    if (apiKey === 'Users' || apiKey === 'Users & Roles') {
       const pUsers = permissions.find(x => x.menu === 'Users');
       const pRoles = permissions.find(x => x.menu === 'Roles');
       return (pUsers && pUsers.view) || (pRoles && pRoles.view);
     }
-    const p = permissions.find(x => x.menu === menuName);
+    const p = permissions.find(x => x.menu === apiKey || x.menu === item.name);
     return p ? p.view : false;
   };
 
   const filteredMenu = ALL_MENU_ITEMS.filter(item => {
     if (item.section) return true;
     if (item.superAdminOnly) return isSuperAdmin;
-    return canViewMenu(item.name);
+    return canViewMenu(item);
   });
 
   // Route guard: is the current path accessible?
@@ -100,7 +101,7 @@ const AdminLayout = () => {
   } else {
     const currentMenu = ALL_MENU_ITEMS.find(item => item.path === cleanPath);
     if (currentMenu) {
-      currentAllowed = canViewMenu(currentMenu.name) || (currentMenu.superAdminOnly && isSuperAdmin);
+      currentAllowed = canViewMenu(currentMenu) || (currentMenu.superAdminOnly && isSuperAdmin);
     }
   }
 
@@ -109,7 +110,7 @@ const AdminLayout = () => {
       <button
         className={`admin-sidebar-backdrop ${isSidebarOpen ? 'show' : ''}`}
         type="button"
-        aria-label="Close admin navigation"
+        aria-label="नेविगेशन बंद करें"
         onClick={() => setIsSidebarOpen(false)}
       />
       <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`} style={{ overflow: 'visible' }}>
@@ -118,13 +119,13 @@ const AdminLayout = () => {
           type="button"
           onClick={toggleCollapse}
           className="sidebar-edge-toggle hide-mobile"
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          title={isCollapsed ? "विस्तार करें" : "छोटा करें"}
         >
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
 
         <div className="admin-logo">
-          <img src={logo} alt="Logo" style={{ height: isCollapsed ? '36px' : '38px', width: isCollapsed ? '36px' : '38px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, transition: 'all 0.3s' }} />
+          <img src={logo} alt="लोगो" style={{ height: isCollapsed ? '36px' : '38px', width: isCollapsed ? '36px' : '38px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, transition: 'all 0.3s' }} />
           {!isCollapsed && (
             <div style={{ lineHeight: 1.25 }}>
               <div style={{ fontSize: '0.88rem', fontWeight: 900, background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.2px' }}>
@@ -160,7 +161,7 @@ const AdminLayout = () => {
         </nav>
         <div className="admin-nav-bottom">
           <button className="admin-nav-item" style={{ color: '#b91c1c', border: 'none', background: 'none', cursor: 'pointer', width: '100%' }} onClick={handleLogout}>
-            <LogOut size={19} /> <span className="nav-item-label">Logout</span>
+            <LogOut size={19} /> <span className="nav-item-label">लॉग आउट</span>
           </button>
         </div>
       </aside>
@@ -171,28 +172,15 @@ const AdminLayout = () => {
             <button
               className="admin-menu-btn"
               type="button"
-              aria-label="Open admin navigation"
+              aria-label="प्रशासन नेविगेशन खोलें"
               onClick={() => setIsSidebarOpen(true)}
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                background: '#fff7ed',
-                border: '1px solid #fed7aa',
-                color: '#ea580c',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(234,88,12,0.12)'
-              }}
             >
               <Menu size={19} color="#ea580c" />
             </button>
 
             <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-primary)', background: 'var(--color-primary-alpha)', padding: '0.15rem 0.45rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                ADMIN
+                प्रशासन
               </span>
               <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>/</span>
               <h2 style={{ fontSize: '0.92rem', fontWeight: 700, margin: 0, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -203,7 +191,7 @@ const AdminLayout = () => {
                       <span style={{ color: 'var(--color-primary)', display: 'inline-flex' }}>{active.icon}</span>
                       {active.name}
                     </>
-                  ) : 'Dashboard';
+                  ) : 'डैशबोर्ड';
                 })()}
               </h2>
             </div>
@@ -211,7 +199,7 @@ const AdminLayout = () => {
 
           {/* Centered Mandir Brand Badge (Visible on Mobile) */}
           <div className="mobile-header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-            <img src={logo} alt="Mandir Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FF6000' }} />
+            <img src={logo} alt="मंदिर लोगो" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FF6000' }} />
             <span style={{ fontWeight: 900, fontSize: '0.9rem', color: '#0f172a', letterSpacing: '-0.2px' }}>
               श्री मन्वत बाबा
             </span>
@@ -220,14 +208,14 @@ const AdminLayout = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}>
             <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.6rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '9999px', fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }}></span>
-              <span>Online</span>
+              <span>ऑनलाइन</span>
             </div>
 
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              title="Open Public Website"
+              title="मुख्य वेबसाइट खोलें"
               style={{
                 textDecoration: 'none',
                 display: 'inline-flex',
@@ -246,7 +234,7 @@ const AdminLayout = () => {
               }}
             >
               <Globe size={14} color="#ea580c" />
-              <span className="hide-mobile">Website</span>
+              <span className="hide-mobile">वेबसाइट</span>
             </a>
 
             {/* Clickable Profile Badge with Dropdown State */}
@@ -267,11 +255,11 @@ const AdminLayout = () => {
               }}
             >
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#1e293b', lineHeight: 1.1 }}>{user.name || 'User'}</div>
-                <div style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 700 }}>{user.role || 'Super Admin'}</div>
+                <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#1e293b', lineHeight: 1.1 }}>{user.name || 'प्रशासक'}</div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 700 }}>{user.role === 'Super Admin' ? 'मुख्य मंदिर प्रशासक' : user.role || 'मंदिर प्रशासक'}</div>
               </div>
               <div className="admin-avatar" style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6B00, #FF8533)', color: 'white', fontWeight: 800, fontSize: '0.78rem', boxShadow: '0 2px 6px rgba(255,107,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {user.name ? user.name[0].toUpperCase() : 'U'}
+                {user.name ? user.name[0].toUpperCase() : 'म'}
               </div>
             </div>
 
@@ -293,17 +281,17 @@ const AdminLayout = () => {
                 {/* User Summary Header */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingBottom: '0.85rem', borderBottom: '1px solid #f1f5f9', marginBottom: '0.75rem' }}>
                   <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6B00 0%, #ea580c 100%)', color: 'white', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)' }}>
-                    {user.name ? user.name[0].toUpperCase() : 'U'}
+                    {user.name ? user.name[0].toUpperCase() : 'म'}
                   </div>
                   <div style={{ overflow: 'hidden' }}>
                     <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {user.name || 'User'}
+                      {user.name || 'प्रशासक'}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {user.email || 'mahashivmandirtrusts@gmail.com'}
                     </div>
                     <span style={{ display: 'inline-block', marginTop: '0.2rem', fontSize: '0.65rem', fontWeight: 700, color: '#ea580c', background: '#fff7ed', padding: '0.1rem 0.45rem', borderRadius: '4px', border: '1px solid #fed7aa' }}>
-                      {user.role || 'Super Admin'}
+                      {user.role === 'Super Admin' ? 'मुख्य मंदिर प्रशासक' : user.role || 'मंदिर प्रशासक'}
                     </span>
                   </div>
                 </div>
@@ -316,7 +304,7 @@ const AdminLayout = () => {
                     style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.75rem', borderRadius: '8px', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: '#f8fafc', transition: 'all 0.2s' }}
                   >
                     <Users size={16} color="#ea580c" />
-                    <span>Admin Users & Roles</span>
+                    <span>उपयोगकर्ता एवं भूमिकाएं</span>
                   </Link>
 
                   <Link
@@ -325,7 +313,7 @@ const AdminLayout = () => {
                     style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.75rem', borderRadius: '8px', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: '#f8fafc', transition: 'all 0.2s' }}
                   >
                     <ScrollText size={16} color="#2563eb" />
-                    <span>Security Audit Logs</span>
+                    <span>सुरक्षा ऑडिट लॉग्स</span>
                   </Link>
 
                   <a
@@ -336,7 +324,7 @@ const AdminLayout = () => {
                     style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.75rem', borderRadius: '8px', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: '#f8fafc', transition: 'all 0.2s' }}
                   >
                     <Globe size={16} color="#059669" />
-                    <span>View Public Website</span>
+                    <span>मुख्य वेबसाइट देखें</span>
                   </a>
                 </div>
 
@@ -346,7 +334,7 @@ const AdminLayout = () => {
                   style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fee2e2', color: '#dc2626', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem' }}
                 >
                   <LogOut size={15} />
-                  <span>Logout Account</span>
+                  <span>खाता लॉग आउट करें</span>
                 </button>
               </div>
             )}
@@ -359,9 +347,9 @@ const AdminLayout = () => {
           ) : (
             <div className="content-card" style={{ textAlign: 'center', padding: '4rem', maxWidth: '500px', margin: '4rem auto' }}>
               <ShieldCheck size={52} color="#fca5a5" style={{ marginBottom: '1rem' }} />
-              <h2 style={{ color: '#ef4444', marginBottom: '1rem' }}>Access Denied</h2>
-              <p style={{ color: '#64748b', marginBottom: '2rem' }}>You do not have permission to access this module. Contact your Super Admin to request access.</p>
-              <button className="btn btn-primary" onClick={() => navigate('/admin')}>Go to Dashboard</button>
+              <h2 style={{ color: '#ef4444', marginBottom: '1rem' }}>अनुमति अस्वीकृत (Access Denied)</h2>
+              <p style={{ color: '#64748b', marginBottom: '2rem' }}>आपके पास इस मॉड्यूल को देखने की अनुमति नहीं है। कृपया मुख्य प्रशासक से अनुमति का अनुरोध करें।</p>
+              <button className="btn btn-primary" onClick={() => navigate('/admin')}>डैशबोर्ड पर जाएं</button>
             </div>
           )}
         </div>

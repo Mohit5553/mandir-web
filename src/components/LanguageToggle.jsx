@@ -24,15 +24,22 @@ const clearCookie = (name) => {
 };
 
 const LanguageToggle = ({ onSelect }) => {
-  const [language, setLanguage] = React.useState(localStorage.getItem('siteLanguage') || 'en');
+  const [language, setLanguage] = React.useState(localStorage.getItem('siteLanguage') || 'hi');
 
   React.useEffect(() => {
+    // If language is Hindi (default native), clear googtrans cookie so Google Translate doesn't mangle native Hindi text
+    const savedLang = localStorage.getItem('siteLanguage') || 'hi';
+    if (savedLang === 'hi') {
+      clearCookie('googtrans');
+      return;
+    }
+
     window.googleTranslateElementInit = () => {
       if (!window.google?.translate?.TranslateElement) return;
 
       new window.google.translate.TranslateElement(
         {
-          pageLanguage: 'en',
+          pageLanguage: 'hi',
           includedLanguages: 'en,hi',
           autoDisplay: false
         },
@@ -56,10 +63,10 @@ const LanguageToggle = ({ onSelect }) => {
     setLanguage(nextLanguage);
     onSelect?.();
 
-    if (nextLanguage === 'en') {
+    if (nextLanguage === 'hi') {
       clearCookie('googtrans');
     } else {
-      setCookie('googtrans', `/en/${nextLanguage}`);
+      setCookie('googtrans', `/hi/${nextLanguage}`);
     }
 
     const select = document.querySelector('.goog-te-combo');
@@ -68,7 +75,7 @@ const LanguageToggle = ({ onSelect }) => {
       select.dispatchEvent(new Event('change'));
     }
 
-    window.setTimeout(() => window.location.reload(), 250);
+    window.setTimeout(() => window.location.reload(), 200);
   };
 
   return (

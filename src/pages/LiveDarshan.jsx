@@ -26,7 +26,7 @@ const LiveDarshan = () => {
   const [isNicknameModalOpen, setIsNicknameModalOpen] = useState(!localStorage.getItem('devotee_nickname'));
 
   // Video State
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [playerError, setPlayerError] = useState('');
 
@@ -34,9 +34,20 @@ const LiveDarshan = () => {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const peerConnectionRef = useRef(null);
+  const remoteStreamRef = useRef(null);
   const chatContainerRef = useRef(null);
   const ytPlayerRef = useRef(null);
   const isAdminPausedRef = useRef(false);
+  const streamTypeRef = useRef(streamType);
+  const streamUrlRef = useRef(streamUrl);
+
+  useEffect(() => {
+    streamTypeRef.current = streamType;
+  }, [streamType]);
+
+  useEffect(() => {
+    streamUrlRef.current = streamUrl;
+  }, [streamUrl]);
 
   useEffect(() => {
     // 1. Fetch current status
@@ -71,9 +82,17 @@ const LiveDarshan = () => {
     fetchStatus();
     fetchChatHistory();
 
-    // 3. Setup Socket Connection
+    // 3. Setup Socket Connection (Runs ONCE on mount)
     const socket = io(SOCKET_URL);
     socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('📡 Viewer Socket Connected:', socket.id);
+      socket.emit('join-live');
+      if (streamTypeRef.current === 'webrtc' || !streamTypeRef.current) {
+        socket.emit('viewer-join-stream');
+      }
+    });
 
     socket.emit('join-live');
 
@@ -85,11 +104,22 @@ const LiveDarshan = () => {
       if (data.isLive) {
         setIsLive(true);
         if (data.streamType) setStreamType(data.streamType);
-        // Refresh full status to get URL
         fetchStatus();
+        if (data.streamType === 'webrtc') {
+          setTimeout(() => {
+            if (socketRef.current) socketRef.current.emit('viewer-join-stream');
+          }, 300);
+        }
       } else {
         setIsLive(false);
         cleanupVideoPlayer();
+      }
+    });
+
+    socket.on('request-viewers-handshake', () => {
+      console.log('📡 Admin requested WebRTC handshake...');
+      if (socketRef.current) {
+        socketRef.current.emit('viewer-join-stream');
       }
     });
 
@@ -100,24 +130,25 @@ const LiveDarshan = () => {
     // WebRTC Signaling handlers
     socket.on('receive-offer', async ({ senderSocketId, offer }) => {
       console.log('📡 Received WebRTC offer from admin host');
-      if (streamType === 'webrtc') {
-        initWebRTCPeerConnection(senderSocketId, offer, socket);
-      }
+      initWebRTCPeerConnection(senderSocketId, offer, socket);
     });
 
     socket.on('receive-ice-candidate', async ({ candidate }) => {
-      if (peerConnectionRef.current) {
+      const pc = peerConnectionRef.current;
+      if (pc && pc.remoteDescription && pc.remoteDescription.type) {
         try {
-          await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
         } catch (e) {
           console.error('Error adding ICE candidate:', e);
         }
+      } else {
+        pendingCandidatesRef.current.push(candidate);
       }
     });
 
     socket.on('peer-disconnected', () => {
       console.log('🔌 Host peer disconnected');
-      if (streamType === 'webrtc') {
+      if (streamTypeRef.current === 'webrtc') {
         setPlayerError('WebRTC stream disconnected by broadcaster.');
         cleanupWebRTC();
       }
@@ -126,7 +157,7 @@ const LiveDarshan = () => {
     socket.on('playback-state-change', ({ isPaused, currentTime }) => {
       console.log('📡 Synchronized playback state change:', isPaused, 'at time:', currentTime);
       isAdminPausedRef.current = isPaused;
-      if (streamType === 'youtube' && ytPlayerRef.current) {
+      if (streamTypeRef.current === 'youtube' && ytPlayerRef.current) {
         if (isPaused) {
           ytPlayerRef.current.pauseVideo();
         } else {
@@ -159,7 +190,7 @@ const LiveDarshan = () => {
 
     socket.on('sync-current-time', ({ currentTime }) => {
       console.log(`📡 Received sync-current-time: ${currentTime}s`);
-      if (streamType === 'youtube' && ytPlayerRef.current) {
+      if (streamTypeRef.current === 'youtube' && ytPlayerRef.current) {
         try {
           const ytTime = ytPlayerRef.current.getCurrentTime() || 0;
           if (Math.abs(ytTime - currentTime) > 2) {
@@ -182,7 +213,7 @@ const LiveDarshan = () => {
       cleanupVideoPlayer();
       socket.disconnect();
     };
-  }, [streamType, streamUrl]);
+  }, []);
 
   // Handle player type initialization on stream settings changes
   useEffect(() => {
@@ -194,14 +225,31 @@ const LiveDarshan = () => {
         initYoutubePlayer();
       } else if (streamType === 'hls' && streamUrl && videoRef.current) {
         initHlsPlayer();
-      } else if (streamType === 'webrtc' && videoRef.current) {
+      } else if (streamType === 'webrtc') {
         // Request host to send offer
         if (socketRef.current) {
+          console.log('📡 Emitting viewer-join-stream to request WebRTC offer...');
           socketRef.current.emit('viewer-join-stream');
         }
       }
     }
   }, [isLive, streamType, streamUrl]);
+
+  // Auto-retry WebRTC handshake if video stream is not attached
+  useEffect(() => {
+    let interval;
+    if (isLive && streamType === 'webrtc') {
+      interval = setInterval(() => {
+        if (socketRef.current && (!remoteStreamRef.current || (videoRef.current && !videoRef.current.srcObject))) {
+          console.log('📡 Auto-retrying WebRTC handshake for viewer...');
+          socketRef.current.emit('viewer-join-stream');
+        }
+      }, 1500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLive, streamType]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -340,22 +388,52 @@ const LiveDarshan = () => {
     }
   };
 
+  const pendingCandidatesRef = useRef([]);
+
   const initWebRTCPeerConnection = async (hostSocketId, offer, socket) => {
     cleanupWebRTC();
 
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }
       ]
     });
 
     peerConnectionRef.current = pc;
+    pendingCandidatesRef.current = [];
 
     pc.ontrack = (event) => {
-      console.log('📡 Received tracks from Host');
-      if (videoRef.current && event.streams[0]) {
-        videoRef.current.srcObject = event.streams[0];
+      console.log('📡 Received track from Host:', event.track, 'Streams:', event.streams);
+      setPlayerError('');
+      
+      let stream = (event.streams && event.streams[0]) ? event.streams[0] : null;
+      if (!stream) {
+        if (!remoteStreamRef.current) {
+          remoteStreamRef.current = new MediaStream();
+        }
+        remoteStreamRef.current.addTrack(event.track);
+        stream = remoteStreamRef.current;
+      } else {
+        remoteStreamRef.current = stream;
+      }
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            if (err.name === 'AbortError') return;
+            console.warn('Autoplay with sound blocked. Retrying muted...', err);
+            if (videoRef.current) {
+              videoRef.current.muted = true;
+              setIsMuted(true);
+              videoRef.current.play().catch(e => console.error('Play error after mute:', e));
+            }
+          });
+        }
       }
     };
 
@@ -370,14 +448,28 @@ const LiveDarshan = () => {
 
     pc.onconnectionstatechange = () => {
       console.log(`📡 Connection state: ${pc.connectionState}`);
-      if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+      if (pc.connectionState === 'connected') {
+        setPlayerError('');
+      } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
         setPlayerError('WebRTC Connection to Broadcaster failed. Trying to reconnect...');
       }
     };
 
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await pc.createAnswer();
+      
+      // Flush queued candidates
+      if (pendingCandidatesRef.current.length > 0) {
+        for (const cand of pendingCandidatesRef.current) {
+          await pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+        }
+        pendingCandidatesRef.current = [];
+      }
+
+      const answer = await pc.createAnswer({
+        offerToReceiveVideo: true,
+        offerToReceiveAudio: true
+      });
       await pc.setLocalDescription(answer);
       socket.emit('send-answer', {
         targetSocketId: hostSocketId,
@@ -394,6 +486,7 @@ const LiveDarshan = () => {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
+    remoteStreamRef.current = null;
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
@@ -559,10 +652,10 @@ const LiveDarshan = () => {
             <div className="live-header glass">
               <div className="live-badge-row">
                 <span className="live-pill blinking">
-                  <Radio size={16} /> LIVE
+                  <Radio size={16} /> लाइव दर्शन चालू है
                 </span>
                 <span className="viewer-pill">
-                  <Users size={16} /> {viewerCount} Viewing
+                  <Users size={16} /> {viewerCount} श्रद्धालु देख रहे हैं
                 </span>
               </div>
               <h2>{title}</h2>
@@ -578,13 +671,14 @@ const LiveDarshan = () => {
                     <p>{playerError}</p>
                     <button 
                       onClick={() => {
+                        setPlayerError('');
                         cleanupVideoPlayer();
                         if (streamType === 'hls') initHlsPlayer();
                         else if (streamType === 'webrtc' && socketRef.current) socketRef.current.emit('viewer-join-stream');
                       }}
                       className="btn btn-primary"
                     >
-                      Retry Connection
+                      पुनः प्रयास करें
                     </button>
                   </div>
                 )}
@@ -594,20 +688,35 @@ const LiveDarshan = () => {
                     <div id="youtube-player-placeholder" style={{ width: '100%', height: '100%' }}></div>
                     <div className="custom-player-controls" style={{ zIndex: 10 }}>
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <button onClick={toggleMute} className="btn-mute" title={isMuted ? 'Unmute' : 'Mute'}>
+                        <button onClick={toggleMute} className="btn-mute" title={isMuted ? 'ध्वनि चालू करें' : 'ध्वनि बंद करें'}>
                           {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                         </button>
-                        <button onClick={toggleFullscreen} className="btn-mute" title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}>
+                        <button onClick={toggleFullscreen} className="btn-mute" title={isFullscreen ? 'फुलस्क्रीन बंद करें' : 'फुलस्क्रीन करें'}>
                           {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                         </button>
                       </div>
-                      <span className="live-tag">Darshan Feed</span>
+                      <span className="live-tag">लाइव दर्शन फ़ीड</span>
                     </div>
                   </div>
                 ) : (
                   <div className="video-player-box">
                     <video
-                      ref={videoRef}
+                      ref={(el) => {
+                        videoRef.current = el;
+                        if (el && remoteStreamRef.current && el.srcObject !== remoteStreamRef.current) {
+                          console.log('📡 Ref callback attaching stream to video element...');
+                          el.srcObject = remoteStreamRef.current;
+                          const p = el.play();
+                          if (p !== undefined) {
+                            p.catch(err => {
+                              console.warn('Autoplay blocked on ref callback. Muting...', err);
+                              el.muted = true;
+                              setIsMuted(true);
+                              el.play().catch(e => console.error(e));
+                            });
+                          }
+                        }
+                      }}
                       autoPlay={!isAdminPausedRef.current}
                       playsInline
                       muted={isMuted}
@@ -625,14 +734,14 @@ const LiveDarshan = () => {
                     />
                     <div className="custom-player-controls" style={{ zIndex: 10 }}>
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <button onClick={toggleMute} className="btn-mute" title={isMuted ? 'Unmute' : 'Mute'}>
+                        <button onClick={toggleMute} className="btn-mute" title={isMuted ? 'ध्वनि चालू करें' : 'ध्वनि बंद करें'}>
                           {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                         </button>
-                        <button onClick={toggleFullscreen} className="btn-mute" title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}>
+                        <button onClick={toggleFullscreen} className="btn-mute" title={isFullscreen ? 'फुलस्क्रीन बंद करें' : 'फुलस्क्रीन करें'}>
                           {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                         </button>
                       </div>
-                      <span className="live-tag">Darshan Feed</span>
+                      <span className="live-tag">लाइव दर्शन फ़ीड</span>
                     </div>
                   </div>
                 )}
@@ -642,15 +751,15 @@ const LiveDarshan = () => {
               <div className="chat-container glass">
                 <div className="chat-header">
                   <h3>
-                    <MessageSquare size={18} /> Chat Room
+                    <MessageSquare size={18} /> लाइव संवाद / प्रार्थना कक्ष
                   </h3>
                   {nickname && (
                     <button 
                       onClick={() => setIsNicknameModalOpen(true)}
                       className="btn-change-nickname"
-                      title="Change Name"
+                      title="नाम बदलें"
                     >
-                      <User size={14} /> Name: {nickname}
+                      <User size={14} /> नाम: {nickname}
                     </button>
                   )}
                 </div>
@@ -659,7 +768,7 @@ const LiveDarshan = () => {
                   {chatMessages.length === 0 ? (
                     <div className="empty-chat">
                       <MessageSquare size={36} className="text-light" />
-                      <p>Welcome to Live Darshan! Share your prayers or say 'Har Har Mahadev'.</p>
+                      <p>लाइव दर्शन में आपका स्वागत है! अपनी मनोकामनाएँ लिखें अथवा 'हर हर महादेव' कहें।</p>
                     </div>
                   ) : (
                     chatMessages.map((msg) => (
@@ -668,7 +777,7 @@ const LiveDarshan = () => {
                           <span className="username">
                             {msg.isAdmin && <Shield size={12} className="admin-badge" />}
                             {msg.username}
-                            {msg.isAdmin && <span className="admin-label">Mandir Trust</span>}
+                            {msg.isAdmin && <span className="admin-label">मंदिर ट्रस्ट</span>}
                           </span>
                           <span className="time">
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -685,11 +794,11 @@ const LiveDarshan = () => {
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder={nickname ? "Type prayer or comment..." : "Type your message..."}
+                    placeholder={nickname ? "अपनी प्रार्थना या टिप्पणी लिखें..." : "अपना संदेश दर्ज करें..."}
                     required
                   />
                   <button type="submit" className="btn btn-primary btn-chat-send">
-                    Send
+                    भेजें
                   </button>
                 </form>
               </div>
@@ -700,48 +809,48 @@ const LiveDarshan = () => {
           <div className="darshan-offline fade-in">
             <div className="offline-hero glass">
               <Radio size={48} className="pulse-offline-icon" />
-              <h1>Live Darshan is Offline</h1>
+              <h1>लाइव दर्शन अभी उपलब्ध नहीं है</h1>
               <p className="subtitle">
-                Aarti and Abhishek are live streamed daily at scheduled timings. You can check the daily temple timetable below.
+                आरती एवं विशेष अभिषेक का लाइव प्रसारण निर्धारित समय पर किया जाता है। आप नीचे दैनिक मंदिर समय सारणी देख सकते हैं।
               </p>
             </div>
 
             <div className="offline-content-grid">
               {/* Daily Timetable */}
               <div className="timetable-section glass">
-                <h2>Daily Aarti & Darshan Schedule</h2>
+                <h2>दैनिक आरती एवं दर्शन समय सारणी</h2>
                 <div className="timetable-grid">
                   <div className="time-card">
-                    <strong>Mangala Aarti</strong>
-                    <span>5:30 AM - 6:00 AM</span>
+                    <strong>मंगला आरती</strong>
+                    <span>प्रातः 05:30 - 06:00</span>
                   </div>
                   <div className="time-card">
-                    <strong>Pratah Abhishek</strong>
-                    <span>7:00 AM - 8:30 AM</span>
+                    <strong>प्रातः अभिषेक</strong>
+                    <span>प्रातः 07:00 - 08:30</span>
                   </div>
                   <div className="time-card">
-                    <strong>Bhavya Shringar & Aarti</strong>
-                    <span>6:30 PM - 7:15 PM</span>
+                    <strong>भव्य श्रृंगार एवं आरती</strong>
+                    <span>सायं 06:30 - 07:15</span>
                   </div>
                   <div className="time-card">
-                    <strong>Shayan Aarti</strong>
-                    <span>9:00 PM - 9:30 PM</span>
+                    <strong>शयन आरती</strong>
+                    <span>रात्रि 09:00 - 09:30</span>
                   </div>
                 </div>
               </div>
 
               {/* Devotional CTA */}
               <div className="support-section glass">
-                <h2>Support the Mandir Trust</h2>
+                <h2>मंदिर ट्रस्ट को सहयोग प्रदान करें</h2>
                 <p>
-                  Help us maintain the temple premises, run daily Annakshetra (free food distributions), and organize spiritual events for devotees.
+                  मंदिर परिसर के रख-रखाव, दैनिक अन्नक्षेत्र (निशुल्क भोजन वितरण) और धार्मिक आयोजनों में अपना पावन योगदान दें।
                 </p>
                 <div className="cta-actions">
                   <Link to="/donate" className="btn btn-primary">
-                    <Heart size={18} /> Donate Now
+                    <Heart size={18} /> दान अर्पित करें
                   </Link>
                   <Link to="/events" className="btn btn-outline">
-                    <Calendar size={18} /> View Events
+                    <Calendar size={18} /> कार्यक्रम देखें
                   </Link>
                 </div>
               </div>
@@ -754,15 +863,15 @@ const LiveDarshan = () => {
           <div className="nickname-modal-overlay">
             <div className="nickname-modal glass">
               <div className="modal-header">
-                <h3>Set Chat Nickname</h3>
-                {!isLive && <p className="text-light">Used to participate in the chat room.</p>}
+                <h3>चैट के लिए अपना नाम दर्ज करें</h3>
+                {!isLive && <p className="text-light">लाइव संवाद कक्ष में भाग लेने के लिए अपना नाम लिखें।</p>}
               </div>
               <form onSubmit={handleSaveNickname} className="modal-form">
                 <input
                   type="text"
                   value={tempNickname}
                   onChange={(e) => setTempNickname(e.target.value)}
-                  placeholder="Enter your name (e.g. Rahul Sharma)"
+                  placeholder="अपना नाम दर्ज करें (जैसे: राहुल शर्मा)"
                   maxLength={15}
                   required
                   autoFocus
@@ -774,11 +883,11 @@ const LiveDarshan = () => {
                       onClick={() => setIsNicknameModalOpen(false)} 
                       className="btn btn-outline"
                     >
-                      Cancel
+                      रद्द करें
                     </button>
                   )}
                   <button type="submit" className="btn btn-primary">
-                    Save Name
+                    नाम सहेजें
                   </button>
                 </div>
               </form>

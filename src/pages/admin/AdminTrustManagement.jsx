@@ -278,60 +278,69 @@ const AdminTrustManagement = () => {
   );
 
   return (
-    <div>
-      <h1 style={{ marginBottom: '0.5rem' }}>Trust Management</h1>
-      <p style={{ color: '#64748b', marginBottom: '2rem' }}>Manage member categories and member records shown on the About page.</p>
-
-      {message && (
-        <div style={{ marginBottom: '1rem', padding: '0.8rem 1rem', background: '#ecfdf5', color: '#047857', borderRadius: '8px', fontWeight: 600 }}>
-          {message}
+    <div className="trust-management-page">
+      <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.2rem' }}>ट्रस्ट प्रबंधन (पदाधिकारी एवं ट्रस्टी)</h1>
+          <p className="text-light">ट्रस्ट के मुख्य सदस्यों, पदनामों एवं श्रेणियों का प्रबंधन करें</p>
         </div>
-      )}
+      </div>
 
-      <div className="admin-tabs-container">
-         <button type="button" className={`admin-tab ${activeTab === 'members' ? 'active' : ''}`} onClick={() => { setActiveTab('members'); setShowMemberForm(false); }}>
-           Members <span className="admin-tab-count">{members.length}</span>
-         </button>
-         <button type="button" className={`admin-tab ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => { setActiveTab('roles'); setShowRoleForm(false); }}>
-           Designations <span className="admin-tab-count">{roles.length}</span>
-         </button>
-         <button type="button" className={`admin-tab ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => { setActiveTab('categories'); setShowCategoryForm(false); }}>
-           Categories <span className="admin-tab-count">{categories.length}</span>
-         </button>
+      {message && <div className="alert alert-info" style={{ marginBottom: '1.5rem' }}>{message}</div>}
+
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+        <button
+          className={`btn ${activeTab === 'members' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setActiveTab('members')}
+        >
+          सदस्य सूची ({members.length})
+        </button>
+        <button
+          className={`btn ${activeTab === 'roles' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setActiveTab('roles')}
+        >
+          पदनाम सूची ({roles.length})
+        </button>
+        <button
+          className={`btn ${activeTab === 'categories' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setActiveTab('categories')}
+        >
+          श्रेणियां ({categories.length})
+        </button>
       </div>
 
       {activeTab === 'categories' && (
         <div style={{ display: 'grid', gap: '1.5rem' }}>
           <div className="content-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0 }}>Category Management</h2>
-              {!showCategoryForm && <button className="btn btn-primary" onClick={() => { resetCategoryForm(); setShowCategoryForm(true); }}><FolderPlus size={18} /> Add Category</button>}
+              <h2 style={{ margin: 0 }}>श्रेणी प्रबंधन</h2>
+              {!showCategoryForm && <button className="btn btn-primary" onClick={() => { resetCategoryForm(); setShowCategoryForm(true); }}><FolderPlus size={18} /> नई श्रेणी जोड़ें</button>}
             </div>
           </div>
           {showCategoryForm && (
           <div className="content-card">
-            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FolderPlus size={20} color="var(--color-primary)" /> {editingCategoryId ? 'Edit Category' : 'Add Category'}</h3>
+            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FolderPlus size={20} color="var(--color-primary)" /> {editingCategoryId ? 'श्रेणी संपादित करें' : 'नई श्रेणी जोड़ें'}</h3>
             <form onSubmit={handleCategorySubmit}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Category Name</label>
-              <input required placeholder="Office Bearers" style={{ ...inputStyle, marginBottom: '1rem' }} value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} />
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>श्रेणी का नाम *</label>
+              <input required placeholder="जैसे: पदाधिकारी एवं ट्रस्टी" style={{ ...inputStyle, marginBottom: '1rem' }} value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} />
 
               <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Display</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>प्रदर्शन प्रारूप</label>
                   <select style={inputStyle} value={categoryForm.displayType} onChange={e => setCategoryForm({ ...categoryForm, displayType: e.target.value })}>
-                    <option value="roleName">Role: Name</option>
-                    <option value="namesOnly">Names only</option>
+                    <option value="roleName">पदनाम : नाम (Role: Name)</option>
+                    <option value="namesOnly">केवल नाम (Names only)</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Order</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>क्रम संख्या (Order)</label>
                   <input type="number" min="0" style={inputStyle} value={categoryForm.order} onChange={e => setCategoryForm({ ...categoryForm, order: e.target.value })} />
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 1 }}>
-                  {editingCategoryId ? 'Update Category' : 'Add Category'}
+                  {editingCategoryId ? 'श्रेणी अद्यतन करें' : 'श्रेणी जोड़ें'}
                 </button>
                 <button type="button" className="btn btn-outline" onClick={resetCategoryForm}><X size={20} /></button>
               </div>
@@ -345,11 +354,11 @@ const AdminTrustManagement = () => {
                 <div style={{ fontWeight: 800, color: 'var(--color-primary)' }}>{category.order || '-'}</div>
                 <div style={{ minWidth: 0, overflow: 'hidden' }}>
                   <div style={{ fontWeight: 700, wordBreak: 'break-word', whiteSpace: 'normal' }}>{category.name}</div>
-                  <div style={{ color: '#64748b', fontSize: '0.9rem' }}>{category.displayType === 'namesOnly' ? 'Names only' : 'Role: Name'}</div>
+                  <div style={{ color: '#64748b', fontSize: '0.9rem' }}>{category.displayType === 'namesOnly' ? 'केवल नाम' : 'पदनाम : नाम'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button type="button" className="btn-icon" title="Edit" onClick={() => handleEditCategory(category)}><Edit2 size={16} /></button>
-                  <button type="button" className="btn-icon" title="Delete" style={{ borderColor: '#fee2e2' }} onClick={() => handleDeleteCategory(category)}><Trash2 size={16} color="#ef4444" /></button>
+                  <button type="button" className="btn-icon" title="संपादित करें" onClick={() => handleEditCategory(category)}><Edit2 size={16} /></button>
+                  <button type="button" className="btn-icon" title="हटाएं" style={{ borderColor: '#fee2e2' }} onClick={() => handleDeleteCategory(category)}><Trash2 size={16} color="#ef4444" /></button>
                 </div>
               </div>
               ))}
@@ -362,23 +371,23 @@ const AdminTrustManagement = () => {
         <div style={{ display: 'grid', gap: '1.5rem' }}>
           <div className="content-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0 }}>Designation Management</h2>
-              {!showRoleForm && <button className="btn btn-primary" onClick={() => { resetRoleForm(); setShowRoleForm(true); }}><FolderPlus size={18} /> Add Designation</button>}
+              <h2 style={{ margin: 0 }}>पदनाम (Designations) प्रबंधन</h2>
+              {!showRoleForm && <button className="btn btn-primary" onClick={() => { resetRoleForm(); setShowRoleForm(true); }}><FolderPlus size={18} /> नया पदनाम जोड़ें</button>}
             </div>
           </div>
           {showRoleForm && (
           <div className="content-card">
-            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FolderPlus size={20} color="var(--color-primary)" /> {editingRoleId ? 'Edit Designation' : 'Add Designation'}</h3>
+            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FolderPlus size={20} color="var(--color-primary)" /> {editingRoleId ? 'पदनाम संपादित करें' : 'नया पदनाम जोड़ें'}</h3>
             <form onSubmit={handleRoleSubmit}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Designation Name</label>
-              <input required placeholder="अध्यक्ष" style={{ ...inputStyle, marginBottom: '1rem' }} value={roleForm.name} onChange={e => setRoleForm({ ...roleForm, name: e.target.value })} />
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>पदनाम का नाम *</label>
+              <input required placeholder="जैसे: मुख्य संरक्षक, अध्यक्ष, सचिव, कोषाध्यक्ष" style={{ ...inputStyle, marginBottom: '1rem' }} value={roleForm.name} onChange={e => setRoleForm({ ...roleForm, name: e.target.value })} />
 
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Order</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>क्रम संख्या (Order)</label>
               <input type="number" min="0" style={{ ...inputStyle, marginBottom: '1rem' }} value={roleForm.order} onChange={e => setRoleForm({ ...roleForm, order: e.target.value })} />
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 1 }}>
-                  {editingRoleId ? 'Update Designation' : 'Add Designation'}
+                  {editingRoleId ? 'पदनाम अद्यतन करें' : 'पदनाम जोड़ें'}
                 </button>
                 <button type="button" className="btn btn-outline" onClick={resetRoleForm}><X size={20} /></button>
               </div>
@@ -392,8 +401,8 @@ const AdminTrustManagement = () => {
                 <div style={{ fontWeight: 800, color: 'var(--color-primary)' }}>{role.order || '-'}</div>
                 <div style={{ fontWeight: 700, minWidth: 0, wordBreak: 'break-word', whiteSpace: 'normal' }}>{role.name}</div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button type="button" className="btn-icon" title="Edit" onClick={() => handleEditRole(role)}><Edit2 size={16} /></button>
-                  <button type="button" className="btn-icon" title="Delete" style={{ borderColor: '#fee2e2' }} onClick={() => handleDeleteRole(role)}><Trash2 size={16} color="#ef4444" /></button>
+                  <button type="button" className="btn-icon" title="संपादित करें" onClick={() => handleEditRole(role)}><Edit2 size={16} /></button>
+                  <button type="button" className="btn-icon" title="हटाएं" style={{ borderColor: '#fee2e2' }} onClick={() => handleDeleteRole(role)}><Trash2 size={16} color="#ef4444" /></button>
                 </div>
               </div>
               ))}
@@ -407,47 +416,47 @@ const AdminTrustManagement = () => {
           <div className="content-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h2 style={{ margin: 0 }}>Member Records</h2>
-                <p style={{ color: '#64748b', margin: '0.25rem 0 0' }}>{members.length} members publicly displayed</p>
+                <h2 style={{ margin: 0 }}>ट्रस्ट सदस्य रिकॉर्ड</h2>
+                <p style={{ color: '#64748b', margin: '0.25rem 0 0' }}>{members.length} सदस्य वेबसाइट पर प्रदर्शित हैं</p>
               </div>
-              {!showMemberForm && <button className="btn btn-primary" onClick={() => { resetMemberForm(); setShowMemberForm(true); }}><UserPlus size={18} /> Add Member</button>}
+              {!showMemberForm && <button className="btn btn-primary" onClick={() => { resetMemberForm(); setShowMemberForm(true); }}><UserPlus size={18} /> नया सदस्य जोड़ें</button>}
             </div>
           </div>
           {showMemberForm && (
           <div className="content-card">
-            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={20} color="var(--color-primary)" /> {editingMemberId ? 'Edit Member' : 'Add Member'}</h3>
+            <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={20} color="var(--color-primary)" /> {editingMemberId ? 'सदस्य विवरण अद्यतन करें' : 'नया सदस्य जोड़ें'}</h3>
             <form onSubmit={handleMemberSubmit} className="admin-member-form-two-column">
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Designation</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>पदनाम *</label>
               <select required style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.role} onChange={e => setMemberForm({ ...memberForm, role: e.target.value })}>
                 {sortedRoles.map(role => (
                   <option key={role._id || role.key} value={role.name}>{role.name}</option>
                 ))}
               </select>
 
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Name</label>
-              <input required placeholder="Member name" style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.name} onChange={e => setMemberForm({ ...memberForm, name: e.target.value })} />
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>सदस्य का नाम *</label>
+              <input required placeholder="सदस्य का नाम दर्ज करें" style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.name} onChange={e => setMemberForm({ ...memberForm, name: e.target.value })} />
 
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Email</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>ईमेल पता</label>
               <input type="email" placeholder="member@example.com" style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.email} onChange={e => setMemberForm({ ...memberForm, email: e.target.value })} />
 
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Contact Number</label>
-              <input type="tel" placeholder="Phone number" style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.phone} onChange={e => setMemberForm({ ...memberForm, phone: e.target.value })} />
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>संपर्क मोबाइल नंबर</label>
+              <input type="tel" placeholder="10-अंकीय मोबाइल नंबर" style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.phone} onChange={e => setMemberForm({ ...memberForm, phone: e.target.value })} />
 
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Date of Joining</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>जुड़ने की तिथि</label>
               <input type="date" style={{ ...inputStyle, marginBottom: '1rem' }} value={memberForm.joinDate} onChange={e => setMemberForm({ ...memberForm, joinDate: e.target.value })} />
 
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Photo</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>फोटो (Photo)</label>
               <input type="file" accept="image/*" style={{ ...inputStyle, marginBottom: '1rem' }} onChange={handlePhotoChange} />
               {memberForm.photoUrl && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', padding: '0.75rem', border: '1px solid #f0f0f0', borderRadius: '12px' }}>
                   <img src={memberForm.photoUrl} alt="Member preview" style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover' }} />
-                  <button type="button" className="btn btn-outline" onClick={() => setMemberForm({ ...memberForm, photoUrl: '' })}>Remove Photo</button>
+                  <button type="button" className="btn btn-outline" onClick={() => setMemberForm({ ...memberForm, photoUrl: '' })}>फोटो हटाएं</button>
                 </div>
               )}
 
               <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Category</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>श्रेणी *</label>
                   <select required style={inputStyle} value={memberForm.category} onChange={e => setMemberForm({ ...memberForm, category: e.target.value })}>
                     {sortedCategories.map(category => (
                       <option key={category._id || category.key} value={category.key}>{category.name}</option>
@@ -455,14 +464,14 @@ const AdminTrustManagement = () => {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Order</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>क्रम संख्या (Order)</label>
                   <input type="number" min="0" style={inputStyle} value={memberForm.order} onChange={e => setMemberForm({ ...memberForm, order: e.target.value })} />
                 </div>
               </div>
 
               <div className="admin-member-form-actions" style={{ display: 'flex', gap: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary" disabled={loading || sortedCategories.length === 0} style={{ flex: 1 }}>
-                  {editingMemberId ? 'Update Member' : 'Add Member'}
+                  {editingMemberId ? 'सदस्य अद्यतन करें' : 'सदस्य सुरक्षित करें'}
                 </button>
                 <button type="button" className="btn btn-outline" onClick={resetMemberForm}><X size={20} /></button>
               </div>
@@ -478,7 +487,7 @@ const AdminTrustManagement = () => {
                   <h3 style={{ marginBottom: '1rem' }}>{category.name} ({categoryMembers.length})</h3>
                   {categoryMembers.length === 0 ? (
                     <div style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8', border: '1px dashed #e2e8f0', borderRadius: '12px' }}>
-                      No members in this category.
+                      इस श्रेणी में कोई सदस्य शामिल नहीं है।
                     </div>
                   ) : (
                     <div className="admin-member-grid">

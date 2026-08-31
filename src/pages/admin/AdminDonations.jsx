@@ -5,13 +5,13 @@ import qrCode from '../../assets/donation_qr.jpeg';
 import { api } from '../../services/api';
 import { hasPermission } from '../../hooks/usePermission';
 
-const donationCategories = ['General Donation', 'Construction Fund', 'Annadan', 'Gau Seva'];
+const donationCategories = ['सामान्य दान', 'मंदिर निर्माण कोष', 'अन्नदान सेवा', 'गौ सेवा'];
 const initialAdminForm = {
   name: '',
   email: '',
   phone: '',
   amount: '',
-  category: 'General Donation',
+  category: 'सामान्य दान',
   paymentMode: 'Cash',
   utr: '',
   screenshot: ''
@@ -47,43 +47,44 @@ const AdminDonations = () => {
   useEffect(() => { fetchDonations(); }, []);
 
   const handleUpdateStatus = async (id, status) => {
-    if (!window.confirm(`Are you sure you want to ${status} this donation?`)) return;
+    const actionHindi = status === 'Approved' ? 'स्वीकृत' : 'अस्वीकृत';
+    if (!window.confirm(`क्या आप निश्चित रूप से इस दान को ${actionHindi} करना चाहते हैं?`)) return;
     try {
       const updatedDonation = await api.updateDonationStatus(id, status);
       fetchDonations();
       if (status === 'Approved') {
         if (updatedDonation?.receiptEmail?.sent) {
-          alert('Donation approved and receipt email sent to customer.');
+          alert('दान स्वीकृत हो गया है और 80G रसीद ईमेल द्वारा भेज दी गई है।');
         } else if (updatedDonation?.receiptEmail?.reason) {
-          alert(`Donation approved, but receipt email was not sent: ${updatedDonation.receiptEmail.reason}`);
+          alert(`दान स्वीकृत हुआ, परंतु ईमेल नहीं भेजा जा सका: ${updatedDonation.receiptEmail.reason}`);
         } else if (updatedDonation?.receiptEmail?.error) {
-          alert(`Donation approved, but receipt email failed: ${updatedDonation.receiptEmail.error}`);
+          alert(`दान स्वीकृत हुआ, परंतु ईमेल भेजने में समस्या आई: ${updatedDonation.receiptEmail.error}`);
         }
       }
     } catch {
-      alert('Error updating status');
+      alert('स्थिति अद्यतन करने में त्रुटि हुई');
     }
   };
 
   const handleSendReceipt = async (donation) => {
     if (!donation.email) {
-      alert('This donation has no customer email address.');
+      alert('इस दानकर्ता का ईमेल पता दर्ज नहीं है।');
       return;
     }
 
     try {
       const result = await api.sendDonationReceipt(donation._id);
       if (result?.receiptEmail?.sent) {
-        alert(`Receipt email sent to ${donation.email}.`);
+        alert(`रसीद ईमेल ${donation.email} पर सफलतापूर्वक भेज दी गई है।`);
       } else if (result?.receiptEmail?.reason) {
-        alert(`Receipt email was not sent: ${result.receiptEmail.reason}`);
+        alert(`रसीद ईमेल नहीं भेजा जा सका: ${result.receiptEmail.reason}`);
       } else if (result?.receiptEmail?.error) {
-        alert(`Receipt email failed: ${result.receiptEmail.error}`);
+        alert(`रसीद ईमेल विफल रहा: ${result.receiptEmail.error}`);
       } else {
-        alert(result?.message || 'Receipt email was not sent.');
+        alert(result?.message || 'रसीद ईमेल भेजने की प्रक्रिया पूर्ण हुई।');
       }
     } catch {
-      alert('Error sending receipt email.');
+      alert('रसीद ईमेल भेजने में त्रुटि हुई।');
     }
   };
 
@@ -384,27 +385,27 @@ const AdminDonations = () => {
   };
 
   const handleShareWhatsApp = () => {
-    const msg = `🕉️ *Shree Manvat Baba Mandir Trust* %0A🙏 *Donation Receipt* %0A--------------------------%0ADonor: *${selectedDonation.name}*%0AAmount: *₹${selectedDonation.amount}*%0AUTR: *${selectedDonation.utr || 'N/A'}*%0ADate: *${new Date(selectedDonation.createdAt).toLocaleDateString()}*%0A--------------------------%0A_May Mahadev bless you with health and prosperity._`;
+    const msg = `🕉️ *श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट* %0A🙏 *दान प्राप्ति रसीद* %0A--------------------------%0Aदानदाता: *${selectedDonation.name}*%0Aराशि: *₹${selectedDonation.amount}*%0AUTR/ट्रांजैक्शन: *${selectedDonation.utr || 'N/A'}*%0Aतिथि: *${new Date(selectedDonation.createdAt).toLocaleDateString('hi-IN')}*%0A--------------------------%0A_भगवान शिव की असीम कृपा आप एवं आपके परिवार पर बनी रहे।_`;
     window.open(`https://wa.me/91${selectedDonation.phone}?text=${msg}`, '_blank');
   };
 
   const exportToCSV = () => {
     if (!filteredDonations.length) {
-      alert('No donations to export.');
+      alert('निर्यात के लिए कोई दान रिकॉर्ड उपलब्ध नहीं है।');
       return;
     }
-    const headers = ['Receipt No', 'Donor Name', 'Amount (INR)', 'Category', 'Payment Mode', 'Payment Status', 'Transaction ID (UTR)', 'Phone', 'Email', 'Date'];
+    const headers = ['रसीद संख्या', 'दानदाता नाम', 'राशि (₹)', 'सेवा श्रेणी', 'भुगतान माध्यम', 'भुगतान स्थिति', 'ट्रांजैक्शन ID (UTR)', 'फोन', 'ईमेल', 'तिथि'];
     const rows = filteredDonations.map(d => [
       `SMB-${String(d._id).slice(-8).toUpperCase()}`,
       `"${(d.name || '').replace(/"/g, '""')}"`,
       d.amount,
       `"${d.category}"`,
       d.paymentMode || 'UPI',
-      d.paymentStatus,
+      d.paymentStatus === 'Approved' ? 'स्वीकृत' : d.paymentStatus === 'Pending' ? 'लंबित' : 'अस्वीकृत',
       `"${d.utr || 'N/A'}"`,
       `"${d.phone || ''}"`,
       `"${d.email || ''}"`,
-      `"${new Date(d.createdAt).toLocaleString('en-IN')}"`
+      `"${new Date(d.createdAt).toLocaleString('hi-IN')}"`
     ]);
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -420,20 +421,20 @@ const AdminDonations = () => {
     <div className="donations-management">
       <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.2rem' }}>Devotee Donations</h1>
-          <p className="text-light">Manage, approve, and track online UPI & cash contributions</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.2rem' }}>दान प्रबंधन एवं रिकॉर्ड</h1>
+          <p className="text-light">ऑनलाइन UPI, QR कोड एवं काउंटर नकद दान का प्रबंधन व सत्यापन करें</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {canCreate && (
           <button onClick={() => setShowCreateModal(true)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Plus size={18} /> Create Donation
+            <Plus size={18} /> नया दान दर्ज करें
           </button>
           )}
           <button onClick={exportToCSV} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Download size={18} /> Export CSV
+            <Download size={18} /> CSV डाउनलोड
           </button>
           <button onClick={fetchDonations} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              Refresh Data
+              डेटा रिफ्रेश करें
           </button>
         </div>
       </div>
@@ -444,49 +445,49 @@ const AdminDonations = () => {
           <input
             className="filter-input"
             type="search"
-            placeholder="Search donor, email, phone, UTR, category, payment, amount"
+            placeholder="दानदाता, ईमेल, फोन, UTR, श्रेणी, राशि खोजें..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             style={{ paddingLeft: '2.5rem' }}
           />
         </div>
         <select className="filter-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="All">All status</option>
-          <option value="Pending">Pending</option>
-          <option value="Approved">Approved</option>
-          <option value="Rejected">Rejected</option>
+          <option value="All">सभी स्थितियां</option>
+          <option value="Pending">लंबित (Pending)</option>
+          <option value="Approved">स्वीकृत (Approved)</option>
+          <option value="Rejected">अस्वीकृत (Rejected)</option>
         </select>
         <select className="filter-select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-          <option value="All">All categories</option>
+          <option value="All">सभी सेवा श्रेणियां</option>
           {categories.map((category) => <option key={category} value={category}>{category}</option>)}
         </select>
         <select className="filter-select" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
-          <option value="all">Any date</option>
-          <option value="today">Today</option>
-          <option value="7days">Last 7 days</option>
-          <option value="30days">Last 30 days</option>
+          <option value="all">सभी तिथियां</option>
+          <option value="today">आज (Today)</option>
+          <option value="7days">पिछले 7 दिन</option>
+          <option value="30days">पिछले 30 दिन</option>
         </select>
         <button className="btn btn-outline" type="button" onClick={() => { setQuery(''); setStatusFilter('All'); setCategoryFilter('All'); setDateFilter('all'); }}>
-          <X size={16} /> Clear
+          <X size={16} /> साफ़ करें
         </button>
-        <div className="filter-count">{filteredDonations.length} donations found</div>
+        <div className="filter-count">{filteredDonations.length} दान रिकॉर्ड</div>
       </div>
 
       <div className="content-card table-scroll" style={{ overflowX: 'auto', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
         {loading ? (
-          <div style={{ padding: '4rem', textAlign: 'center', color: '#94a3b8' }}>Loading contributions...</div>
+          <div style={{ padding: '4rem', textAlign: 'center', color: '#94a3b8' }}>दान रिकॉर्ड लोड हो रहे हैं...</div>
         ) : filteredDonations.length === 0 ? (
-          <div className="empty-state">No donations match your search or filters.</div>
+          <div className="empty-state">कोई दान रिकॉर्ड नहीं मिला।</div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 0.5rem' }}>
             <thead>
               <tr style={{ textAlign: 'left', color: '#64748b', fontSize: '0.9rem' }}>
-                <th style={{ padding: '1rem' }}>DONOR</th>
-                <th style={{ padding: '1rem' }}>EMAIL</th>
-                <th style={{ padding: '1rem' }}>UTR / TRANS ID</th>
-                <th style={{ padding: '1rem' }}>AMOUNT</th>
-                <th style={{ padding: '1rem' }}>STATUS</th>
-                <th style={{ padding: '1rem' }}>ACTIONS</th>
+                <th style={{ padding: '1rem' }}>दानदाता</th>
+                <th style={{ padding: '1rem' }}>ईमेल</th>
+                <th style={{ padding: '1rem' }}>UTR / ट्रांजैक्शन ID</th>
+                <th style={{ padding: '1rem' }}>दान राशि</th>
+                <th style={{ padding: '1rem' }}>स्थिति</th>
+                <th style={{ padding: '1rem' }}>कार्रवाई</th>
               </tr>
             </thead>
             <tbody>
@@ -499,25 +500,25 @@ const AdminDonations = () => {
                     </div>
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <div style={{ fontWeight: 600, color: '#334155', wordBreak: 'break-word' }}>{d.email || 'N/A'}</div>
+                    <div style={{ fontWeight: 600, color: '#334155', wordBreak: 'break-word' }}>{d.email || 'उपलब्ध नहीं'}</div>
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <div style={{ fontWeight: 600, color: 'var(--color-primary)', fontFamily: 'monospace' }}>{d.utr || 'N/A'}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{d.paymentMode || 'UPI'} | {new Date(d.createdAt).toLocaleDateString()}</div>
+                    <div style={{ fontWeight: 600, color: 'var(--color-primary)', fontFamily: 'monospace' }}>{d.utr || 'उपलब्ध नहीं'}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{d.paymentMode === 'Cash' ? 'नकद जमा' : 'UPI / ऑनलाइन'} | {new Date(d.createdAt).toLocaleDateString('hi-IN')}</div>
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem' }}>₹{d.amount?.toLocaleString('en-IN')}</div>
+                    <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem' }}>₹{d.amount?.toLocaleString('hi-IN')}</div>
                   </td>
                   <td style={{ padding: '1rem' }}>
                     <span style={{ padding: '0.4rem 1rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, background: statusBg[d.paymentStatus], color: statusColor[d.paymentStatus], border: `1px solid ${statusColor[d.paymentStatus]}20` }}>
-                      {d.paymentStatus}
+                      {d.paymentStatus === 'Approved' ? 'स्वीकृत' : d.paymentStatus === 'Pending' ? 'लंबित' : 'अस्वीकृत'}
                     </span>
                   </td>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       <button 
                         onClick={() => setSelectedDonation(d)} 
-                        title="View Details"
+                        title="विवरण देखें"
                         style={{ background: '#f1f5f9', color: '#64748b', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Eye size={16}/>
                       </button>
@@ -525,25 +526,25 @@ const AdminDonations = () => {
                         <>
                           <button 
                             onClick={() => handleUpdateStatus(d._id, 'Approved')} 
-                            title="Approve"
+                            title="स्वीकृत करें"
                             style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.5rem 0.75rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <Check size={14}/> Approve
+                            <Check size={14}/> स्वीकृत करें
                           </button>
                           <button 
                             onClick={() => handleUpdateStatus(d._id, 'Rejected')} 
-                            title="Reject"
+                            title="अस्वीकृत करें"
                             style={{ background: '#fee2e2', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: '8px', padding: '0.5rem 0.75rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <X size={14}/> Reject
+                            <X size={14}/> अस्वीकृत
                           </button>
                         </>
                       )}
                       {d.paymentStatus === 'Approved' && (
                         <button
                           onClick={() => handleSendReceipt(d)}
-                          title="Send receipt email"
+                          title="रसीद मेल भेजें"
                           style={{ background: '#fff7ed', color: 'var(--color-primary)', border: '1px solid #fed7aa', borderRadius: '8px', padding: '0.5rem 0.75rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                         >
-                          <Mail size={14}/> Send Mail
+                          <Mail size={14}/> मेल भेजें
                         </button>
                       )}
                     </div>
@@ -560,8 +561,8 @@ const AdminDonations = () => {
           <div className="content-card" style={{ width: '100%', maxWidth: '760px', maxHeight: '90vh', overflowY: 'auto', padding: 0, borderRadius: '20px', border: 'none' }}>
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 2 }}>
               <div>
-                <h3 style={{ margin: 0 }}>Create Donation</h3>
-                <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>Record an offline trust contribution</p>
+                <h3 style={{ margin: 0 }}>नया दान दर्ज करें</h3>
+                <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>ऑफ़लाइन या काउंटर दान रिकॉर्ड दर्ज करें</p>
               </div>
               <button onClick={resetAdminForm} type="button" style={{ border: 'none', background: '#f1f5f9', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={20} />
@@ -571,29 +572,29 @@ const AdminDonations = () => {
             <form onSubmit={handleCreateDonation} style={{ padding: '1.5rem', display: 'grid', gap: '1.25rem' }}>
               <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
-                  Donor Name
-                  <input required className="form-input" value={adminForm.name} onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })} placeholder="Enter donor name" />
+                  दानदाता नाम *
+                  <input required className="form-input" value={adminForm.name} onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })} placeholder="दानदाता का नाम दर्ज करें" />
                 </label>
                 <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
-                  Email
-                  <input className="form-input" type="email" value={adminForm.email} onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })} placeholder="Enter email address" />
-                </label>
-              </div>
-
-              <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
-                  Mobile Number
-                  <input required className="form-input" type="tel" value={adminForm.phone} onChange={(e) => setAdminForm({ ...adminForm, phone: e.target.value })} placeholder="Enter mobile number" />
-                </label>
-                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
-                  Amount
-                  <input required className="form-input" type="number" min="1" value={adminForm.amount} onChange={(e) => setAdminForm({ ...adminForm, amount: e.target.value })} placeholder="Enter amount" />
+                  ईमेल (रसीद हेतु)
+                  <input className="form-input" type="email" value={adminForm.email} onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })} placeholder="ईमेल दर्ज करें" />
                 </label>
               </div>
 
               <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
-                  Category
+                  मोबाइल नंबर *
+                  <input required className="form-input" type="tel" value={adminForm.phone} onChange={(e) => setAdminForm({ ...adminForm, phone: e.target.value })} placeholder="10-अंकीय मोबाइल नंबर" />
+                </label>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  दान राशि (₹) *
+                  <input required className="form-input" type="number" min="1" value={adminForm.amount} onChange={(e) => setAdminForm({ ...adminForm, amount: e.target.value })} placeholder="राशि दर्ज करें" />
+                </label>
+              </div>
+
+              <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
+                  सेवा श्रेणी *
                   <select required className="form-input" value={adminForm.category} onChange={(e) => setAdminForm({ ...adminForm, category: e.target.value })}>
                     {donationCategories.map((category) => <option key={category} value={category}>{category}</option>)}
                   </select>
@@ -601,11 +602,11 @@ const AdminDonations = () => {
               </div>
 
               <div>
-                <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.6rem' }}>Payment Mode</div>
+                <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.6rem' }}>भुगतान का प्रकार</div>
                 <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   {[
-                    { mode: 'Cash', icon: <Banknote size={20} /> },
-                    { mode: 'UPI', icon: <QrCode size={20} /> }
+                    { mode: 'Cash', label: 'नकद (Cash)', icon: <Banknote size={20} /> },
+                    { mode: 'UPI', label: 'ऑनलाइन (UPI / QR)', icon: <QrCode size={20} /> }
                   ].map((item) => (
                     <button
                       key={item.mode}
@@ -630,7 +631,7 @@ const AdminDonations = () => {
                         gap: '0.5rem'
                       }}
                     >
-                      {item.icon} {item.mode}
+                      {item.icon} {item.label}
                     </button>
                   ))}
                 </div>
@@ -643,26 +644,26 @@ const AdminDonations = () => {
                   </div>
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <label style={{ display: 'grid', gap: '0.45rem', fontWeight: 700, color: '#334155' }}>
-                      UTR / Transaction ID
-                      <input className="form-input" value={adminForm.utr} onChange={(e) => setAdminForm({ ...adminForm, utr: e.target.value })} placeholder="Enter UPI transaction ID" />
+                      UTR / ट्रांजैक्शन ID
+                      <input className="form-input" value={adminForm.utr} onChange={(e) => setAdminForm({ ...adminForm, utr: e.target.value })} placeholder="12-अंकीय UTR दर्ज करें" />
                     </label>
                     <div>
-                      <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Payment Screenshot</div>
+                      <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>भुगतान रसीद / स्क्रीनशॉट</div>
                       <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                         <label className="form-input" style={{ minHeight: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 700, color: '#334155', background: '#fff' }}>
-                          <Upload size={18} /> Upload
+                          <Upload size={18} /> फ़ाइल अपलोड
                           <input type="file" accept="image/*" onChange={handleAdminScreenshotChange} style={{ display: 'none' }} />
                         </label>
                         <button type="button" onClick={openCamera} className="form-input" style={{ minHeight: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 700, color: 'var(--color-primary)', background: 'var(--color-primary-alpha)', borderColor: 'var(--color-primary)' }}>
-                          <Camera size={18} /> Capture
+                          <Camera size={18} /> फोटो खींचें
                         </button>
                       </div>
-                      <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.85rem' }}>Enter transaction ID or attach payment proof.</p>
+                      <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.85rem' }}>ट्रांजैक्शन ID दर्ज करें अथवा पेमेंट का फोटो अपलोड करें।</p>
                       {cameraError && <p style={{ color: '#b91c1c', fontSize: '0.85rem', fontWeight: 600, marginTop: '0.75rem' }}>{cameraError}</p>}
                       {adminForm.screenshot && (
                         <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#166534', fontSize: '0.85rem', fontWeight: 700 }}>
                           <img src={adminForm.screenshot} alt="Selected payment proof" style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #bbf7d0' }} />
-                          Photo selected
+                          फोटो चुनी गई
                         </div>
                       )}
                     </div>
@@ -671,9 +672,9 @@ const AdminDonations = () => {
               )}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.5rem' }}>
-                <button type="button" onClick={resetAdminForm} className="btn btn-outline">Cancel</button>
+                <button type="button" onClick={resetAdminForm} className="btn btn-outline">रद्द करें</button>
                 <button type="submit" disabled={creating} className="btn btn-primary">
-                  {creating ? 'Saving...' : 'Save Donation'}
+                  {creating ? 'सुरक्षित हो रहा है...' : 'दान सहेजें'}
                 </button>
               </div>
             </form>
@@ -685,7 +686,7 @@ const AdminDonations = () => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.82)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div style={{ width: '100%', maxWidth: '560px', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }}>
             <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
-              <h3 style={{ margin: 0 }}>Capture Screenshot</h3>
+              <h3 style={{ margin: 0 }}>स्क्रीनशॉट कैप्चर करें</h3>
               <button type="button" onClick={closeCamera} style={{ width: '36px', height: '36px', borderRadius: '50%', border: 'none', background: '#f1f5f9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={20} />
               </button>
@@ -694,9 +695,9 @@ const AdminDonations = () => {
               <video ref={videoRef} playsInline muted style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <div style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button type="button" onClick={closeCamera} className="btn btn-outline">Cancel</button>
+              <button type="button" onClick={closeCamera} className="btn btn-outline">रद्द करें</button>
               <button type="button" onClick={captureAdminScreenshot} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Camera size={18} /> Take Photo
+                <Camera size={18} /> फोटो लें
               </button>
             </div>
           </div>
@@ -715,8 +716,8 @@ const AdminDonations = () => {
                         <ShieldCheck size={24} />
                     </div>
                     <div>
-                        <h3 style={{ margin: 0 }}>Donation Details</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Payment: {selectedDonation.paymentMode || 'UPI'} | Transaction ID: {selectedDonation.utr || 'N/A'}</p>
+                        <h3 style={{ margin: 0 }}>दान एवं भुगतान विस्तृत विवरण</h3>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>माध्यम: {selectedDonation.paymentMode === 'Cash' ? 'नकद (Cash)' : 'ऑनलाइन (UPI)'} | ट्रांजैक्शन ID: {selectedDonation.utr || 'उपलब्ध नहीं'}</p>
                     </div>
                 </div>
                 <button onClick={() => setSelectedDonation(null)} style={{ border: 'none', background: '#f1f5f9', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20}/></button>
@@ -729,12 +730,12 @@ const AdminDonations = () => {
                  <div className="admin-inline-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                     
                     {[
-                      { label: 'Donor Name', val: selectedDonation.name, icon: <LayoutDashboard size={14}/> },
-                      { label: 'Email', val: selectedDonation.email || 'N/A', icon: <Mail size={14}/> },
-                      { label: 'Mobile Number', val: selectedDonation.phone, icon: <Phone size={14}/> },
-                      { label: 'Donation Date', val: new Date(selectedDonation.createdAt).toLocaleDateString(), icon: <Calendar size={14}/> },
-                      { label: 'Category', val: selectedDonation.category, icon: <Tag size={14}/> },
-                      { label: 'Payment Mode', val: selectedDonation.paymentMode || 'UPI', icon: <QrCode size={14}/> },
+                      { label: 'दानदाता नाम', val: selectedDonation.name, icon: <LayoutDashboard size={14}/> },
+                      { label: 'ईमेल पता', val: selectedDonation.email || 'उपलब्ध नहीं', icon: <Mail size={14}/> },
+                      { label: 'मोबाइल नंबर', val: selectedDonation.phone, icon: <Phone size={14}/> },
+                      { label: 'दान तिथि', val: new Date(selectedDonation.createdAt).toLocaleDateString('hi-IN'), icon: <Calendar size={14}/> },
+                      { label: 'सेवा श्रेणी', val: selectedDonation.category, icon: <Tag size={14}/> },
+                      { label: 'भुगतान माध्यम', val: selectedDonation.paymentMode === 'Cash' ? 'नकद (Cash)' : 'UPI / ऑनलाइन', icon: <QrCode size={14}/> },
                     ].map(item => (
                       <div key={item.label}>
                         <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{item.icon} {item.label.toUpperCase()}</div>
@@ -745,7 +746,7 @@ const AdminDonations = () => {
 
                  <div>
                     <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Tag size={13}/> PAYMENT SCREENSHOT
+                      <Tag size={13}/> भुगतान प्रमाण स्क्रीनशॉट
                     </div>
                     {selectedDonation.screenshot ? (
                       <div 
@@ -757,7 +758,7 @@ const AdminDonations = () => {
                           alt="Payment Proof"
                         />
                         <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600 }}>
-                          🔍 Click to Zoom
+                          🔍 बड़ा करके देखें
                         </div>
                       </div>
                     ) : (
@@ -767,15 +768,15 @@ const AdminDonations = () => {
                         background: '#f8fafc', color: '#94a3b8'
                       }}>
                         <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📷</div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.25rem' }}>No Screenshot Uploaded</div>
-                        <div style={{ fontSize: '0.8rem' }}>Donor did not attach a payment proof</div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.25rem' }}>कोई स्क्रीनशॉट उपलब्ध नहीं है</div>
+                        <div style={{ fontSize: '0.8rem' }}>दानदाता द्वारा फोटो संलग्न नहीं की गई है</div>
                       </div>
                     )}
                  </div>
 
                  <div style={{ marginTop: 'auto', display: 'flex', gap: '1rem' }}>
                     {selectedDonation.paymentStatus === 'Pending' && (
-                        <button onClick={() => { handleUpdateStatus(selectedDonation._id, 'Approved'); setSelectedDonation(null); }} className="btn btn-primary" style={{ flex: 1, padding: '1rem' }}>Approve Donation</button>
+                        <button onClick={() => { handleUpdateStatus(selectedDonation._id, 'Approved'); setSelectedDonation(null); }} className="btn btn-primary" style={{ flex: 1, padding: '1rem' }}>दान स्वीकृत करें</button>
                     )}
                  </div>
               </div>
@@ -785,18 +786,18 @@ const AdminDonations = () => {
                  <div ref={receiptRef} className="receipt-preview" style={{ background: 'white', border: '2px solid #FF6B00', padding: '25px', borderRadius: '16px', flexGrow: 1 }}>
                     <div className="header" style={{ textAlign: 'center', borderBottom: '2px solid #fff5ed', paddingBottom: '15px', marginBottom: '15px' }}>
                         <img src={logo} style={{ height: '60px', width: '60px', borderRadius: '50%', marginBottom: '5px' }} />
-                        <div className="title" style={{ color: '#FF6B00', fontWeight: 800, fontSize: '16px', letterSpacing: '1px' }}>SHREE MANVAT BABA MANDIR TRUST</div>
-                        <div style={{ fontSize: '10px', color: '#94a3b8' }}>RECEIPT NO: {selectedDonation._id.slice(-8).toUpperCase()}</div>
+                        <div className="title" style={{ color: '#FF6B00', fontWeight: 800, fontSize: '16px', letterSpacing: '1px' }}>श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट</div>
+                        <div style={{ fontSize: '10px', color: '#94a3b8' }}>रसीद संख्या: SMB-{selectedDonation._id.slice(-8).toUpperCase()}</div>
                     </div>
 
                     {[
-                        { l: 'Donor', v: selectedDonation.name },
-                        { l: 'Email', v: selectedDonation.email || 'N/A' },
-                        { l: 'Contact', v: selectedDonation.phone },
-                        { l: 'Category', v: selectedDonation.category },
-                        { l: 'Payment', v: selectedDonation.paymentMode || 'UPI' },
-                        { l: 'Trans ID', v: selectedDonation.utr || 'N/A' },
-                        { l: 'Date', v: new Date(selectedDonation.createdAt).toLocaleDateString() },
+                        { l: 'दानदाता', v: selectedDonation.name },
+                        { l: 'ईमेल', v: selectedDonation.email || 'उपलब्ध नहीं' },
+                        { l: 'संपर्क', v: selectedDonation.phone },
+                        { l: 'सेवा श्रेणी', v: selectedDonation.category },
+                        { l: 'भुगतान', v: selectedDonation.paymentMode === 'Cash' ? 'नकद जमा' : 'UPI / ऑनलाइन' },
+                        { l: 'ट्रांजैक्शन ID', v: selectedDonation.utr || 'उपलब्ध नहीं' },
+                        { l: 'तिथि', v: new Date(selectedDonation.createdAt).toLocaleDateString('hi-IN') },
                     ].map(row => (
                         <div key={row.l} className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', borderBottom: '1px dashed #f1f5f9', paddingBottom: '6px' }}>
                             <span className="label" style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>{row.l}</span>
@@ -805,7 +806,7 @@ const AdminDonations = () => {
                     ))}
 
                     <div className="amount-box" style={{ background: '#fff5ed', padding: '15px', borderRadius: '12px', textAlign: 'center', marginTop: '20px', border: '1px solid #FF6B0020' }}>
-                        <div style={{ fontSize: '11px', color: '#FF6B00', fontWeight: 700 }}>AMOUNT RECEIVED</div>
+                        <div style={{ fontSize: '11px', color: '#FF6B00', fontWeight: 700 }}>प्राप्त दान राशि</div>
                         <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#FF6B00' }}>₹{selectedDonation.amount}</div>
                     </div>
 
@@ -816,10 +817,10 @@ const AdminDonations = () => {
 
                  <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                     <button onClick={handlePrint} className="btn" style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '0.85rem', borderRadius: 'var(--radius-md)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                        <Printer size={18}/> Print / Download PDF
+                        <Printer size={18}/> रसीद प्रिंट / PDF डाउनलोड
                     </button>
                     <button onClick={handleShareWhatsApp} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#166534', borderColor: '#25D366', background: '#dcfce730' }}>
-                        <Share2 size={18}/> Share Receipt on WhatsApp
+                        <Share2 size={18}/> व्हाट्सएप पर रसीद भेजें
                     </button>
                  </div>
               </div>

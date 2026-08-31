@@ -88,6 +88,14 @@ const AdminLiveStream = () => {
     const socket = io(SOCKET_URL);
     socketRef.current = socket;
 
+    socket.on('connect', () => {
+      console.log('🔑 Admin socket connected:', socket.id);
+      socket.emit('join-live', { isAdmin: true });
+      if (localStreamRef.current) {
+        socket.emit('request-viewers-handshake');
+      }
+    });
+
     socket.emit('join-live', { isAdmin: true });
 
     socket.on('viewer-count', (count) => {
@@ -118,6 +126,8 @@ const AdminLiveStream = () => {
       console.log(`📡 Viewer joined stream: ${socketId}`);
       if (localStreamRef.current) {
         createPeerConnection(socketId, socket, localStreamRef.current);
+      } else {
+        console.warn('⚠️ Admin localStreamRef.current is null when viewer requested stream!');
       }
     });
 
@@ -324,14 +334,14 @@ const AdminLiveStream = () => {
 
   // Setup Peer Connection for a viewer
   const createPeerConnection = async (viewerSocketId, socket, stream) => {
-    if (peerConnectionsRef.current[viewerSocketId]) {
-      closePeerConnection(viewerSocketId);
-    }
+    closePeerConnection(viewerSocketId);
 
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' }
       ]
     });
 
@@ -359,7 +369,10 @@ const AdminLiveStream = () => {
     };
 
     try {
-      const offer = await pc.createOffer();
+      const offer = await pc.createOffer({
+        offerToReceiveVideo: false,
+        offerToReceiveAudio: false
+      });
       await pc.setLocalDescription(offer);
       socket.emit('send-offer', {
         targetSocketId: viewerSocketId,
@@ -399,6 +412,24 @@ const AdminLiveStream = () => {
         setLocalStream(stream);
         localStreamRef.current = stream;
         setCameraActive(true);
+
+        // Auto sync isLive status in DB and notify all viewers
+        try {
+          await api.updateLiveStatus({
+            isLive: true,
+            title: title || 'श्री मन्वत बाबा लाइव दर्शन',
+            description: description || 'मंदिर परिसर से सीधा प्रसारण',
+            streamType: 'webrtc',
+            streamUrl: ''
+          });
+          setIsLive(true);
+          if (socketRef.current) {
+            socketRef.current.emit('stream-active', { isLive: true, streamType: 'webrtc' });
+            socketRef.current.emit('request-viewers-handshake');
+          }
+        } catch (e) {
+          console.error('Error auto updating live status on camera start:', e);
+        }
       } catch (err) {
         console.error('Webcam access failed:', err);
         setErrorMessage('Could not access Webcam or Microphone. Please check browser permissions.');
@@ -458,7 +489,7 @@ const AdminLiveStream = () => {
     }
   };
 
-  const stopCamera = () => {
+  const stopCamera = async () => {
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((track) => track.stop());
     }
@@ -473,6 +504,22 @@ const AdminLiveStream = () => {
     Object.keys(peerConnectionsRef.current).forEach((socketId) => {
       closePeerConnection(socketId);
     });
+
+    // Auto sync isLive: false in DB
+    try {
+      await api.updateLiveStatus({
+        isLive: false,
+        title,
+        description,
+        streamType: 'webrtc'
+      });
+      setIsLive(false);
+      if (socketRef.current) {
+        socketRef.current.emit('stream-active', { isLive: false, streamType: 'webrtc' });
+      }
+    } catch (e) {
+      console.error('Error auto updating live status on camera stop:', e);
+    }
   };
 
   const stopCameraAndBroadcast = () => {
@@ -534,11 +581,9 @@ const AdminLiveStream = () => {
         // Notify socket
         if (socketRef.current) {
           socketRef.current.emit('stream-active', { isLive: true, streamType });
-        }
-
-        // If WebRTC is active, notify already connected users in the room to start handshaking
-        if (streamType === 'webrtc' && socketRef.current) {
-          socketRef.current.emit('viewer-join-stream');
+          if (streamType === 'webrtc') {
+            socketRef.current.emit('request-viewers-handshake');
+          }
         }
       } else {
         setErrorMessage(result.message || 'Failed to start stream.');
@@ -611,7 +656,7 @@ const AdminLiveStream = () => {
     return (
       <div className="admin-live-loading">
         <div className="spinner"></div>
-        <p>Loading Live Stream Console...</p>
+        <p>लाइव दर्शन कंट्रोल कंसोल लोड हो रहा है...</p>
       </div>
     );
   }
@@ -622,14 +667,14 @@ const AdminLiveStream = () => {
         <div className="header-left">
           <div className={`live-badge ${isLive ? 'active' : ''}`}>
             <Radio size={16} />
-            <span>{isLive ? 'LIVE' : 'OFFLINE'}</span>
+            <span>{isLive ? 'लाइव चालू' : 'ऑफलाइन'}</span>
           </div>
-          <h1>Live Darshan Console</h1>
+          <h1>लाइव दर्शन कंट्रोल कंसोल</h1>
         </div>
         <div className="audience-stats">
           <div className="stat-card">
             <Users size={18} />
-            <span>{viewerCount} Viewers Online</span>
+            <span>{viewerCount} ऑनलाइन श्रद्धालु दर्शक</span>
           </div>
         </div>
       </div>
@@ -642,11 +687,11 @@ const AdminLiveStream = () => {
         <div className="live-media-section card glass">
           <div className="media-header">
             <h3>
-              <Sparkles size={16} className="text-primary" /> Live Stream Preview
+              <Sparkles size={16} className="text-primary" /> लाइव स्ट्रीम पूर्वावलोकन (Preview)
             </h3>
             {isLive && (
               <span className="rec-indicator">
-                <span className="dot"></span> REC
+                <span className="dot"></span> सीधे प्रसारण में
               </span>
             )}
           </div>
@@ -664,7 +709,7 @@ const AdminLiveStream = () => {
                 {!cameraActive && (
                   <div className="camera-placeholder">
                     <Video size={48} />
-                    <p>Camera is currently off</p>
+                    <p>कैमरा बंद है। चालू करने के लिए नीचे बटन पर क्लिक करें।</p>
                   </div>
                 )}
                 <div className="webrtc-controls-container">
@@ -674,7 +719,7 @@ const AdminLiveStream = () => {
                     className={`btn-camera-toggle ${cameraActive ? 'active' : ''}`}
                   >
                     {cameraActive ? <VideoOff size={18} /> : <Video size={18} />}
-                    {cameraActive ? 'Deactivate Camera' : 'Activate Camera'}
+                    {cameraActive ? 'कैमरा बंद करें' : 'कैमरा चालू करें'}
                   </button>
                   {cameraActive && (
                     <button
@@ -683,7 +728,7 @@ const AdminLiveStream = () => {
                       className="btn-camera-switch"
                     >
                       <RefreshCw size={18} />
-                      Switch Camera
+                      कैमरा बदलें
                     </button>
                   )}
                 </div>
@@ -705,7 +750,7 @@ const AdminLiveStream = () => {
                 ) : (
                   <div className="camera-placeholder">
                     <Radio size={48} />
-                    <p>No active live stream player configured</p>
+                    <p>कोई सक्रिय लाइव स्ट्रीम प्लेयर कॉन्फ़िगर नहीं है</p>
                   </div>
                 )}
               </div>
@@ -715,41 +760,41 @@ const AdminLiveStream = () => {
           <div className="stream-info-block">
             <h4>{title}</h4>
             <p className="text-light">{description}</p>
-            {isLive && <span className="stream-mode-tag">Streaming Mode: {streamType.toUpperCase()}</span>}
+            {isLive && <span className="stream-mode-tag">प्रसारण माध्यम: {streamType === 'webrtc' ? 'वेबकैम (WebRTC)' : streamType === 'youtube' ? 'यूट्यूब (YouTube)' : 'HLS URL'}</span>}
           </div>
         </div>
 
         {/* Stream Settings */}
         <div className="live-settings-section card glass">
           <div className="section-title-box">
-            <h3><Settings size={18} /> Stream Configurations</h3>
+            <h3><Settings size={18} /> लाइव स्ट्रीम सेटिंग्स</h3>
           </div>
           <form onSubmit={handleStartStream} className="settings-form">
             <div className="form-group">
-              <label>Stream Title</label>
+              <label>लाइव स्ट्रीम शीर्षक *</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter stream title (e.g. Mangala Aarti Live)"
+                placeholder="जैसे: दैनिक मंगला आरती लाइव दर्शन"
                 required
                 disabled={isLive}
               />
             </div>
             
             <div className="form-group">
-              <label>Stream Description</label>
+              <label>स्ट्रीम का विवरण</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe this broadcast..."
+                placeholder="प्रसारण का विवरण दर्ज करें..."
                 rows={3}
                 disabled={isLive}
               />
             </div>
 
             <div className="form-group">
-              <label>Broadcast Mode</label>
+              <label>प्रसारण माध्यम (Broadcast Mode)</label>
               <div className="radio-group">
                 <label className={streamType === 'youtube' ? 'active' : ''}>
                   <input
@@ -760,7 +805,7 @@ const AdminLiveStream = () => {
                     onChange={() => setStreamType('youtube')}
                     disabled={isLive}
                   />
-                  YouTube Embed
+                  YouTube इम्बेड
                 </label>
                 <label className={streamType === 'hls' ? 'active' : ''}>
                   <input
@@ -782,7 +827,7 @@ const AdminLiveStream = () => {
                     onChange={() => setStreamType('webrtc')}
                     disabled={isLive}
                   />
-                  Webcam (WebRTC)
+                  वेबकैम (WebRTC Direct)
                 </label>
               </div>
             </div>
@@ -790,7 +835,7 @@ const AdminLiveStream = () => {
             {streamType !== 'webrtc' && (
               <div className="form-group">
                 <label>
-                  {streamType === 'youtube' ? 'YouTube Video ID / URL' : 'HLS Stream URL (.m3u8)'}
+                  {streamType === 'youtube' ? 'YouTube वीडियो ID या URL' : 'HLS स्ट्रीम URL (.m3u8)'}
                 </label>
                 <input
                   type="text"
@@ -798,7 +843,6 @@ const AdminLiveStream = () => {
                   onChange={(e) => {
                     const val = e.target.value;
                     if (streamType === 'youtube') {
-                      // Extract ID if full link is pasted
                       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                       const match = val.match(regExp);
                       if (match && match[2].length === 11) {
@@ -812,16 +856,16 @@ const AdminLiveStream = () => {
                   }}
                   placeholder={
                     streamType === 'youtube' 
-                      ? 'e.g. dQw4w9WgXcQ' 
-                      : 'e.g. https://domain.com/live/stream.m3u8'
+                      ? 'जैसे: dQw4w9WgXcQ' 
+                      : 'जैसे: https://domain.com/live/stream.m3u8'
                   }
                   required
                   disabled={isLive}
                 />
                 <small className="help-text text-light">
                   {streamType === 'youtube' 
-                    ? 'Provide the 11-character YouTube video ID (or paste the full watch URL)' 
-                    : 'Provide the full secure URL of the HTTP Live Streaming feed'}
+                    ? '11-अंकीय यूट्यूब वीडियो ID या पूरा यूट्यूब लिंक दर्ज करें' 
+                    : 'एचटीटीपी लाइव स्ट्रीमिंग (.m3u8) का सुरक्षित यूआरएल दर्ज करें'}
                 </small>
               </div>
             )}
@@ -833,14 +877,14 @@ const AdminLiveStream = () => {
                   onClick={handleStopStream}
                   className="btn btn-stop-stream"
                 >
-                  <Square size={16} /> Stop Live Broadcast
+                  <Square size={16} /> लाइव प्रसारण समाप्त करें
                 </button>
               ) : (
                 <button
                   type="submit"
                   className="btn btn-start-stream"
                 >
-                  <Play size={16} /> Go Live Now
+                  <Play size={16} /> लाइव प्रसारण शुरू करें
                 </button>
               )}
             </div>
@@ -851,14 +895,14 @@ const AdminLiveStream = () => {
         <div className="live-chat-section card glass">
           <div className="chat-header">
             <h3>
-              <MessageSquare size={18} /> Live Chat Monitor
+              <MessageSquare size={18} /> लाइव चैट मॉनिटर (Live Chat)
             </h3>
             <button
               onClick={handleClearChat}
               className="btn-clear-chat text-light"
-              title="Clear all chat history"
+              title="चैट इतिहास साफ करें"
             >
-              <Trash2 size={16} /> Clear Chat
+              <Trash2 size={16} /> चैट साफ़ करें
             </button>
           </div>
 
@@ -866,7 +910,7 @@ const AdminLiveStream = () => {
             {chatMessages.length === 0 ? (
               <div className="empty-chat">
                 <MessageSquare size={36} />
-                <p>No messages yet. Send a message to start the conversation!</p>
+                <p>अभी तक कोई संदेश नहीं आया है। पहली चैट भेजें!</p>
               </div>
             ) : (
               chatMessages.map((msg) => (
@@ -875,10 +919,10 @@ const AdminLiveStream = () => {
                     <span className="username">
                       {msg.isAdmin && <Shield size={12} className="admin-badge-icon" />}
                       {msg.username}
-                      {msg.isAdmin && <small className="admin-label">Mandir Trust</small>}
+                      {msg.isAdmin && <small className="admin-label">मंदिर ट्रस्ट</small>}
                     </span>
                     <span className="timestamp">
-                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(msg.timestamp).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   <p className="message-text">{msg.message}</p>
@@ -892,11 +936,11 @@ const AdminLiveStream = () => {
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Send message as Administrator..."
+              placeholder="प्रशासक के रूप में संदेश लिखें..."
               required
             />
             <button type="submit" className="btn-send-message">
-              Send
+              भेजें
             </button>
           </form>
         </div>

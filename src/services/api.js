@@ -175,6 +175,6 @@ export const api = {
   getVisitorCount: () => api.call('/stats/visitors'),
 
   // Reviews
-  submitReview: (data) => api.call('/reviews', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   getReviews: () => api.call('/reviews'),
+  submitReview: (data) => api.call('/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
 };

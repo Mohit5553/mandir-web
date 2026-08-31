@@ -6,7 +6,7 @@
 
 .admin-sidebar-backdrop,
 .admin-menu-btn {
-  display: none;
+  display: none !important;
 }
 
 /* Sidebar default styles */
@@ -389,16 +389,17 @@
   }
 
   .admin-menu-btn {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
-    background: var(--color-primary-alpha);
-    color: var(--color-primary);
-    font-size: 1.35rem;
-    font-weight: 800;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #ea580c;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.12);
   }
 
   .admin-header {

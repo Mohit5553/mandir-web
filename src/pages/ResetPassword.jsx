@@ -22,17 +22,17 @@ const ResetPassword = () => {
     setSuccess('');
 
     if (!token) {
-      setError('Password reset token is missing. Please request a new link.');
+      setError('पासवर्ड रीसेट टोकन अनुपलब्ध है। कृपया नया लिंक प्राप्त करें।');
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      setError('पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('दोनों पासवर्ड आपस में मेल नहीं खाते हैं।');
       return;
     }
 
@@ -40,15 +40,15 @@ const ResetPassword = () => {
     try {
       const res = await api.resetPassword(token, password);
       if (res.message && res.message.toLowerCase().includes('successful')) {
-        setSuccess('Your password has been reset successfully! Redirecting to login page...');
+        setSuccess('आपका पासवर्ड सफलतापूर्वक रीसेट हो गया है! लॉग इन पृष्ठ पर पुनः निर्देशित किया जा रहा है...');
         setTimeout(() => {
           navigate('/admin/login');
         }, 3000);
       } else {
-        setError(res.message || 'Failed to reset password. The link may have expired.');
+        setError(res.message || 'पासवर्ड रीसेट करने में त्रुटि हुई। लिंक समाप्त (expire) हो सकता है।');
       }
     } catch {
-      setError('Could not connect to server. Is the backend running?');
+      setError('सर्वर से संपर्क नहीं हो सका। क्या बैकएंड चालू है?');
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ const ResetPassword = () => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '2rem',
-      fontFamily: 'Outfit, sans-serif'
+      fontFamily: "'Hind', sans-serif"
     }}>
       <div style={{ width: '100%', maxWidth: '460px' }}>
 
@@ -81,9 +81,9 @@ const ResetPassword = () => {
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>🕉️</div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #FF6B00, #FF8533)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>
-            Shree Manvat Baba Mahashiv Mandir
+            श्री मन्वत बाबा महाशिव मंदिर
           </h1>
-          <p style={{ color: 'var(--color-text-light)', fontSize: '1rem' }}>Administrator Console</p>
+          <p style={{ color: 'var(--color-text-light)', fontSize: '1rem' }}>प्रशासक पोर्टल (Administrator Console)</p>
         </div>
 
         {/* Card */}
@@ -94,7 +94,7 @@ const ResetPassword = () => {
           boxShadow: '0 20px 60px rgba(255, 107, 0, 0.12)',
           border: '1px solid rgba(255, 107, 0, 0.1)'
         }}>
-          <h2 style={{ marginBottom: '1.75rem', fontSize: '1.5rem', fontWeight: 700 }}>Reset Password</h2>
+          <h2 style={{ marginBottom: '1.75rem', fontSize: '1.5rem', fontWeight: 700 }}>नया पासवर्ड सेट करें</h2>
 
           {!token ? (
             <div style={{
@@ -107,7 +107,7 @@ const ResetPassword = () => {
               borderLeft: '4px solid #b91c1c',
               marginBottom: '1.5rem'
             }}>
-              Invalid Reset Link. The password reset token is missing from the URL. Please request a new link from the login page.
+              अमान्य रीसेट लिंक। यूआरएल में पासवर्ड रीसेट टोकन नहीं मिला। कृपया लॉग इन पृष्ठ से नया लिंक अनुरोध करें।
             </div>
           ) : (
             <>
@@ -144,13 +144,13 @@ const ResetPassword = () => {
               <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.95rem' }}>
-                    New Password
+                    नया पासवर्ड
                   </label>
                   <div style={{ position: 'relative' }}>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
-                      placeholder="Enter new password"
+                      placeholder="नया पासवर्ड दर्ज करें"
                       style={{ ...inputStyle, paddingRight: '2.8rem' }}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
@@ -183,13 +183,13 @@ const ResetPassword = () => {
 
                 <div style={{ marginBottom: '2rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.95rem' }}>
-                    Confirm New Password
+                    नये पासवर्ड की पुष्टि करें
                   </label>
                   <div style={{ position: 'relative' }}>
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       required
-                      placeholder="Confirm your new password"
+                      placeholder="नया पासवर्ड पुनः दर्ज करें"
                       style={{ ...inputStyle, paddingRight: '2.8rem' }}
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
@@ -239,7 +239,7 @@ const ResetPassword = () => {
                     marginBottom: '1.25rem'
                   }}
                 >
-                  {loading ? 'Resetting Password...' : '🔒 Reset Password'}
+                  {loading ? 'पासवर्ड रीसेट हो रहा है...' : '🔒 नया पासवर्ड सहेजें'}
                 </button>
               </form>
             </>
@@ -262,7 +262,7 @@ const ResetPassword = () => {
               fontFamily: 'inherit'
             }}
           >
-            ← Back to Login
+            ← वापस लॉग इन पर जाएं
           </button>
         </div>
 

@@ -97,8 +97,8 @@ const AdminContact = () => {
     <div>
       <div className="page-toolbar" style={{ marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ marginBottom: '0.4rem' }}>Contact Messages</h1>
-          <p className="text-light">Review and reply to queries submitted by devotees from the contact page.</p>
+          <h1 style={{ marginBottom: '0.4rem' }}>संपर्क संदेश (Devotee Queries)</h1>
+          <p className="text-light">वेबसाइट से श्रद्धालुओं द्वारा भेजे गए प्रश्नों एवं संदेशों की समीक्षा व उत्तर दें</p>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ const AdminContact = () => {
             <MessageSquare size={22} />
           </div>
           <div>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.15rem' }}>Total Messages</p>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.15rem' }}>कुल संपर्क संदेश</p>
             <h2 style={{ margin: 0, fontSize: '1.5rem' }}>{totalCount}</h2>
           </div>
         </div>
@@ -131,7 +131,7 @@ const AdminContact = () => {
             <Mail size={22} />
           </div>
           <div>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.15rem' }}>Unread Messages</p>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.15rem' }}>अपठित (Unread) संदेश</p>
             <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#ef4444' }}>{unreadCount}</h2>
           </div>
         </div>
@@ -141,7 +141,7 @@ const AdminContact = () => {
             <MailOpen size={22} />
           </div>
           <div>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.15rem' }}>Read/Resolved</p>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.15rem' }}>पढ़े गए / निस्तारित</p>
             <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#15803d' }}>{readCount}</h2>
           </div>
         </div>
@@ -150,25 +150,25 @@ const AdminContact = () => {
       {/* Filters & Search Toolbar */}
       <div className="content-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
         <div style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: '12px', padding: '4px', gap: '4px' }}>
-          <button className={`admin-tab ${filter === 'all' ? 'active' : ''}`} style={{ border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }} onClick={() => setFilter('all')}>All</button>
-          <button className={`admin-tab ${filter === 'unread' ? 'active' : ''}`} style={{ border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }} onClick={() => setFilter('unread')}>Unread</button>
-          <button className={`admin-tab ${filter === 'read' ? 'active' : ''}`} style={{ border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }} onClick={() => setFilter('read')}>Read</button>
+          <button className={`admin-tab ${filter === 'all' ? 'active' : ''}`} style={{ border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }} onClick={() => setFilter('all')}>सभी संदेश</button>
+          <button className={`admin-tab ${filter === 'unread' ? 'active' : ''}`} style={{ border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }} onClick={() => setFilter('unread')}>अपठित (Unread)</button>
+          <button className={`admin-tab ${filter === 'read' ? 'active' : ''}`} style={{ border: 'none', padding: '0.5rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }} onClick={() => setFilter('read')}>पढ़े गए (Read)</button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}>
           <Search size={18} style={{ position: 'absolute', left: '12px', color: '#94a3b8' }} />
-          <input type="text" placeholder="Search name, email, query..." style={{ ...inputStyle, paddingLeft: '36px' }} value={search} onChange={e => setSearch(e.target.value)} />
+          <input type="text" placeholder="नाम, ईमेल या संदेश खोजें..." style={{ ...inputStyle, paddingLeft: '36px' }} value={search} onChange={e => setSearch(e.target.value)} />
         </div>
       </div>
 
       {/* Messages Grid */}
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '3rem' }}>Loading messages...</p>
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '3rem' }}>संदेश लोड हो रहे हैं...</p>
       ) : filteredMessages.length === 0 ? (
         <div className="content-card" style={{ textAlign: 'center', padding: '4rem' }}>
           <Mail size={52} color="#cbd5e1" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>No Messages Found</h3>
-          <p style={{ color: '#cbd5e1' }}>There are no messages matching your current filter criteria.</p>
+          <h3 style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>कोई संदेश नहीं मिला</h3>
+          <p style={{ color: '#cbd5e1' }}>आपकी खोज या फ़िल्टर के अनुसार कोई संपर्क संदेश उपलब्ध नहीं है।</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '1.25rem' }}>
@@ -184,17 +184,17 @@ const AdminContact = () => {
                   <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {msg.name}
                     {!msg.isRead && (
-                      <span style={{ padding: '0.15rem 0.5rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: 800, background: '#fef2f2', color: '#ef4444', border: '1px solid #fee2e2' }}>NEW</span>
+                      <span style={{ padding: '0.15rem 0.5rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: 800, background: '#fef2f2', color: '#ef4444', border: '1px solid #fee2e2' }}>नया (NEW)</span>
                     )}
                   </h3>
                   <a href={`mailto:${msg.email}`} style={{ fontSize: '0.85rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 600 }}>{msg.email}</a>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>
-                    {new Date(msg.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.createdAt).toLocaleString('hi-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                   {canDelete && (
-                    <button onClick={() => handleDelete(msg._id)} className="btn-icon" style={{ borderColor: '#fee2e2', padding: '0.4rem' }} title="Delete query">
+                    <button onClick={() => handleDelete(msg._id)} className="btn-icon" style={{ borderColor: '#fee2e2', padding: '0.4rem' }} title="संदेश हटाएं">
                       <Trash2 size={15} color="#ef4444" />
                     </button>
                   )}
@@ -221,11 +221,11 @@ const AdminContact = () => {
                 {canUpdate && (
                   <button onClick={() => handleToggleRead(msg._id)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 700 }}>
                     {msg.isRead ? <Mail size={15} /> : <MailOpen size={15} />}
-                    {msg.isRead ? 'Mark Unread' : 'Mark Read'}
+                    {msg.isRead ? 'अपठित चिह्नित करें' : 'पढ़ा हुआ चिह्नित करें'}
                   </button>
                 )}
-                <a href={`mailto:${msg.email}?subject=Reply to your query - Shree Manvat Baba Mahashiv Mandir&body=Dear ${msg.name},%0D%0A%0D%0AThank you for contacting Shree Manvat Baba Mahashiv Mandir.%0D%0A%0D%0A[Write your response here]%0D%0A%0D%0ARegards,%0D%0ATrust Admin`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', fontSize: '0.82rem', textDecoration: 'none', fontWeight: 700 }}>
-                  <Reply size={15} /> Reply via Email
+                <a href={`mailto:${msg.email}?subject=श्री मन्वत बाबा महाशिव मंदिर - आपके संदेश का उत्तर&body=प्रिय ${msg.name},%0D%0A%0D%0Aश्री मन्वत बाबा महाशिव मंदिर ट्रस्ट से संपर्क करने के लिए धन्यवाद।%0D%0A%0D%0A[अपना उत्तर यहाँ लिखें]%0D%0A%0D%0Aसादर,%0D%0Aट्रस्ट प्रशासन`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', fontSize: '0.82rem', textDecoration: 'none', fontWeight: 700 }}>
+                  <Reply size={15} /> ईमेल द्वारा उत्तर दें
                 </a>
               </div>
             </div>

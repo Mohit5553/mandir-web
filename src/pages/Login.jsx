@@ -21,17 +21,17 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await api.login(form);
-      if (res.message === 'Login successful') {
+      if (res.message === 'Login successful' || res.token) {
         localStorage.setItem('adminUser', JSON.stringify(res.user));
         localStorage.setItem('adminPermissions', JSON.stringify(res.permissions || []));
         localStorage.setItem('adminToken', res.token);
         localStorage.setItem('adminRefreshToken', res.refreshToken);
         navigate('/admin');
       } else {
-        setError(res.message || 'Invalid credentials. Please try again.');
+        setError(res.message || 'अमान्य ई-मेल या पासवर्ड। कृपया पुनः प्रयास करें।');
       }
     } catch {
-      setError('Could not connect to server. Is the backend running?');
+      setError('सर्वर से संपर्क नहीं हो सका। क्या बैकएंड चालू है?');
     } finally {
       setLoading(false);
     }
@@ -45,13 +45,13 @@ const Login = () => {
     try {
       const res = await api.forgotPassword(forgotEmail);
       if (res.message && res.message.includes('sent')) {
-        setSuccess(res.message);
+        setSuccess('पासवर्ड रीसेट लिंक आपकी ई-मेल आईडी पर भेज दिया गया है।');
         setForgotEmail('');
       } else {
-        setError(res.message || 'Failed to request password reset.');
+        setError(res.message || 'पासवर्ड रीसेट अनुरोध विफल रहा।');
       }
     } catch {
-      setError('Could not connect to server. Is the backend running?');
+      setError('सर्वर से संपर्क नहीं हो सका। क्या बैकएंड चालू है?');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const Login = () => {
         overflow: 'hidden',
         display: 'flex',
         boxSizing: 'border-box',
-        fontFamily: 'Outfit, sans-serif'
+        fontFamily: "'Hind', sans-serif"
       }}
     >
       
@@ -244,7 +244,7 @@ const Login = () => {
             }}
           >
             <Globe size={15} color="#ea580c" />
-            <span>← Back to Website</span>
+            <span>← मुख्य वेबसाइट पर लौटें</span>
           </Link>
         </div>
 
@@ -295,13 +295,13 @@ const Login = () => {
               color: '#ea580c',
               marginBottom: '0.5rem'
             }}>
-              <ShieldCheck size={14} /> ADMINISTRATOR ACCESS
+              <ShieldCheck size={14} /> प्रशासक लॉग इन (ADMIN ACCESS)
             </div>
             <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-              {view === 'login' ? 'Sign In' : 'Reset Password'}
+              {view === 'login' ? 'लॉग इन करें' : 'पासवर्ड रीसेट करें'}
             </h2>
             <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>
-              {view === 'login' ? 'Enter your admin account email & password' : 'Enter email to receive password reset link'}
+              {view === 'login' ? 'अपना एडमिन ई-मेल आईडी एवं पासवर्ड दर्ज करें' : 'पासवर्ड रीसेट लिंक प्राप्त करने के लिए ई-मेल दर्ज करें'}
             </p>
           </div>
 
@@ -339,7 +339,7 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '1.1rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
-                  Email Address
+                  ई-मेल आईडी
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -366,7 +366,7 @@ const Login = () => {
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                   <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155', margin: 0 }}>
-                    Password
+                    पासवर्ड
                   </label>
                   <button
                     type="button"
@@ -381,7 +381,7 @@ const Login = () => {
                       padding: 0
                     }}
                   >
-                    Forgot Password?
+                    पासवर्ड भूल गए?
                   </button>
                 </div>
                 <div style={{ position: 'relative' }}>
@@ -444,14 +444,14 @@ const Login = () => {
                   transition: 'all 0.2s'
                 }}
               >
-                {loading ? 'Authenticating...' : 'Sign In to Dashboard →'}
+                {loading ? 'सत्यापन हो रहा है...' : 'डैशबोर्ड में लॉग इन करें →'}
               </button>
             </form>
           ) : (
             <form onSubmit={handleForgotSubmit}>
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
-                  Email Address
+                  ई-मेल आईडी
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -491,7 +491,7 @@ const Login = () => {
                   marginBottom: '0.85rem'
                 }}
               >
-                {loading ? 'Sending link...' : 'Send Reset Instructions'}
+                {loading ? 'लिंक भेजा जा रहा है...' : 'रीसेट निर्देश भेजें'}
               </button>
 
               <button
@@ -509,7 +509,7 @@ const Login = () => {
                   cursor: 'pointer'
                 }}
               >
-                ← Back to Login
+                ← वापस लॉग इन पर जाएं
               </button>
             </form>
           )}

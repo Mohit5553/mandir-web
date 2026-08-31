@@ -38,9 +38,9 @@ const AdminDashboard = () => {
 
   const getTimeGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return 'सुप्रभात';
+    if (hour < 17) return 'शुभ दोपहर';
+    return 'शुभ संध्या';
   };
 
   const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
       .then(data => {
         const donations = data.donations || data || [];
         if (!donations.length) {
-          alert('No donations available to export.');
+          alert('निर्यात के लिए कोई दान डेटा उपलब्ध नहीं है।');
           return;
         }
         const headers = ['Receipt No', 'Donor Name', 'Amount', 'Category', 'Payment Method', 'UTR', 'Status', 'Date'];
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
           d.paymentMethod || 'Online',
           d.utr || '',
           d.paymentStatus || 'Approved',
-          new Date(d.createdAt).toLocaleDateString()
+          new Date(d.createdAt).toLocaleDateString('hi-IN')
         ]);
         const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
         const encodedUri = encodeURI(csvContent);
@@ -73,14 +73,14 @@ const AdminDashboard = () => {
         link.click();
         document.body.removeChild(link);
       })
-      .catch(err => alert('Failed to export CSV: ' + err.message));
+      .catch(err => alert('CSV रिपोर्ट डाउनलोड करने में त्रुटि: ' + err.message));
   };
 
   if (loading || !stats) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '1rem' }}>
         <RefreshCw className="spin" size={36} color="var(--color-primary)" />
-        <p style={{ color: '#64748b', fontWeight: 600 }}>Loading executive dashboard stats...</p>
+        <p style={{ color: '#64748b', fontWeight: 600 }}>डैशबोर्ड आंकड़े लोड हो रहे हैं...</p>
       </div>
     );
   }
@@ -113,13 +113,13 @@ const AdminDashboard = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.85rem', position: 'relative', zIndex: 1 }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.15rem 0.55rem', background: 'rgba(255, 107, 0, 0.15)', border: '1px solid rgba(255, 107, 0, 0.3)', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700, color: '#ff8533', marginBottom: '0.35rem' }}>
-              <Sparkles size={12} /> MANDIR EXECUTIVE DASHBOARD
+              <Sparkles size={12} /> मंदिर प्रबंधन डैशबोर्ड
             </div>
             <h1 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 0.15rem 0', letterSpacing: '-0.3px' }}>
-              {getTimeGreeting()}, {user.name || 'Admin'}! 👋
+              {getTimeGreeting()}, {user.name || 'प्रशासक'}! 👋
             </h1>
             <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.82rem' }}>
-              Real-time enterprise overview across Shree Manvat Baba Mahashiv Mandir Trust.
+              श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट की वास्तविक समय (Real-time) रिपोर्ट।
             </p>
           </div>
 
@@ -142,7 +142,7 @@ const AdminDashboard = () => {
                 transition: 'all 0.2s'
               }}
             >
-              <Download size={14} /> Export CSV Report
+              <Download size={14} /> CSV रिपोर्ट डाउनलोड करें
             </button>
 
             <button
@@ -165,7 +165,7 @@ const AdminDashboard = () => {
               }}
             >
               <RefreshCw size={14} className={refreshing ? 'spin' : ''} />
-              {refreshing ? 'Syncing...' : 'Refresh'}
+              {refreshing ? 'अपडेट हो रहा है...' : 'रीफ्रेश'}
             </button>
           </div>
         </div>
@@ -191,17 +191,17 @@ const AdminDashboard = () => {
             </div>
             <div>
               <div style={{ fontWeight: 800, color: '#9a3412', fontSize: '0.92rem' }}>
-                Pending Review & Moderation Queue
+                सत्यापन के लिए लंबित आवेदन
               </div>
               <div style={{ color: '#c2410c', fontSize: '0.8rem' }}>
-                {stats?.counts?.pendingDonations || 0} pending donation verification{(stats?.counts?.pendingDonations || 0) > 1 ? 's' : ''} • {stats?.counts?.pendingReviews || 0} user review{(stats?.counts?.pendingReviews || 0) > 1 ? 's' : ''} awaiting approval.
+                {stats?.counts?.pendingDonations || 0} दान रसीद सत्यापन लंबित हैं • {stats?.counts?.pendingReviews || 0} समीक्षाएं स्वीकृति की प्रतीक्षा में हैं।
               </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.65rem' }}>
             {(stats?.counts?.pendingDonations || 0) > 0 && (
               <Link to="/admin/donations" className="btn btn-primary" style={{ textDecoration: 'none', padding: '0.45rem 0.95rem', fontSize: '0.82rem', fontWeight: 700 }}>
-                Review Donations →
+                दान सत्यापन करें →
               </Link>
             )}
           </div>
@@ -210,16 +210,16 @@ const AdminDashboard = () => {
 
       {/* ── 3. Primary Financial KPI Cards ──────────────────────────── */}
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#334155', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <DollarSign size={18} color="var(--color-primary)" /> Financial Collections Overview
+        <DollarSign size={18} color="var(--color-primary)" /> वित्तीय संग्रह एवं दान विवरण
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
         <div style={{ background: 'white', borderRadius: '14px', padding: '1.25rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
             <div>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Today's Revenue</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>आज का कुल दान</span>
               <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', margin: '0.2rem 0 0 0' }}>
-                ₹{stats.donations.today.toLocaleString('en-IN')}
+                ₹{stats.donations.today.toLocaleString('hi-IN')}
               </h2>
             </div>
             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(255, 107, 0, 0.1)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -227,16 +227,16 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <CheckCircle2 size={13} /> Live tracking today
+            <CheckCircle2 size={13} /> आज का लाइव संग्रह
           </div>
         </div>
 
         <div style={{ background: 'white', borderRadius: '14px', padding: '1.25rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
             <div>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>This Month</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>इस महीने का दान</span>
               <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', margin: '0.2rem 0 0 0' }}>
-                ₹{stats.donations.monthly.toLocaleString('en-IN')}
+                ₹{stats.donations.monthly.toLocaleString('hi-IN')}
               </h2>
             </div>
             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -244,16 +244,16 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 600 }}>
-            Current Calendar Month
+            वर्तमान माह की कुल प्राप्ति
           </div>
         </div>
 
         <div style={{ background: 'white', borderRadius: '14px', padding: '1.25rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
             <div>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>This Year</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>इस वर्ष का कुल दान</span>
               <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', margin: '0.2rem 0 0 0' }}>
-                ₹{stats.donations.yearly.toLocaleString('en-IN')}
+                ₹{stats.donations.yearly.toLocaleString('hi-IN')}
               </h2>
             </div>
             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -261,16 +261,16 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
-            Annual Contributions
+            वार्षिक कुल दान राशि
           </div>
         </div>
 
         <div style={{ background: 'white', borderRadius: '14px', padding: '1.25rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
             <div>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lifetime Total</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>कुल ऐतिहासिक दान</span>
               <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', margin: '0.2rem 0 0 0' }}>
-                ₹{stats.donations.total.toLocaleString('en-IN')}
+                ₹{stats.donations.total.toLocaleString('hi-IN')}
               </h2>
             </div>
             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#faf5ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -278,23 +278,23 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#9333ea', fontWeight: 600 }}>
-            Total Temple Trust Funds
+            ट्रस्ट का कुल सर्वकालीन कोष
           </div>
         </div>
       </div>
 
       {/* ── 4. System & Cloud Infrastructure Monitor ────────────────── */}
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#334155', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <Server size={18} color="var(--color-primary)" /> System & Cloud Security Infrastructure
+        <Server size={18} color="var(--color-primary)" /> प्रणाली एवं क्लाउड सुरक्षा स्थिति
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
         <div style={{ background: '#f8fafc', borderRadius: '14px', padding: '1.1rem 1.25rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <Database size={22} color="#16a34a" />
           <div>
-            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>MongoDB Atlas</div>
+            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>MongoDB एटलास डेटाबेस</div>
             <div style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} /> Database Connected
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} /> डेटाबेस ऑनलाइन व सुरक्षित
             </div>
           </div>
         </div>
@@ -302,9 +302,9 @@ const AdminDashboard = () => {
         <div style={{ background: '#f8fafc', borderRadius: '14px', padding: '1.1rem 1.25rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <ShieldCheck size={22} color="#2563eb" />
           <div>
-            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>JWT Security</div>
+            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>JWT सुरक्षा मानक</div>
             <div style={{ fontSize: '0.72rem', color: '#2563eb', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563eb' }} /> Token Auth Enforced
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563eb' }} /> टोकन प्रमाणीकरण सक्रिय
             </div>
           </div>
         </div>
@@ -312,9 +312,9 @@ const AdminDashboard = () => {
         <div style={{ background: '#f8fafc', borderRadius: '14px', padding: '1.1rem 1.25rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <Mail size={22} color="#ea580c" />
           <div>
-            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>Gmail SMTP Engine</div>
+            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>जीमेल रसीद इंजन</div>
             <div style={{ fontSize: '0.72rem', color: '#ea580c', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ea580c' }} /> PDF Receipts Ready
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ea580c' }} /> PDF 80G रसीद स्वचालन
             </div>
           </div>
         </div>
@@ -322,9 +322,9 @@ const AdminDashboard = () => {
         <div style={{ background: '#f8fafc', borderRadius: '14px', padding: '1.1rem 1.25rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <Radio size={22} color={stats.counts.isLiveNow ? '#22c55e' : '#94a3b8'} />
           <div>
-            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>Live Broadcast</div>
+            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>लाइव स्ट्रीम फ़ीड</div>
             <div style={{ fontSize: '0.72rem', color: stats.counts.isLiveNow ? '#22c55e' : '#64748b', fontWeight: 700 }}>
-              {stats.counts.isLiveNow ? '🟢 Stream Online' : '⚪ Stream Standby'}
+              {stats.counts.isLiveNow ? '🟢 लाइव प्रसारण चालू है' : '⚪ प्रसारण स्टैंडबाय पर है'}
             </div>
           </div>
         </div>
@@ -332,7 +332,7 @@ const AdminDashboard = () => {
 
       {/* ── 5. Operational Metrics Symmetrical 8-Card Grid ───────────── */}
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#334155', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <Activity size={18} color="var(--color-primary)" /> Operational Metrics
+        <Activity size={18} color="var(--color-primary)" /> कार्यप्रणाली एवं सेवा आंकड़े
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
@@ -344,7 +344,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.users}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Admin Users</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>प्रशासक / उपयोगकर्ता</div>
               </div>
             </div>
           </div>
@@ -358,7 +358,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.volunteers || 0}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Volunteers</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>पंजीकृत स्वयंसेवक</div>
               </div>
             </div>
           </div>
@@ -372,7 +372,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.trustMembers || 0}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Trustees</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>ट्रस्टी एवं पदाधिकारी</div>
               </div>
             </div>
           </div>
@@ -386,7 +386,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.contacts || 0}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Messages</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>संपर्क संदेश</div>
               </div>
             </div>
           </div>
@@ -400,7 +400,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.news || 0}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Published News</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>प्रकाशित समाचार</div>
               </div>
             </div>
           </div>
@@ -414,7 +414,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.events || 0}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Temple Events</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>मंदिर कार्यक्रम</div>
               </div>
             </div>
           </div>
@@ -428,7 +428,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.gallery || 0}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Gallery Photos</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>गैलरी मीडिया</div>
               </div>
             </div>
           </div>
@@ -441,7 +441,7 @@ const AdminDashboard = () => {
             </div>
             <div>
               <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{stats.counts.visitors || 0}</div>
-              <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Total Visitors</div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>कुल वेबसाइट आगंतुक</div>
             </div>
           </div>
         </div>
@@ -455,12 +455,12 @@ const AdminDashboard = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <BarChart3 size={18} color="var(--color-primary)" /> 6-Month Revenue Trend
+                <BarChart3 size={18} color="var(--color-primary)" /> 6-माह दान संग्रह ग्राफ़
               </h3>
-              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.2rem 0 0 0' }}>Monthly approved donation collections</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.2rem 0 0 0' }}>मासिक स्वीकृत दान का तुलनात्मक विवरण</p>
             </div>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-primary)', background: 'var(--color-primary-alpha)', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>
-              INR (₹)
+              भारतीय रुपये (₹)
             </span>
           </div>
 
@@ -473,7 +473,7 @@ const AdminDashboard = () => {
                     {trend.amount > 0 ? `₹${(trend.amount / 1000).toFixed(1)}k` : '₹0'}
                   </div>
                   <div
-                    title={`${trend.label}: ₹${trend.amount.toLocaleString('en-IN')} (${trend.count} donations)`}
+                    title={`${trend.label}: ₹${trend.amount.toLocaleString('hi-IN')} (${trend.count} दान)`}
                     style={{
                       width: '100%',
                       maxWidth: '38px',
@@ -487,7 +487,10 @@ const AdminDashboard = () => {
                     }}
                   />
                   <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', marginTop: '0.5rem' }}>
-                    {trend.label}
+                    {(() => {
+                      const monthMap = { Jan: 'जनवरी', Feb: 'फरवरी', Mar: 'मार्च', Apr: 'अप्रैल', May: 'मई', Jun: 'जून', Jul: 'जुलाई', Aug: 'अगस्त', Sep: 'सितंबर', Oct: 'अक्टूबर', Nov: 'नवंबर', Dec: 'दिसंबर' };
+                      return monthMap[trend.label] || trend.label;
+                    })()}
                   </span>
                 </div>
               );
@@ -499,23 +502,26 @@ const AdminDashboard = () => {
         <div style={{ background: 'white', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CreditCard size={18} color="var(--color-primary)" /> Payment Method Breakdown
+              <CreditCard size={18} color="var(--color-primary)" /> भुगतान माध्यमों का विवरण
             </h3>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.2rem 0 0 0' }}>Collection channels (UPI vs Bank UTR vs Cash)</p>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.2rem 0 0 0' }}>भुगतान चैनल विवरण (UPI बनाम बैंक UTR)</p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
             {(stats.paymentMethods || []).map((pm, idx) => {
               const percent = Math.round((pm.amount / totalPaymentSum) * 100) || 0;
+              const nameHindi = pm.name === 'Online (UPI/QR)' ? 'ऑनलाइन (UPI / QR स्कैन)' :
+                                pm.name === 'Bank Transfer / UTR' ? 'बैंक ट्रांसफर (UTR / IMPS)' :
+                                pm.name === 'Direct Cash / Counter' ? 'नकद / काउंटर जमा' : pm.name;
 
               return (
                 <div key={idx}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
                     <span style={{ fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: pm.color }} /> {pm.name}
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: pm.color }} /> {nameHindi}
                     </span>
                     <span style={{ fontWeight: 800, color: '#0f172a' }}>
-                      ₹{pm.amount.toLocaleString('en-IN')} <span style={{ color: '#94a3b8', fontSize: '0.78rem', fontWeight: 500 }}>({percent}%)</span>
+                      ₹{pm.amount.toLocaleString('hi-IN')} <span style={{ color: '#94a3b8', fontSize: '0.78rem', fontWeight: 500 }}>({percent}%)</span>
                     </span>
                   </div>
                   <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '9999px', overflow: 'hidden' }}>
@@ -543,16 +549,16 @@ const AdminDashboard = () => {
         <div style={{ background: 'white', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Trophy size={18} color="#eab308" /> Major Donors Leaderboard
+              <Trophy size={18} color="#eab308" /> प्रमुख दानदाता सूची
             </h3>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#eab308', background: '#fef9c3', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>
-              Top Contributors
+              सर्वोच्च दानदाता
             </span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             {(!stats.topDonors || stats.topDonors.length === 0) ? (
-              <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '1rem 0' }}>No top donor contributions logged yet.</div>
+              <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '1rem 0' }}>अभी कोई प्रमुख दान रिकॉर्ड दर्ज नहीं हुआ है।</div>
             ) : (
               stats.topDonors.map((donor, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0.9rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
@@ -572,13 +578,13 @@ const AdminDashboard = () => {
                       #{idx + 1}
                     </div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>{donor.donorName || 'Anonymous Devotee'}</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>{donor.donorName || 'गुप्त दानदाता'}</div>
                       <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{donor.category}</div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-primary)' }}>₹{donor.amount.toLocaleString('en-IN')}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{new Date(donor.createdAt).toLocaleDateString()}</div>
+                    <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-primary)' }}>₹{donor.amount.toLocaleString('hi-IN')}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{new Date(donor.createdAt).toLocaleDateString('hi-IN')}</div>
                   </div>
                 </div>
               ))
@@ -590,16 +596,16 @@ const AdminDashboard = () => {
         <div style={{ background: 'white', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Calendar size={18} color="#c026d3" /> Upcoming Temple Events
+              <Calendar size={18} color="#c026d3" /> आगामी मंदिर कार्यक्रम
             </h3>
             <Link to="/admin/events" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#c026d3', textDecoration: 'none' }}>
-              Manage Events →
+              कार्यक्रम प्रबंधित करें →
             </Link>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             {(!stats.upcomingEvents || stats.upcomingEvents.length === 0) ? (
-              <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '1rem 0' }}>No upcoming events scheduled.</div>
+              <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '1rem 0' }}>कोई आगामी कार्यक्रम निर्धारित नहीं है।</div>
             ) : (
               stats.upcomingEvents.map((evt, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0.9rem', background: '#fdf4ff', borderRadius: '10px', border: '1px solid #fae8ff' }}>
@@ -609,11 +615,11 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#701a75' }}>{evt.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#a21caf' }}>{evt.time || 'All Day'} • {evt.location || 'Main Temple Hall'}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#a21caf' }}>{evt.time || 'पूरे दिन'} • {evt.location || 'मुख्य मंदिर प्रांगण'}</div>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#c026d3' }}>
-                    {evt.date ? new Date(evt.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : 'Upcoming'}
+                    {evt.date ? new Date(evt.date).toLocaleDateString('hi-IN', { month: 'short', day: 'numeric' }) : 'आगामी'}
                   </div>
                 </div>
               ))
@@ -629,16 +635,16 @@ const AdminDashboard = () => {
         <div style={{ background: 'white', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Clock size={18} color="var(--color-primary)" /> Security & Activity Audit Log
+              <Clock size={18} color="var(--color-primary)" /> सुरक्षा एवं ऑडिट गतिविधि लॉग
             </h3>
             <Link to="/admin/audit-logs" style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary)', textDecoration: 'none' }}>
-              Audit Viewer →
+              ऑडिट लॉग्स देखें →
             </Link>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             {(!stats.recentLogs || stats.recentLogs.length === 0) ? (
-              <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '1rem 0' }}>No recent audit activity logged yet.</div>
+              <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '1rem 0' }}>अभी तक कोई हालिया गतिविधि लॉग दर्ज नहीं हुई है।</div>
             ) : (
               stats.recentLogs.map((log, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.85rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
@@ -646,7 +652,7 @@ const AdminDashboard = () => {
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }} />
                     <div>
                       <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>{log.action}</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>By {log.userName || 'System'}</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>द्वारा: {log.userName || 'सिस्टम'}</div>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>
@@ -661,7 +667,7 @@ const AdminDashboard = () => {
         {/* Quick Exporters & Admin Console Shortcuts */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <PlusCircle size={18} color="var(--color-primary)" /> Reports & Quick Shortcuts
+            <PlusCircle size={18} color="var(--color-primary)" /> रिपोर्ट एवं त्वरित शॉर्टकट
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>
@@ -671,8 +677,8 @@ const AdminDashboard = () => {
             >
               <FileSpreadsheet size={20} color="#ea580c" />
               <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9a3412' }}>Export CSV</div>
-                <div style={{ fontSize: '0.7rem', color: '#c2410c' }}>Download all donations</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9a3412' }}>CSV डाउनलोड</div>
+                <div style={{ fontSize: '0.7rem', color: '#c2410c' }}>सभी दान डेटा डाउनलोड करें</div>
               </div>
             </button>
 
@@ -680,8 +686,8 @@ const AdminDashboard = () => {
               <div style={{ padding: '0.9rem', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fafafa', display: 'flex', alignItems: 'center', gap: '0.65rem' }} className="card-hover">
                 <Newspaper size={18} color="#ea580c" />
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Publish News</div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Mandir updates</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>समाचार प्रकाशित करें</div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>मंदिर की नई जानकारी</div>
                 </div>
               </div>
             </Link>
@@ -690,8 +696,8 @@ const AdminDashboard = () => {
               <div style={{ padding: '0.9rem', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fafafa', display: 'flex', alignItems: 'center', gap: '0.65rem' }} className="card-hover">
                 <Calendar size={18} color="#c026d3" />
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Add Event</div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Schedule pujas</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>कार्यक्रम जोड़ें</div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>पूजा-महोत्सव समय सारणी</div>
                 </div>
               </div>
             </Link>
@@ -700,8 +706,8 @@ const AdminDashboard = () => {
               <div style={{ padding: '0.9rem', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fafafa', display: 'flex', alignItems: 'center', gap: '0.65rem' }} className="card-hover">
                 <Clock size={18} color="#2563eb" />
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Audit Logs</div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Security trail</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>ऑडिट लॉग्स</div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>सुरक्षा व लॉग इतिहास</div>
                 </div>
               </div>
             </Link>

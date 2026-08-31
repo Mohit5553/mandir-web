@@ -3,9 +3,9 @@ import { Newspaper, Search, X } from 'lucide-react';
 import { api } from '../services/api';
 
 const fallbackNews = [
-  { _id: 1, title: "New Temple Construction Phase 2 Begins", createdAt: "2026-05-25", content: "By the grace of the divine and generous donations, we have officially started Phase 2 of the temple expansion.", images: ["https://placehold.co/400x250/FF6B00/FFFFFF?text=Temple+Construction"] },
-  { _id: 2, title: "Gau Seva Foundation Reaches Milestone", createdAt: "2026-05-10", content: "Our Gaushala now provides shelter to over 500 cows. We thank all the donors for their continuous support.", images: ["https://placehold.co/400x250/FF8533/FFFFFF?text=Gau+Seva"] },
-  { _id: 3, title: "Online Donation Portal Launched", createdAt: "2026-04-28", content: "Devotees can now offer their contributions seamlessly through our secure online payment gateway.", images: ["https://placehold.co/400x250/E65C00/FFFFFF?text=Portal+Launch"] }
+  { _id: 1, title: "मंदिर जीर्णोद्धार एवं विस्तार का द्वितीय चरण प्रारंभ", createdAt: "2026-05-25", content: "भगवान महाशिव की असीम कृपा और श्रद्धालुओं के पावन सहयोग से मंदिर विस्तार के द्वितीय चरण का कार्य आधिकारिक रूप से प्रारंभ हो चुका है।", images: ["https://placehold.co/400x250/FF6B00/FFFFFF?text=मंदिर+निर्माण"] },
+  { _id: 2, title: "गौ सेवा फाउंडेशन ने 500 से अधिक गौ माता को दिया आश्रय", createdAt: "2026-05-10", content: "मंदिर की भव्य गौशाला में अब 500 से अधिक गौ माताओं के उत्तम चारे, चिकित्सा व आवास की सुव्यवस्थित व्यवस्था की गई है।", images: ["https://placehold.co/400x250/FF8533/FFFFFF?text=गौ+सेवा"] },
+  { _id: 3, title: "ऑनलाइन दान एवं पावती पोर्टल का शुभारंभ", createdAt: "2026-04-28", content: "देश-विदेश के श्रद्धालु अब मंदिर की आधिकारिक वेबसाइट के माध्यम से सुरक्षित एवं सीधे ऑनलाइन दान अर्पित कर सकते हैं।", images: ["https://placehold.co/400x250/E65C00/FFFFFF?text=डिजिटल+पोर्टल"] }
 ];
 
 const News = () => {

@@ -3,9 +3,9 @@ import { Calendar as CalendarIcon, MapPin, Search, X } from 'lucide-react';
 import { api } from '../services/api';
 
 const fallbackEvents = [
-  { _id: 1, title: "Maha Shivratri Mahotsav", date: "2026-03-08", location: "Main Temple Premises", description: "Join us for the grand celebration of Maha Shivratri. All-night Jagran, special Abhishek, and continuous Mahaprasad distribution." },
-  { _id: 2, title: "Daily Evening Aarti", date: "Everyday", location: "Main Temple Shrine", description: "Experience the divine bliss of the daily evening Sandhya Aarti." },
-  { _id: 3, title: "Annual Annadan Camp", date: "2026-04-15", location: "Temple Community Hall", description: "Mass food distribution for the underprivileged. Volunteers are requested to register." }
+  { _id: 1, title: "महाशिवरात्रि जन्मोत्सव एवं महायज्ञ", date: "2026-03-08", location: "मुख्य मंदिर प्रांगण", description: "महाशिवरात्रि पर्व पर भव्य जागरण, विशेष रुद्राभिषेक, शिव संकीर्तन एवं अखंड महाप्रसाद वितरण में पधारें।" },
+  { _id: 2, title: "दैनिक संध्या आरती एवं संकीर्तन", date: "Everyday", location: "मुख्य मंदिर गर्भगृह", description: "प्रतिदिन सायंकाल 07:30 बजे भव्य आरती एवं शिव स्तुति का अलौकिक आनंद प्राप्त करें।" },
+  { _id: 3, title: "वार्षिक महा-अन्नदान शिविर", date: "2026-04-15", location: "मंदिर जनसेवा भवन", description: "विशाल अन्नदान शिविर एवं गौ सेवा कार्यकम। सभी स्वयंसेवकों व श्रद्धालुओं का हार्दिक स्वागत है।" }
 ];
 
 const Events = () => {
@@ -72,10 +72,10 @@ const Events = () => {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
               <select className="filter-select" value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} style={{ borderRadius: '10px', border: '1px solid #cbd5e1', height: '40px', padding: '0 0.85rem', fontSize: '0.86rem', fontWeight: 600, color: '#334155', background: '#ffffff', cursor: 'pointer' }}>
-                <option value="all">सभी कार्यक्रम (All Events)</option>
-                <option value="upcoming">आगामी कार्यक्रम (Upcoming)</option>
-                <option value="daily">दैनिक कार्यक्रम (Daily)</option>
-                <option value="past">विगत कार्यक्रम (Past)</option>
+                <option value="all">सभी कार्यक्रम</option>
+                <option value="upcoming">आगामी कार्यक्रम</option>
+                <option value="daily">दैनिक कार्यक्रम</option>
+                <option value="past">विगत कार्यक्रम</option>
               </select>
 
               {(query || timeFilter !== 'all') && (

@@ -1,15 +1,22 @@
 {
-  "short_name": "Mandir Trust",
-  "name": "Shree Manvat Baba Mahashiv Mandir Trust",
+  "name": "श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट",
+  "short_name": "मन्वत मंदिर",
+  "description": "श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट - ऑनलाइन दान, लाइव दर्शन एवं मंदिर सेवाएं",
+  "start_url": "/#/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6000",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/src/assets/logo.png",
-      "sizes": "192x192 512x512",
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "./",
-  "background_color": "#FF6000",
-  "theme_color": "#FF6000",
-  "display": "standalone"
+  ]
 }

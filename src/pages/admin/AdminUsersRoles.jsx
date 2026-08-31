@@ -14,9 +14,9 @@ const BADGE = {
 const ACTIONS = ['view', 'create', 'update', 'delete'];
 
 const ALL_MENUS = [
-  'Dashboard', 'Users', 'Roles', 'Trust Management', 'Donations',
-  'Events', 'News', 'Gallery', 'Home Carousel', 'Homepage Content',
-  'Volunteer Requests', 'Live Stream', 'Notifications', 'Contact Messages', 'Reports'
+  'डैशबोर्ड', 'उपयोगकर्ता', 'भूमिकाएं', 'ट्रस्ट प्रबंधन', 'दान प्रबंधन',
+  'घटनाएँ', 'समाचार', 'गैलरी', 'होमपेज बैनर', 'वेबसाइट सामग्री',
+  'स्वयंसेवक अनुरोध', 'लाइव स्ट्रीम', 'सूचनाएँ', 'संपर्क संदेश', 'रिपोर्ट्स'
 ];
 
 const emptyRole = () => ({
@@ -27,15 +27,16 @@ const emptyRole = () => ({
 /* ─── Role badge pill ────────────────────────────────────────── */
 const rolePill = (roleName) => {
   const presets = {
-    'Super Admin': { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+    'Super Admin': { label: 'मुख्य प्रशासक (Super Admin)', bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+    'Chief Trustee': { label: 'मुख्य ट्रस्टी (Chief Trustee)', bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
   };
-  const p = presets[roleName] || { bg: '#f1f5f9', color: '#475569', border: '#e2e8f0' };
+  const p = presets[roleName] || { label: roleName, bg: '#f1f5f9', color: '#475569', border: '#e2e8f0' };
   return (
     <span style={{
       padding: '0.25rem 0.85rem', borderRadius: '999px', fontSize: '0.75rem',
       fontWeight: 700, background: p.bg, color: p.color, border: `1px solid ${p.border}`,
       whiteSpace: 'nowrap'
-    }}>{roleName}</span>
+    }}>{p.label}</span>
   );
 };
 
@@ -188,31 +189,31 @@ const AdminUsersRoles = () => {
 
   const handleRoleSubmit = async (e) => {
     e.preventDefault();
-    if (!roleForm.name.trim()) { setRoleMsg('Role name is required.'); return; }
+    if (!roleForm.name.trim()) { setRoleMsg('भूमिका का नाम आवश्यक है।'); return; }
     setSaving(true);
     const res = editingRoleId
       ? await api.updateRole(editingRoleId, roleForm)
       : await api.createRole(roleForm);
     setSaving(false);
     if (res._id || res.name) {
-      setRoleMsg(editingRoleId ? '✅ Role updated!' : '✅ Role created!');
+      setRoleMsg(editingRoleId ? '✅ भूमिका अद्यतन हो गई!' : '✅ नई भूमिका बन गई!');
       setShowRoleForm(false);
       setEditingRoleId(null);
       fetchRoles();
     } else {
-      setRoleMsg(res.message || '❌ Save failed.');
+      setRoleMsg(res.message || '❌ सहेजने में विफल।');
     }
   };
 
   const handleRoleDelete = async (id, name) => {
-    if (!window.confirm(`Delete role "${name}"?`)) return;
+    if (!window.confirm(`क्या आप निश्चित रूप से भूमिका "${name}" को हटाना चाहते हैं?`)) return;
     await api.deleteRole(id);
     fetchRoles();
   };
 
   const permSummary = (role) => {
     let v=0,c=0,u=0,d=0;
-    role.permissions.forEach(p => { if(p.view)v++; if(p.create)c++; if(p.update)u++; if(p.delete)d++; });
+    (role.permissions || []).forEach(p => { if(p.view)v++; if(p.create)c++; if(p.update)u++; if(p.delete)d++; });
     return {v,c,u,d};
   };
 
@@ -238,7 +239,7 @@ const AdminUsersRoles = () => {
     <div>
       {/* ── Page Title + Tab Switcher ─────────────────────────── */}
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '1.25rem' }}>Team & Access Control</h1>
+        <h1 style={{ marginBottom: '1.25rem' }}>टीम सदस्य एवं अनुमति नियंत्रण (RBAC)</h1>
         <div style={{
           display: 'inline-flex',
           background: '#f1f5f9',
@@ -248,12 +249,12 @@ const AdminUsersRoles = () => {
         }}>
           {canViewUsers && (
             <button style={tabStyle(activeTab === 'users')} onClick={() => handleTabChange('users')}>
-              <Users size={17} /> Users
+              <Users size={17} /> टीम सदस्य (Users)
             </button>
           )}
           {canViewRoles && (
             <button style={tabStyle(activeTab === 'roles')} onClick={() => handleTabChange('roles')}>
-              <ShieldCheck size={17} /> Roles & Permissions
+              <ShieldCheck size={17} /> भूमिकाएं एवं अनुमतियां (Roles)
             </button>
           )}
         </div>
@@ -281,45 +282,47 @@ const AdminUsersRoles = () => {
               <div className="content-card" style={{ height: 'fit-content', position: 'sticky', top: '100px' }}>
                 <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {editingUserId ? <Edit2 size={20} color="var(--color-primary)" /> : <UserPlus size={20} />}
-                  {editingUserId ? 'Update User' : 'Register New User'}
+                  {editingUserId ? 'सदस्य विवरण अद्यतन करें' : 'नया टीम सदस्य जोड़ें'}
                 </h3>
                 <form onSubmit={handleUserSubmit}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>Full Name</label>
+                    <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>पूरा नाम *</label>
                     <input type="text" required className="form-input" style={{ width:'100%' }}
+                      placeholder="नाम दर्ज करें"
                       value={userForm.name} onChange={e => setUserForm({...userForm, name: e.target.value})} />
                   </div>
                   <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>Email Address</label>
+                    <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>ईमेल पता *</label>
                     <input type="email" required disabled={!!editingUserId} className="form-input"
+                      placeholder="ईमेल दर्ज करें"
                       style={{ width:'100%', opacity: editingUserId ? 0.6 : 1 }}
                       value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} />
                   </div>
                   <div style={{ marginBottom: '1rem' }}>
                     <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>
-                      {editingUserId ? 'New Password (optional)' : 'Password'}
+                      {editingUserId ? 'नया पासवर्ड (ऐच्छिक)' : 'पासवर्ड *'}
                     </label>
                     {editingUserId && !isSuperAdmin && editingUserId !== loggedInUser._id ? (
                       <div style={{ padding:'0.75rem', border:'1px solid #fee2e2', borderRadius:'8px', background:'#fef2f2', color:'#991b1b', fontSize:'0.85rem' }}>
-                        Only Super Admin or the user themselves can reset this password.
+                        केवल मुख्य प्रशासक ही पासवर्ड रीसेट कर सकते हैं।
                       </div>
                     ) : (
                       <input type="password" required={!editingUserId} className="form-input" style={{ width:'100%' }}
                         value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})}
-                        placeholder={editingUserId ? 'Leave blank to keep current' : 'Enter password'} />
+                        placeholder={editingUserId ? 'अपरिवर्तित रखने हेतु खाली छोड़ें' : 'पासवर्ड दर्ज करें'} />
                     )}
                   </div>
                   <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>Assign Role</label>
+                    <label style={{ display:'block', marginBottom:'0.5rem', fontWeight:600 }}>भूमिका आवंटित करें</label>
                     <select className="form-input" style={{ width:'100%' }}
                       value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})}>
-                      <option value="Super Admin">Super Admin</option>
+                      <option value="Super Admin">मुख्य प्रशासक (Super Admin)</option>
                       {customRoles.map(r => <option key={r._id} value={r.name}>{r.name}</option>)}
                     </select>
                   </div>
                   <div style={{ display:'flex', gap:'0.5rem' }}>
                     <button type="submit" className="btn btn-primary" style={{ flexGrow:1 }}>
-                      {editingUserId ? 'Update User' : 'Register User'}
+                      {editingUserId ? 'अद्यतन करें' : 'सदस्य जोड़ें'}
                     </button>
                     {editingUserId && (
                       <button type="button" className="btn btn-outline" style={{ padding:'0 1rem' }}
@@ -335,17 +338,17 @@ const AdminUsersRoles = () => {
             {/* Team members table */}
             <div className="content-card table-scroll">
               <h3 style={{ marginBottom:'1.5rem', display:'flex', alignItems:'center', gap:'0.5rem' }}>
-                <Users size={18} color="var(--color-primary)" /> All Team Members ({users.length})
+                <Users size={18} color="var(--color-primary)" /> सभी मंदिर टीम सदस्य ({users.length})
               </h3>
               {usersLoading ? (
-                <p style={{ textAlign:'center', color:'#94a3b8', padding:'2rem' }}>Loading...</p>
+                <p style={{ textAlign:'center', color:'#94a3b8', padding:'2rem' }}>सदस्य सूची लोड हो रही है...</p>
               ) : (
                 <table style={{ width:'100%', borderCollapse:'collapse' }}>
                   <thead>
                     <tr style={{ textAlign:'left', borderBottom:'2px solid #f0f0f0', color:'#64748b', fontSize:'0.82rem' }}>
-                      <th style={{ padding:'0.75rem 1rem' }}>USER INFO</th>
-                      <th style={{ padding:'0.75rem 1rem' }}>ROLE</th>
-                      {(canUpdateUsers || canDeleteUsers) && <th style={{ padding:'0.75rem 1rem' }}>ACTIONS</th>}
+                      <th style={{ padding:'0.75rem 1rem' }}>सदस्य विवरण</th>
+                      <th style={{ padding:'0.75rem 1rem' }}>भूमिका</th>
+                      {(canUpdateUsers || canDeleteUsers) && <th style={{ padding:'0.75rem 1rem' }}>कार्रवाई</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -360,10 +363,10 @@ const AdminUsersRoles = () => {
                           <td style={{ padding:'0.9rem 1rem' }}>
                             <div style={{ display:'flex', gap:'0.5rem' }}>
                               {canUpdateUsers && (
-                                <button onClick={() => handleUserEdit(u)} className="btn-icon" title="Edit"><Edit2 size={15} /></button>
+                                <button onClick={() => handleUserEdit(u)} className="btn-icon" title="संपादित करें"><Edit2 size={15} /></button>
                               )}
                               {canDeleteUsers && (
-                                <button onClick={() => handleUserDelete(u._id)} className="btn-icon" style={{ borderColor:'#fee2e2' }} title="Delete">
+                                <button onClick={() => handleUserDelete(u._id)} className="btn-icon" style={{ borderColor:'#fee2e2' }} title="हटाएं">
                                   <Trash2 size={15} color="#ef4444" />
                                 </button>
                               )}
@@ -386,11 +389,11 @@ const AdminUsersRoles = () => {
           {/* Toolbar */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem', flexWrap:'wrap', gap:'1rem' }}>
             <p style={{ color:'#64748b', margin:0, fontSize:'0.9rem' }}>
-              Create roles and set exactly what each role can <strong>View</strong>, <strong>Create</strong>, <strong>Update</strong>, and <strong>Delete</strong> on each section.
+              नई भूमिकाएं बनाएं और प्रत्येक सेक्शन के लिए <strong>देखें (View)</strong>, <strong>जोड़ें (Create)</strong>, <strong>अद्यतन (Update)</strong>, और <strong>हटाएं (Delete)</strong> अनुमतियां सेट करें।
             </p>
             {!showRoleForm && canCreateRoles && (
               <button className="btn btn-primary" onClick={openCreateRole} style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
-                <Plus size={17} /> Create New Role
+                <Plus size={17} /> नई भूमिका बनाएं
               </button>
             )}
           </div>
@@ -411,7 +414,7 @@ const AdminUsersRoles = () => {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
                 <h3 style={{ margin:0, display:'flex', alignItems:'center', gap:'0.5rem' }}>
                   {editingRoleId ? <Edit2 size={20} color="var(--color-primary)" /> : <Plus size={20} />}
-                  {editingRoleId ? 'Edit Role' : 'Create New Role'}
+                  {editingRoleId ? 'भूमिका संपादित करें' : 'नई भूमिका बनाएं'}
                 </h3>
                 <button onClick={() => { setShowRoleForm(false); setEditingRoleId(null); }} className="btn-icon"><X size={18} /></button>
               </div>
@@ -420,10 +423,10 @@ const AdminUsersRoles = () => {
                 {/* Name */}
                 <div style={{ marginBottom:'1.5rem' }}>
                   <label style={{ fontWeight:700, display:'block', marginBottom:'0.5rem' }}>
-                    Role Name <span style={{ color:'#ef4444' }}>*</span>
+                    भूमिका का नाम <span style={{ color:'#ef4444' }}>*</span>
                   </label>
                   <input type="text" required className="form-input"
-                    placeholder="e.g. Content Editor, Accountant, Event Manager..."
+                    placeholder="जैसे: सामग्री संपादक, लेखापाल, इवेंट प्रबंधक..."
                     style={{ maxWidth:'400px', width:'100%' }}
                     value={roleForm.name} onChange={e => setRoleForm({ ...roleForm, name: e.target.value })} />
                 </div>
@@ -431,23 +434,18 @@ const AdminUsersRoles = () => {
                 {/* Permission Matrix */}
                 <div style={{ marginBottom:'1.5rem' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'0.85rem', flexWrap:'wrap' }}>
-                    <span style={{ fontWeight:700 }}>Menu Permissions</span>
-                    {ACTIONS.map(a => (
-                      <span key={a} style={{ padding:'0.18rem 0.7rem', borderRadius:'999px', fontSize:'0.7rem', fontWeight:700, background:BADGE[a].bg, color:BADGE[a].color, border:`1px solid ${BADGE[a].border}` }}>
-                        {a.charAt(0).toUpperCase()+a.slice(1)}
-                      </span>
-                    ))}
+                    <span style={{ fontWeight:700 }}>सेक्शन अनुमतियां (Permissions Matrix)</span>
                   </div>
 
                   <div style={{ border:'1px solid var(--border-color)', borderRadius:'12px', overflow:'hidden' }}>
                     {/* Header */}
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 55px 75px 75px 80px 75px', padding:'0.7rem 1rem', background:'#f8fafc', borderBottom:'1px solid var(--border-color)', fontWeight:700, fontSize:'0.75rem', color:'#475569', alignItems:'center', gap:'0.2rem' }}>
-                      <span>Menu</span>
-                      <span style={{ textAlign:'center' }}>All</span>
-                      <span style={{ textAlign:'center', color:BADGE.view.color }}>View</span>
-                      <span style={{ textAlign:'center', color:BADGE.create.color }}>Create</span>
-                      <span style={{ textAlign:'center', color:BADGE.update.color }}>Update</span>
-                      <span style={{ textAlign:'center', color:BADGE.delete.color }}>Delete</span>
+                      <span>सेक्शन नाम</span>
+                      <span style={{ textAlign:'center' }}>सभी</span>
+                      <span style={{ textAlign:'center', color:BADGE.view.color }}>देखें (View)</span>
+                      <span style={{ textAlign:'center', color:BADGE.create.color }}>जोड़ें (Create)</span>
+                      <span style={{ textAlign:'center', color:BADGE.update.color }}>अद्यतन (Update)</span>
+                      <span style={{ textAlign:'center', color:BADGE.delete.color }}>हटाएं (Delete)</span>
                     </div>
 
                     {roleForm.permissions.map((p, idx) => {
@@ -470,25 +468,35 @@ const AdminUsersRoles = () => {
 
                   {/* Quick select */}
                   <div style={{ marginTop:'0.85rem', display:'flex', gap:'0.5rem', flexWrap:'wrap', alignItems:'center' }}>
-                    <span style={{ fontSize:'0.78rem', color:'#94a3b8' }}>Quick:</span>
-                    {ACTIONS.map(action => (
-                      <button key={action} type="button" style={{ padding:'0.25rem 0.7rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, background:BADGE[action].bg, color:BADGE[action].color, border:`1px solid ${BADGE[action].border}`, cursor:'pointer' }}
-                        onClick={() => setRoleForm(prev => ({ ...prev, permissions: prev.permissions.map(p => ({ ...p, [action]: true })) }))}>
-                        ✓ All {action.charAt(0).toUpperCase()+action.slice(1)}
-                      </button>
-                    ))}
+                    <span style={{ fontSize:'0.78rem', color:'#94a3b8' }}>त्वरित चयन:</span>
+                    <button type="button" style={{ padding:'0.25rem 0.7rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, background:BADGE.view.bg, color:BADGE.view.color, border:`1px solid ${BADGE.view.border}`, cursor:'pointer' }}
+                      onClick={() => setRoleForm(prev => ({ ...prev, permissions: prev.permissions.map(p => ({ ...p, view: true })) }))}>
+                      ✓ सभी देखें (View)
+                    </button>
+                    <button type="button" style={{ padding:'0.25rem 0.7rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, background:BADGE.create.bg, color:BADGE.create.color, border:`1px solid ${BADGE.create.border}`, cursor:'pointer' }}
+                      onClick={() => setRoleForm(prev => ({ ...prev, permissions: prev.permissions.map(p => ({ ...p, create: true })) }))}>
+                      ✓ सभी जोड़ें (Create)
+                    </button>
+                    <button type="button" style={{ padding:'0.25rem 0.7rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, background:BADGE.update.bg, color:BADGE.update.color, border:`1px solid ${BADGE.update.border}`, cursor:'pointer' }}
+                      onClick={() => setRoleForm(prev => ({ ...prev, permissions: prev.permissions.map(p => ({ ...p, update: true })) }))}>
+                      ✓ सभी अद्यतन (Update)
+                    </button>
+                    <button type="button" style={{ padding:'0.25rem 0.7rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, background:BADGE.delete.bg, color:BADGE.delete.color, border:`1px solid ${BADGE.delete.border}`, cursor:'pointer' }}
+                      onClick={() => setRoleForm(prev => ({ ...prev, permissions: prev.permissions.map(p => ({ ...p, delete: true })) }))}>
+                      ✓ सभी हटाएं (Delete)
+                    </button>
                     <button type="button" style={{ padding:'0.25rem 0.7rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, background:'#f1f5f9', color:'#64748b', border:'1px solid #e2e8f0', cursor:'pointer' }}
                       onClick={() => setRoleForm(prev => ({ ...prev, permissions: prev.permissions.map(p => ({ ...p, view:false, create:false, update:false, delete:false })) }))}>
-                      ✕ Clear All
+                      ✕ साफ़ करें
                     </button>
                   </div>
                 </div>
 
                 <div style={{ display:'flex', gap:'0.75rem' }}>
                   <button type="submit" className="btn btn-primary" disabled={saving} style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
-                    <Save size={17} /> {saving ? 'Saving...' : editingRoleId ? 'Update Role' : 'Create Role'}
+                    <Save size={17} /> {saving ? 'सहेजा जा रहा है...' : editingRoleId ? 'भूमिका अद्यतन करें' : 'भूमिका सुरक्षित करें'}
                   </button>
-                  <button type="button" className="btn btn-outline" onClick={() => { setShowRoleForm(false); setEditingRoleId(null); }}>Cancel</button>
+                  <button type="button" className="btn btn-outline" onClick={() => { setShowRoleForm(false); setEditingRoleId(null); }}>रद्द करें</button>
                 </div>
               </form>
             </div>
@@ -496,13 +504,13 @@ const AdminUsersRoles = () => {
 
           {/* Roles Grid */}
           {rolesLoading ? (
-            <p style={{ textAlign:'center', color:'#94a3b8', padding:'3rem' }}>Loading roles...</p>
+            <p style={{ textAlign:'center', color:'#94a3b8', padding:'3rem' }}>भूमिकाएं लोड हो रही हैं...</p>
           ) : roles.length === 0 ? (
             <div className="content-card" style={{ textAlign:'center', padding:'4rem' }}>
               <ShieldCheck size={52} color="#e2e8f0" style={{ marginBottom:'1rem' }} />
-              <h3 style={{ color:'#94a3b8', marginBottom:'0.5rem' }}>No Custom Roles Yet</h3>
-              <p style={{ color:'#cbd5e1', marginBottom:'1.5rem' }}>Create your first role to control team member access.</p>
-              {canCreateRoles && <button className="btn btn-primary" onClick={openCreateRole}><Plus size={15} /> Create First Role</button>}
+              <h3 style={{ color:'#94a3b8', marginBottom:'0.5rem' }}>कोई कस्टम भूमिका नहीं मिली</h3>
+              <p style={{ color:'#cbd5e1', marginBottom:'1.5rem' }}>अनुमतियां निर्धारित करने के लिए पहली भूमिका बनाएं।</p>
+              {canCreateRoles && <button className="btn btn-primary" onClick={openCreateRole}><Plus size={15} /> नई भूमिका बनाएं</button>}
             </div>
           ) : (
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(360px, 1fr))', gap:'1.25rem' }}>
@@ -517,21 +525,21 @@ const AdminUsersRoles = () => {
                           <ShieldCheck size={17} color="var(--color-primary)" /> {role.name}
                         </h3>
                         <p style={{ margin:'0.2rem 0 0', color:'#94a3b8', fontSize:'0.75rem' }}>
-                          Created {new Date(role.createdAt).toLocaleDateString('en-IN')}
+                          रचना तिथि {new Date(role.createdAt).toLocaleDateString('hi-IN')}
                         </p>
                       </div>
                       <div style={{ display:'flex', gap:'0.4rem' }}>
                         {canUpdateRoles && (isSuperAdmin || role.name.toLowerCase() !== 'admin') && (
-                          <button onClick={() => openEditRole(role)} className="btn-icon" title="Edit"><Edit2 size={14} /></button>
+                          <button onClick={() => openEditRole(role)} className="btn-icon" title="संपादित करें"><Edit2 size={14} /></button>
                         )}
                         {canDeleteRoles && (isSuperAdmin || role.name.toLowerCase() !== 'admin') && (
-                          <button onClick={() => handleRoleDelete(role._id, role.name)} className="btn-icon" style={{ borderColor:'#fee2e2' }}><Trash2 size={14} color="#ef4444" /></button>
+                          <button onClick={() => handleRoleDelete(role._id, role.name)} className="btn-icon" style={{ borderColor:'#fee2e2' }} title="हटाएं"><Trash2 size={14} color="#ef4444" /></button>
                         )}
                       </div>
                     </div>
 
                     <div style={{ display:'flex', gap:'0.35rem', flexWrap:'wrap', marginBottom:'0.85rem' }}>
-                      {[{l:`${v} View`,...BADGE.view},{l:`${c} Create`,...BADGE.create},{l:`${u} Update`,...BADGE.update},{l:`${d} Delete`,...BADGE.delete}].map(b=>(
+                      {[{l:`${v} देखें`,...BADGE.view},{l:`${c} जोड़ें`,...BADGE.create},{l:`${u} अद्यतन`,...BADGE.update},{l:`${d} हटाएं`,...BADGE.delete}].map(b=>(
                         <span key={b.l} style={{ padding:'0.18rem 0.6rem', borderRadius:'999px', fontSize:'0.68rem', fontWeight:700, background:b.bg, color:b.color, border:`1px solid ${b.border}` }}>{b.l}</span>
                       ))}
                     </div>
@@ -541,15 +549,15 @@ const AdminUsersRoles = () => {
                         {active.map(p => (
                           <div key={p.menu} style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.25rem 0.45rem', borderRadius:'6px', background:'#f8fafc', fontSize:'0.75rem' }}>
                             <span style={{ flex:1, color:'#334155', fontWeight:500 }}>{p.menu}</span>
-                            {p.view   && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.view.color }}>V</span>}
-                            {p.create && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.create.color }}>C</span>}
-                            {p.update && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.update.color }}>U</span>}
-                            {p.delete && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.delete.color }}>D</span>}
+                            {p.view   && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.view.color }}>देखें</span>}
+                            {p.create && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.create.color }}>जोड़ें</span>}
+                            {p.update && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.update.color }}>अद्यतन</span>}
+                            {p.delete && <span style={{ fontWeight:800, fontSize:'0.6rem', color:BADGE.delete.color }}>हटाएं</span>}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p style={{ color:'#cbd5e1', fontSize:'0.8rem', textAlign:'center' }}>No permissions assigned yet.</p>
+                      <p style={{ color:'#cbd5e1', fontSize:'0.8rem', textAlign:'center' }}>कोई अनुमति आवंटित नहीं है।</p>
                     )}
                   </div>
                 );
