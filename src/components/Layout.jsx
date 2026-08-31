@@ -181,24 +181,24 @@ const Layout = () => {
 
             {/* Mobile Actions Drawer Wrapper */}
             <div className="mobile-actions-wrapper">
-              <div className="drawer-section-title">भाषा / Language</div>
               <LanguageToggle onSelect={() => setIsMenuOpen(false)} />
 
-              <div className="drawer-section-title" style={{ marginTop: '1.25rem' }}>खाता / Account</div>
-              {adminUser ? (
-                <div>
-                  <Link to="/admin" className="btn btn-dashboard" onClick={() => setIsMenuOpen(false)}>
-                    <LayoutDashboard size={18} /> डैशबोर्ड
+              <div style={{ marginTop: '0.85rem' }}>
+                {adminUser ? (
+                  <div>
+                    <Link to="/admin" className="btn btn-dashboard" onClick={() => setIsMenuOpen(false)}>
+                      <LayoutDashboard size={18} /> डैशबोर्ड
+                    </Link>
+                    <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="btn btn-logout">
+                      लॉग आउट
+                    </button>
+                  </div>
+                ) : (
+                  <Link to="/admin/login" className="btn btn-login" onClick={() => setIsMenuOpen(false)}>
+                    <LogIn size={18} /> लॉग इन करें
                   </Link>
-                  <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="btn btn-logout">
-                    लॉग आउट
-                  </button>
-                </div>
-              ) : (
-                <Link to="/admin/login" className="btn btn-login" onClick={() => setIsMenuOpen(false)}>
-                  <LogIn size={18} /> लॉग इन करें
-                </Link>
-              )}
+                )}
+              </div>
             </div>
           </nav>
 
