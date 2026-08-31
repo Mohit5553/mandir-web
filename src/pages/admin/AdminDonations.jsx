@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { Check, X, Eye, Phone, Share2, Printer, Calendar, Tag, ShieldCheck, LayoutDashboard, Search, Plus, Banknote, QrCode, Mail, Upload, Camera } from 'lucide-react';
+import { Check, X, Eye, Phone, Share2, Printer, Calendar, Tag, ShieldCheck, LayoutDashboard, Search, Plus, Banknote, QrCode, Mail, Upload, Camera, Download } from 'lucide-react';
 import logo from '../../assets/logo.png';
 import qrCode from '../../assets/donation_qr.jpeg';
 import { api } from '../../services/api';
@@ -388,19 +388,50 @@ const AdminDonations = () => {
     window.open(`https://wa.me/91${selectedDonation.phone}?text=${msg}`, '_blank');
   };
 
+  const exportToCSV = () => {
+    if (!filteredDonations.length) {
+      alert('No donations to export.');
+      return;
+    }
+    const headers = ['Receipt No', 'Donor Name', 'Amount (INR)', 'Category', 'Payment Mode', 'Payment Status', 'Transaction ID (UTR)', 'Phone', 'Email', 'Date'];
+    const rows = filteredDonations.map(d => [
+      `SMB-${String(d._id).slice(-8).toUpperCase()}`,
+      `"${(d.name || '').replace(/"/g, '""')}"`,
+      d.amount,
+      `"${d.category}"`,
+      d.paymentMode || 'UPI',
+      d.paymentStatus,
+      `"${d.utr || 'N/A'}"`,
+      `"${d.phone || ''}"`,
+      `"${d.email || ''}"`,
+      `"${new Date(d.createdAt).toLocaleString('en-IN')}"`
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `donations_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="admin-donations">
-      <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
+    <div className="donations-management">
+      <div className="page-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Donation Management</h1>
-          <p style={{ color: '#64748b' }}>Manage and verify trust contributions</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.2rem' }}>Devotee Donations</h1>
+          <p className="text-light">Manage, approve, and track online UPI & cash contributions</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {canCreate && (
           <button onClick={() => setShowCreateModal(true)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Plus size={18} /> Create Donation
           </button>
           )}
+          <button onClick={exportToCSV} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={18} /> Export CSV
+          </button>
           <button onClick={fetchDonations} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               Refresh Data
           </button>

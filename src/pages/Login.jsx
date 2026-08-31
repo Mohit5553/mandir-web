@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { api } from '../services/api';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [view, setView] = useState('login'); // 'login' | 'forgot'
   const [forgotEmail, setForgotEmail] = useState('');
   const [error, setError] = useState('');
@@ -21,6 +23,8 @@ const Login = () => {
       if (res.message === 'Login successful') {
         localStorage.setItem('adminUser', JSON.stringify(res.user));
         localStorage.setItem('adminPermissions', JSON.stringify(res.permissions || []));
+        localStorage.setItem('adminToken', res.token);
+        localStorage.setItem('adminRefreshToken', res.refreshToken);
         navigate('/admin');
       } else {
         setError(res.message || 'Invalid credentials. Please try again.');
@@ -150,16 +154,39 @@ const Login = () => {
                       Forgot Password?
                     </button>
                   </div>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Enter your password"
-                    style={inputStyle}
-                    value={form.password}
-                    onChange={e => setForm({ ...form, password: e.target.value })}
-                    onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
-                    onBlur={e => e.target.style.borderColor = 'var(--border-color)'}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Enter your password"
+                      style={{ ...inputStyle, paddingRight: '2.8rem' }}
+                      value={form.password}
+                      onChange={e => setForm({ ...form, password: e.target.value })}
+                      onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--border-color)'}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      style={{
+                        position: 'absolute',
+                        right: '0.85rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#64748b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0.25rem'
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                    </button>
+                  </div>
                 </div>
 
                 <button

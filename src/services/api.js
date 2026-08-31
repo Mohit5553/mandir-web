@@ -9,17 +9,66 @@ const isCapacitorApp = Boolean(window.Capacitor);
 const API_BASE = import.meta.env.VITE_USE_LOCAL_API === 'true' || (isLocalFrontend && !isCapacitorApp) ? LOCAL_URL : RENDER_URL;
 
 const getAuthHeaders = () => {
-  return { 'Content-Type': 'application/json' };
+  const headers = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
 };
 
 export const api = {
   call: async (endpoint, options = {}) => {
-    let response;
+    // Inject Authorization header if token exists
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+      };
+    }
 
+    let response;
     try {
       response = await fetch(`${API_BASE}${endpoint}`, options);
     } catch (error) {
       return { message: `Unable to connect to API server: ${error.message}` };
+    }
+
+    // Handle token expiration (401 status code)
+    if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/refresh') {
+      const refreshToken = localStorage.getItem('adminRefreshToken');
+      if (refreshToken) {
+        try {
+          const refreshResponse = await fetch(`${API_BASE}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken })
+          });
+          
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            if (refreshData.token) {
+              localStorage.setItem('adminToken', refreshData.token);
+              // Retry original request with the new token
+              options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${refreshData.token}`
+              };
+              response = await fetch(`${API_BASE}${endpoint}`, options);
+            }
+          } else {
+            // Refresh token invalid or expired: clear credentials and reload to force login page
+            localStorage.removeItem('adminUser');
+            localStorage.removeItem('adminPermissions');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminRefreshToken');
+            window.location.reload();
+          }
+        } catch {
+          // Silent catch, let it proceed to process normal response error
+        }
+      }
     }
 
     const text = await response.text();
@@ -34,12 +83,14 @@ export const api = {
 
   // Auth
   login: (data) => api.call('/auth/login', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
+  logout: (refreshToken) => api.call('/auth/logout', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ refreshToken }) }),
   register: (data) => api.call('/auth/register', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   forgotPassword: (email) => api.call('/auth/forgot-password', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ email }) }),
   resetPassword: (token, password) => api.call('/auth/reset-password', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ token, password }) }),
   getUsers: () => api.call('/auth/'),
   updateUser: (id, data) => api.call(`/auth/users/${id}`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteUser: (id) => api.call(`/auth/users/${id}`, { method: 'DELETE' }),
+  getAuditLogs: (limit = 100) => api.call(`/auth/audit-logs?limit=${limit}`),
 
   // Roles (RBAC)
   getRoles: () => api.call('/roles'),
@@ -49,13 +100,13 @@ export const api = {
 
 
   // Events
-  getEvents: () => api.call('/events'),
+  getEvents: (page, limit) => api.call(`/events${page && limit ? `?page=${page}&limit=${limit}` : ''}`),
   createEvent: (data) => api.call('/events', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   updateEvent: (id, data) => api.call(`/events/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteEvent: (id) => api.call(`/events/${id}`, { method: 'DELETE' }),
 
   // News
-  getNews: () => api.call('/news'),
+  getNews: (page, limit) => api.call(`/news${page && limit ? `?page=${page}&limit=${limit}` : ''}`),
   createNews: (data) => api.call('/news', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   updateNews: (id, data) => api.call(`/news/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) }),
   deleteNews: (id) => api.call(`/news/${id}`, { method: 'DELETE' }),
