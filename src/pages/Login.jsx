@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, ShieldCheck, Lock, Mail, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
 import { api } from '../services/api';
+import logo from '../assets/logo.png';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -56,263 +57,402 @@ const Login = () => {
     }
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: '0.9rem 1rem',
-    borderRadius: 'var(--radius-sm)',
-    border: '2px solid var(--border-color)',
-    fontSize: '1rem',
-    fontFamily: 'inherit',
-    outline: 'none',
-    transition: 'var(--transition)',
-  };
-
   return (
     <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #FFF0E6 0%, #FFFFFF 60%, #FFF0E6 100%)',
+      height: '100vh',
+      width: '100vw',
+      maxHeight: '100vh',
+      overflow: 'hidden',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem',
+      boxSizing: 'border-box',
       fontFamily: 'Outfit, sans-serif'
     }}>
-      <div style={{ width: '100%', maxWidth: '460px' }}>
+      
+      {/* ── Left Side: Devotional Saffron Mandir Branding Panel (45% Width) ── */}
+      <div style={{
+        flex: '0 0 45%',
+        background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 60%, #c2410c 100%)',
+        padding: '2.5rem 3rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden'
+      }} className="admin-login-left-panel">
+        
+        {/* Ambient background mandala/sun glows */}
+        <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-100px', right: '-100px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255, 237, 213, 0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>🕉️</div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #FF6B00, #FF8533)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>
-            Shree Manvat Baba Mahashiv Mandir
-          </h1>
-          <p style={{ color: 'var(--color-text-light)', fontSize: '1rem' }}>Administrator Login</p>
+        {/* Top Header: Left "ॐ नमः शिवाय", Center Logo, Right "ॐ नमः शिवाय" */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1rem',
+            width: '100%'
+          }}>
+            <div style={{
+              fontSize: '1rem',
+              fontWeight: 800,
+              color: '#ffffff',
+              background: 'rgba(255, 255, 255, 0.18)',
+              backdropFilter: 'blur(8px)',
+              padding: '0.3rem 0.75rem',
+              borderRadius: '9999px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              whiteSpace: 'nowrap'
+            }}>
+              ॐ नमः शिवाय
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <img
+                src={logo}
+                alt="Mandir Logo"
+                style={{
+                  width: '90px',
+                  height: '90px',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.25))',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  padding: '8px',
+                  borderRadius: '20px',
+                  border: '2px solid rgba(255, 255, 255, 0.4)'
+                }}
+              />
+            </div>
+
+            <div style={{
+              fontSize: '1rem',
+              fontWeight: 800,
+              color: '#ffffff',
+              background: 'rgba(255, 255, 255, 0.18)',
+              backdropFilter: 'blur(8px)',
+              padding: '0.3rem 0.75rem',
+              borderRadius: '9999px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              whiteSpace: 'nowrap'
+            }}>
+              ॐ नमः शिवाय
+            </div>
+          </div>
+
+          {/* Mandir Name in 2 Lines Centered Below Logo */}
+          <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+            <h1 style={{
+              fontSize: '2.1rem',
+              fontWeight: 900,
+              margin: 0,
+              lineHeight: 1.15,
+              color: '#ffffff',
+              letterSpacing: '-0.3px',
+              textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            }}>
+              श्री मन्वत बाबा
+            </h1>
+            <h2 style={{
+              fontSize: '1.65rem',
+              fontWeight: 800,
+              margin: '0.2rem 0 0 0',
+              lineHeight: 1.2,
+              color: '#fef08a',
+              letterSpacing: '-0.2px',
+              textShadow: '0 2px 8px rgba(0,0,0,0.15)'
+            }}>
+              महाशिव मंदिर ट्रस्ट
+            </h2>
+          </div>
         </div>
 
-        {/* Card */}
-        <div style={{
-          background: 'white',
-          borderRadius: 'var(--radius-lg)',
-          padding: '2.5rem',
-          boxShadow: '0 20px 60px rgba(255, 107, 0, 0.12)',
-          border: '1px solid rgba(255, 107, 0, 0.1)'
-        }}>
+        {/* Middle Main Mandir Intro & Services */}
+        <div style={{ position: 'relative', zIndex: 1, marginTop: '0.75rem' }}>
+          <p style={{ color: '#ffedd5', fontSize: '0.9rem', margin: '0 0 1.5rem 0', lineHeight: 1.5, fontWeight: 500, textAlign: 'center' }}>
+            बैरमपुर, गोण्डा — धार्मिक सेवा, डिजिटल दान पावती एवं मंदिर प्रबंधन का आधिकारिक पोर्टल
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.88rem', color: '#ffffff', fontWeight: 600 }}>
+              <CheckCircle2 size={18} color="#fef08a" />
+              <span>दैनिक प्रभात व संध्या आरती एवं महाप्रसाद सेवा</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.88rem', color: '#ffffff', fontWeight: 600 }}>
+              <CheckCircle2 size={18} color="#fef08a" />
+              <span>ऑनलाइन दान एवं तुरंत 80G टैक्स रसीद स्वचालन</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.88rem', color: '#ffffff', fontWeight: 600 }}>
+              <CheckCircle2 size={18} color="#fef08a" />
+              <span>विशेष पूजा बुकिंग, धार्मिक अनुष्ठान एवं पर्व उत्सव प्रबंधन</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontSize: '0.88rem', color: '#ffffff', fontWeight: 600 }}>
+              <CheckCircle2 size={18} color="#fef08a" />
+              <span>ट्रस्टी मंडल, सेवक एवं स्वयंसेवक प्रबंधन पोर्टल</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer info */}
+        <div style={{ position: 'relative', zIndex: 1, fontSize: '0.78rem', color: '#ffedd5', fontWeight: 600, textAlign: 'center', marginTop: '1rem' }}>
+          © २०२६ श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट • बैरमपुर, करनैलगंज - गोण्डा (उ.प्र.)
+        </div>
+      </div>
+
+      {/* ── Right Side: Form Panel (55% Width, Edge-to-Edge) ────────── */}
+      <div style={{
+        flex: 1,
+        background: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '2.5rem',
+        boxSizing: 'border-box'
+      }}>
+        <div style={{ width: '100%', maxWidth: '380px' }}>
+
+          <div style={{ marginBottom: '1.75rem' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.2rem 0.65rem',
+              background: 'rgba(255, 107, 0, 0.1)',
+              borderRadius: '9999px',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#ea580c',
+              marginBottom: '0.5rem'
+            }}>
+              <ShieldCheck size={14} /> ADMINISTRATOR ACCESS
+            </div>
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              {view === 'login' ? 'Sign In' : 'Reset Password'}
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>
+              {view === 'login' ? 'Enter your admin account email & password' : 'Enter email to receive password reset link'}
+            </p>
+          </div>
+
+          {error && (
+            <div style={{
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              background: '#fef2f2',
+              color: '#991b1b',
+              borderRadius: '10px',
+              fontWeight: 600,
+              fontSize: '0.82rem',
+              borderLeft: '4px solid #ef4444'
+            }}>
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div style={{
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              background: '#f0fdf4',
+              color: '#166534',
+              borderRadius: '10px',
+              fontWeight: 600,
+              fontSize: '0.82rem',
+              borderLeft: '4px solid #22c55e'
+            }}>
+              {success}
+            </div>
+          )}
+
           {view === 'login' ? (
-            <>
-              <h2 style={{ marginBottom: '1.75rem', fontSize: '1.5rem', fontWeight: 700 }}>Sign In</h2>
-
-              {error && (
-                <div style={{
-                  padding: '0.85rem 1rem',
-                  marginBottom: '1.5rem',
-                  background: '#fee2e2',
-                  color: '#b91c1c',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: '0.9rem',
-                  borderLeft: '4px solid #b91c1c'
-                }}>
-                  {error}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.95rem' }}>
-                    Email Address
-                  </label>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '1.1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
                   <input
                     type="email"
                     required
-                    placeholder="Enter admin email"
-                    style={inputStyle}
+                    placeholder="admin@mandir.org"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 0.9rem 0.75rem 2.6rem',
+                      borderRadius: '10px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      transition: 'all 0.2s'
+                    }}
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
-                    onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
-                    onBlur={e => e.target.style.borderColor = 'var(--border-color)'}
                   />
+                  <Mail size={18} color="#64748b" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
                 </div>
+              </div>
 
-                <div style={{ marginBottom: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <label style={{ fontWeight: 600, fontSize: '0.95rem', margin: 0 }}>
-                      Password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => { setView('forgot'); setError(''); setSuccess(''); }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--color-primary)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        padding: 0
-                      }}
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Enter your password"
-                      style={{ ...inputStyle, paddingRight: '2.8rem' }}
-                      value={form.password}
-                      onChange={e => setForm({ ...form, password: e.target.value })}
-                      onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border-color)'}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      style={{
-                        position: 'absolute',
-                        right: '0.85rem',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#64748b',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0.25rem'
-                      }}
-                    >
-                      {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    background: loading ? '#ccc' : 'linear-gradient(135deg, #FF6B00, #FF8533)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '1.05rem',
-                    fontWeight: 700,
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'var(--transition)',
-                    boxShadow: loading ? 'none' : '0 4px 16px rgba(255,107,0,0.3)',
-                    fontFamily: 'inherit'
-                  }}
-                >
-                  {loading ? 'Signing In...' : '🔐 Sign In to Dashboard'}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <h2 style={{ marginBottom: '1.75rem', fontSize: '1.5rem', fontWeight: 700 }}>Forgot Password</h2>
-
-              {error && (
-                <div style={{
-                  padding: '0.85rem 1rem',
-                  marginBottom: '1.5rem',
-                  background: '#fee2e2',
-                  color: '#b91c1c',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: '0.9rem',
-                  borderLeft: '4px solid #b91c1c'
-                }}>
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div style={{
-                  padding: '0.85rem 1rem',
-                  marginBottom: '1.5rem',
-                  background: '#dcfce7',
-                  color: '#15803d',
-                  borderRadius: 'var(--radius-sm)',
-                  fontWeight: 500,
-                  fontSize: '0.9rem',
-                  borderLeft: '4px solid #15803d'
-                }}>
-                  {success}
-                </div>
-              )}
-
-              <form onSubmit={handleForgotSubmit}>
-                <div style={{ marginBottom: '2rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.95rem' }}>
-                    Email Address
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155', margin: 0 }}>
+                    Password
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => { setView('forgot'); setError(''); setSuccess(''); }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--color-primary)',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 2.6rem 0.75rem 2.6rem',
+                      borderRadius: '10px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      transition: 'all 0.2s'
+                    }}
+                    value={form.password}
+                    onChange={e => setForm({ ...form, password: e.target.value })}
+                  />
+                  <Lock size={18} color="#64748b" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    style={{
+                      position: 'absolute',
+                      right: '0.75rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#64748b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0.2rem'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  background: loading ? '#cbd5e1' : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  fontWeight: 800,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: loading ? 'none' : '0 4px 16px rgba(255, 107, 0, 0.35)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {loading ? 'Authenticating...' : 'Sign In to Dashboard →'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleForgotSubmit}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
                   <input
                     type="email"
                     required
-                    placeholder="Enter your registered email"
-                    style={inputStyle}
+                    placeholder="admin@mandir.org"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 0.9rem 0.75rem 2.6rem',
+                      borderRadius: '10px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
                     value={forgotEmail}
                     onChange={e => setForgotEmail(e.target.value)}
-                    onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
-                    onBlur={e => e.target.style.borderColor = 'var(--border-color)'}
                   />
+                  <Mail size={18} color="#64748b" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
                 </div>
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    background: loading ? '#ccc' : 'linear-gradient(135deg, #FF6B00, #FF8533)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '1.05rem',
-                    fontWeight: 700,
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'var(--transition)',
-                    boxShadow: loading ? 'none' : '0 4px 16px rgba(255,107,0,0.3)',
-                    fontFamily: 'inherit',
-                    marginBottom: '1.25rem'
-                  }}
-                >
-                  {loading ? 'Sending link...' : '✉️ Send Password Reset Link'}
-                </button>
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  background: loading ? '#cbd5e1' : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  fontWeight: 800,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 16px rgba(255, 107, 0, 0.35)',
+                  marginBottom: '0.85rem'
+                }}
+              >
+                {loading ? 'Sending link...' : 'Send Reset Instructions'}
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => { setView('login'); setError(''); setSuccess(''); }}
-                  style={{
-                    width: '100%',
-                    padding: '0.85rem',
-                    background: 'transparent',
-                    color: 'var(--color-primary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'var(--transition)',
-                    fontFamily: 'inherit'
-                  }}
-                >
-                  ← Back to Login
-                </button>
-              </form>
-            </>
+              <button
+                type="button"
+                onClick={() => { setView('login'); setError(''); setSuccess(''); }}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem',
+                  background: 'transparent',
+                  color: '#64748b',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '10px',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                ← Back to Login
+              </button>
+            </form>
           )}
+
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <Link to="/" style={{ color: '#64748b', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <ArrowLeft size={16} /> Back to Public Website
+            </Link>
+          </div>
+
         </div>
-
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--color-text-light)', fontSize: '0.9rem' }}>
-          <a href="/" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>← Back to Website</a>
-        </p>
-
       </div>
+
     </div>
   );
 };
