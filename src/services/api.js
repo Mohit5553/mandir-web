@@ -144,7 +144,7 @@ export const api = {
 
   // Stats & Dashboard
   getDashboardStats: () => api.call('/stats/dashboard'),
-  getReports: () => api.call('/reports'),
+  getReports: () => api.call('/reports', { headers: getAuthHeaders() }),
 
   // Site Content
   getSiteContent: () => api.call('/site-content'),

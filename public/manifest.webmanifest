@@ -1,0 +1,15 @@
+{
+  "short_name": "Mandir Trust",
+  "name": "Shree Manvat Baba Mahashiv Mandir Trust",
+  "icons": [
+    {
+      "src": "/src/assets/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./",
+  "background_color": "#FF6000",
+  "theme_color": "#FF6000",
+  "display": "standalone"
+}

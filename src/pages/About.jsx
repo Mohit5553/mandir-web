@@ -101,60 +101,64 @@ const About = () => {
 
   return (
     <div className="about-page">
-      <section className="section bg-primary" style={{ padding: '4rem 0', color: 'white', textAlign: 'center' }}>
-        <div className="container">
-          <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem' }}>About Our Trust</h1>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
-            Learn about our history, our mission, and the people behind Shree Manvat Baba Mahashiv Mandir Trust.
+      <section className="section bg-primary" style={{ padding: '1.75rem 0', background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 50%, #c2410c 100%)', color: 'white', textAlign: 'center', boxShadow: '0 4px 20px rgba(255, 96, 0, 0.2)' }}>
+        <div className="container" style={{ maxWidth: '1320px', padding: '0 1.25rem' }}>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 900, marginBottom: '0.35rem', letterSpacing: '-0.3px', textShadow: '0 2px 4px rgba(0,0,0,0.15)' }}>हमारे ट्रस्ट के बारे में</h1>
+          <p style={{ fontSize: '1rem', opacity: 0.96, maxWidth: '750px', margin: '0 auto', lineHeight: 1.45, fontWeight: 500 }}>
+            श्री मन्वत बाबा महाशिव मंदिर ट्रस्ट के इतिहास, हमारे मिशन और इससे जुड़े समर्पित सदस्यों के बारे में जानें।
           </p>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container" style={{ maxWidth: '800px' }}>
-          <div className="content-card" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <BookOpen size={32} color="var(--color-primary)" />
-              <h2 style={{ margin: 0 }}>Our History</h2>
+      <section className="section" style={{ padding: '2.5rem 0 4rem 0', background: '#fdfbf7' }}>
+        <div className="container" style={{ maxWidth: '1320px', padding: '0 1.25rem' }}>
+          <div className="responsive-two-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.75rem', marginBottom: '2.25rem' }}>
+            <div className="content-card" style={{ padding: '2rem', borderRadius: '18px', borderTop: '4px solid #FF6000', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', background: '#ffffff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.25rem' }}>
+                <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#fff7ed', border: '1px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c', flexShrink: 0 }}>
+                  <BookOpen size={24} />
+                </div>
+                <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>हमारा इतिहास</h2>
+              </div>
+              <p className="text-light" style={{ fontSize: '0.98rem', lineHeight: 1.7, color: '#475569', margin: 0 }}>
+                सदियों पहले स्थापित श्री मन्वत बाबा मंदिर आध्यात्मिकता और शांति का प्रतीक रहा है। वर्तमान ट्रस्ट का गठन मंदिर के संचालन को प्रभावी ढंग से प्रबंधित करने, पवित्र परिसर के रखरखाव को सुनिश्चित करने और मानवता एवं ईश्वर के प्रति सच्ची निष्ठा के साथ सामुदायिक सेवा गतिविधियों का आयोजन करने के लिए किया गया है।
+              </p>
             </div>
-            <p className="text-light">
-              Established centuries ago, Shree Mandir has served as a beacon of spirituality and peace.
-              The present Trust was formed to effectively manage the temple operations, ensure the
-              maintenance of the holy premises, and organize community service activities in true
-              devotion to humanity and the divine.
-            </p>
+
+            <div className="content-card" style={{ padding: '2rem', borderRadius: '18px', borderTop: '4px solid #FF6000', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', background: '#ffffff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.25rem' }}>
+                <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#fff7ed', border: '1px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c', flexShrink: 0 }}>
+                  <Target size={24} />
+                </div>
+                <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>मिशन एवं दृष्टि</h2>
+              </div>
+              <div className="text-light" style={{ fontSize: '0.98rem', lineHeight: 1.7, color: '#475569' }}>
+                <p style={{ margin: '0 0 0.75rem 0' }}>
+                  <strong style={{ color: '#ea580c' }}>मिशन:</strong> आध्यात्मिक जागृति को बढ़ावा देना, हमारी समृद्ध सांस्कृतिक विरासत का संरक्षण करना और अन्नदान (भोजन दान) और गौ सेवा जैसे समर्पित सामाजिक सेवा कार्यक्रमों को लागू करके सभी जीवधारियों की सेवा करना।
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong style={{ color: '#ea580c' }}>दृष्टि:</strong> शांति, सद्भाव और धार्मिकता से युक्त समाज का निर्माण करना जहाँ प्रत्येक प्राणी के प्रति करुणा और भक्ति का भाव हो।
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="content-card" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <Target size={32} color="var(--color-primary)" />
-              <h2 style={{ margin: 0 }}>Mission & Vision</h2>
-            </div>
-            <p className="text-light">
-              <strong>Mission:</strong> To foster spiritual awakening, preserve our rich cultural heritage,
-              and implement dedicated social service programs like Annadan (food donation) and Gau Seva
-              (cow protection) to serve all living beings.
-              <br/><br/>
-              <strong>Vision:</strong> A society united in peace, living in harmony, and driven by
-              compassion and righteousness.
-            </p>
-          </div>
-
-          <div className="content-card trust-management-card" style={{ marginBottom: '2rem' }}>
-            <div className="trust-management-header">
-              <div className="trust-management-icon">
-                <Users size={30} />
+          <div className="content-card trust-management-card" style={{ padding: '2rem', borderRadius: '20px', boxShadow: '0 10px 35px rgba(0,0,0,0.06)', background: '#ffffff', border: '1px solid #e2e8f0' }}>
+            <div className="trust-management-header" style={{ marginBottom: '1.5rem' }}>
+              <div className="trust-management-icon" style={{ background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 100%)', color: 'white', width: '52px', height: '52px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,96,0,0.3)' }}>
+                <Users size={28} />
               </div>
               <div>
-                <h2>Trust Management</h2>
-                <p>Temple committee and supporting members</p>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: '#0f172a' }}>ट्रस्ट प्रबंधन एवं पदाधिकारी</h2>
+                <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>मंदिर समिति, ट्रस्टी एवं सहयोगी सदस्य</p>
               </div>
             </div>
 
-            <div className="trust-details-panel">
-              <p className="trust-name">{staticTrustDetails.trustName}</p>
-              <div className="trust-meta-grid">
+            <div className="trust-details-panel" style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '12px', padding: '1.25rem', marginBottom: '2rem' }}>
+              <p className="trust-name" style={{ fontSize: '1.15rem', fontWeight: 900, color: '#9a3412', margin: '0 0 0.5rem 0' }}>{staticTrustDetails.trustName}</p>
+              <div className="trust-meta-grid" style={{ color: '#c2410c', fontWeight: 700, fontSize: '0.88rem' }}>
                 <span>पंजीकृत संख्या - {staticTrustDetails.registrationNumber}</span>
+                <span>•</span>
                 <span>{staticTrustDetails.address}</span>
               </div>
             </div>

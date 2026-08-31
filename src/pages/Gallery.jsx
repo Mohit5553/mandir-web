@@ -31,10 +31,10 @@ const Gallery = () => {
 
   return (
     <div className="gallery-page">
-      <section className="section bg-primary" style={{ padding: '4rem 0', color: 'white', textAlign: 'center' }}>
+      <section className="section bg-primary" style={{ padding: '2rem 0', color: 'white', textAlign: 'center' }}>
         <div className="container">
-          <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem' }}>Photo & Video Gallery</h1>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 800, marginBottom: '0.4rem' }}>Photo & Video Gallery</h1>
+          <p style={{ fontSize: '1rem', opacity: 0.95, maxWidth: '650px', margin: '0 auto', lineHeight: 1.4 }}>
             Catch glimpses of our vibrant festivals, poojas, and community service activities.
           </p>
         </div>

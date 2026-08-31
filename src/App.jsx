@@ -34,6 +34,7 @@ const AdminLiveStream = lazy(() => import('./pages/admin/AdminLiveStream'));
 const AdminContact = lazy(() => import('./pages/admin/AdminContact'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 
+import ScrollToTop from './components/ScrollToTop';
 import { usePushNotifications } from './hooks/usePushNotifications';
 
 // Guard: redirect to login if not authenticated
@@ -52,6 +53,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Layout />}>

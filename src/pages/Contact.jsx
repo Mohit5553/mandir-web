@@ -39,10 +39,10 @@ const Contact = () => {
 
   return (
     <div className="contact-page">
-      <section className="section bg-primary" style={{ padding: '5rem 0', color: 'white', textAlign: 'center', background: 'linear-gradient(rgba(255, 107, 0, 0.9), rgba(255, 107, 0, 0.9)), url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}>
+      <section className="section bg-primary" style={{ padding: '2rem 0', color: 'white', textAlign: 'center', background: 'linear-gradient(rgba(255, 107, 0, 0.9), rgba(255, 107, 0, 0.9)), url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}>
         <div className="container">
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1rem' }}>Connect with Us</h1>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 800, marginBottom: '0.4rem' }}>Connect with Us</h1>
+          <p style={{ fontSize: '1rem', opacity: 0.95, maxWidth: '650px', margin: '0 auto', lineHeight: 1.4 }}>
             Have questions about trust activities or pooja timings? We're here to help.
           </p>
         </div>

@@ -65,7 +65,7 @@ const Home = () => {
       api.getEvents(),
       api.getTrustManagement(),
       api.getGallery(),
-      api.getReports(),
+      localStorage.getItem('adminToken') ? api.getReports().catch(() => null) : Promise.resolve(null),
       api.getSiteContent()
     ]).then(([carouselData, newsData, eventData, trustData, galleryData, reports, content]) => {
       setCarouselItems(Array.isArray(carouselData) ? carouselData : []);

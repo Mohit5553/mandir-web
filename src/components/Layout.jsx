@@ -97,7 +97,7 @@ const Layout = () => {
               <Link to="/" className={isActive('/')} onClick={() => setIsMenuOpen(false)}>
                 <div className="link-text-group">
                   <Home size={20} className="menu-icon" />
-                  <span>Home</span>
+                  <span className="notranslate" translate="no">होम</span>
                 </div>
                 <ChevronRight size={16} className="menu-arrow" />
               </Link>
@@ -227,6 +227,36 @@ const Layout = () => {
         <Heart size={22} />
         <span>Donate</span>
       </Link>
+
+      {/* App-Style Mobile Bottom Navigation Bar (Visible only on mobile screens <= 768px) */}
+      <nav className={`mobile-app-bottom-nav ${isMenuOpen ? 'hidden-when-drawer-open' : ''}`}>
+        <Link to="/" className={`mobile-nav-tab ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Home size={20} />
+          <span className="notranslate" translate="no">होम</span>
+        </Link>
+        
+        <Link to="/about" className={`mobile-nav-tab ${location.pathname === '/about' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Info size={20} />
+          <span>About</span>
+        </Link>
+        
+        <Link to="/donate" className="mobile-nav-tab mobile-donate-center-tab" onClick={() => setIsMenuOpen(false)}>
+          <div className="mobile-donate-fab">
+            <Heart size={20} fill="#ffffff" color="#ffffff" />
+          </div>
+          <span>Donate</span>
+        </Link>
+
+        <Link to="/events" className={`mobile-nav-tab ${location.pathname === '/events' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Calendar size={20} />
+          <span>Events</span>
+        </Link>
+
+        <Link to="/gallery" className={`mobile-nav-tab ${location.pathname === '/gallery' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <ImageIcon size={20} />
+          <span>Gallery</span>
+        </Link>
+      </nav>
 
       <footer className="footer custom-premium-footer">
         <div className="container footer-content premium-grid">

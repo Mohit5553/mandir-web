@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, ShieldCheck, Lock, Mail, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, Lock, Mail, ArrowLeft, Sparkles, CheckCircle2, Globe } from 'lucide-react';
 import { api } from '../services/api';
 import logo from '../assets/logo.png';
 
@@ -58,17 +58,20 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      height: '100vh',
-      width: '100vw',
-      maxHeight: '100vh',
-      overflow: 'hidden',
-      display: 'flex',
-      boxSizing: 'border-box',
-      fontFamily: 'Outfit, sans-serif'
-    }}>
+    <div
+      className="admin-login-container"
+      style={{
+        height: '100vh',
+        width: '100vw',
+        maxHeight: '100vh',
+        overflow: 'hidden',
+        display: 'flex',
+        boxSizing: 'border-box',
+        fontFamily: 'Outfit, sans-serif'
+      }}
+    >
       
-      {/* ── Left Side: Devotional Saffron Mandir Branding Panel (45% Width) ── */}
+      {/* ── Left Side: Devotional Saffron Mandir Branding Panel (45% Width on Desktop) ── */}
       <div style={{
         flex: '0 0 45%',
         background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 60%, #c2410c 100%)',
@@ -199,17 +202,84 @@ const Login = () => {
         </div>
       </div>
 
-      {/* ── Right Side: Form Panel (55% Width, Edge-to-Edge) ────────── */}
-      <div style={{
-        flex: 1,
-        background: '#ffffff',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '2.5rem',
-        boxSizing: 'border-box'
-      }}>
+      {/* ── Right Side: Form Panel (100% Width on Mobile) ────────── */}
+      <div
+        className="admin-login-right-panel"
+        style={{
+          flex: 1,
+          background: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '2.5rem',
+          boxSizing: 'border-box',
+          position: 'relative'
+        }}
+      >
+        
+        {/* Top Highlighted "Back to Website" Button with Icon */}
+        <div style={{
+          position: 'absolute',
+          top: '1.25rem',
+          right: '1.25rem',
+          zIndex: 10
+        }}>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '9999px',
+              background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+              border: '1.5px solid #fed7aa',
+              color: '#ea580c',
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              textDecoration: 'none',
+              boxShadow: '0 3px 12px rgba(234, 88, 12, 0.15)',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Globe size={15} color="#ea580c" />
+            <span>← Back to Website</span>
+          </Link>
+        </div>
+
+        {/* Mobile Header Logo & Mandir Name (Only Visible on Mobile <= 850px) */}
+        <div
+          className="admin-login-mobile-header"
+          style={{
+            display: 'none',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            marginBottom: '1.5rem',
+            width: '100%'
+          }}
+        >
+          <img
+            src={logo}
+            alt="Mandir Logo"
+            style={{
+              width: '70px',
+              height: '70px',
+              objectFit: 'contain',
+              borderRadius: '16px',
+              boxShadow: '0 6px 16px rgba(255, 107, 0, 0.2)',
+              marginBottom: '0.5rem'
+            }}
+          />
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+            श्री मन्वत बाबा महाशिव मंदिर
+          </h1>
+          <div style={{ fontSize: '0.75rem', color: '#ea580c', fontWeight: 700, marginTop: '0.25rem' }}>
+            बैरमपुर, करनैलगंज - गोण्डा (उ.प्र.)
+          </div>
+        </div>
+
         <div style={{ width: '100%', maxWidth: '380px' }}>
 
           <div style={{ marginBottom: '1.75rem' }}>
@@ -443,12 +513,6 @@ const Login = () => {
               </button>
             </form>
           )}
-
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Link to="/" style={{ color: '#64748b', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <ArrowLeft size={16} /> Back to Public Website
-            </Link>
-          </div>
 
         </div>
       </div>

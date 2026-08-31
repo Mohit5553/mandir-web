@@ -8,6 +8,7 @@ import './Admin.css';
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => localStorage.getItem('adminSidebarCollapsed') === 'true');
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const toggleCollapse = () => {
     const nextVal = !isCollapsed;
@@ -20,7 +21,7 @@ const AdminLayout = () => {
   const handleLogout = () => {
     const refreshToken = localStorage.getItem('adminRefreshToken');
     if (refreshToken) {
-      api.logout(refreshToken).catch(() => {});
+      api.logout(refreshToken).catch(() => { });
     }
     localStorage.removeItem('adminUser');
     localStorage.removeItem('adminPermissions');
@@ -29,34 +30,39 @@ const AdminLayout = () => {
     navigate('/admin/login');
   };
 
-  const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+  const rawUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+  if (rawUser.name === 'Main Super Admin' || rawUser.name === 'Super Admin' || !rawUser.name) {
+    rawUser.name = 'मुख्य मंदिर प्रशासक';
+    localStorage.setItem('adminUser', JSON.stringify(rawUser));
+  }
+  const user = rawUser;
   const userRole = user.role || '';
-  const isSuperAdmin = userRole === 'Super Admin';
+  const isSuperAdmin = userRole === 'Super Admin' || userRole === 'Chief Trustee';
 
   // All menus grouped with section headers
   const ALL_MENU_ITEMS = [
     { section: 'MAIN' },
-    { name: 'Dashboard',          path: '/admin',                  icon: <LayoutDashboard size={19} /> },
-    { name: 'Donations',          path: '/admin/donations',        icon: <Heart size={19} /> },
-    { name: 'Reports',            path: '/admin/reports',          icon: <FileText size={19} /> },
+    { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={19} /> },
+    { name: 'Donations', path: '/admin/donations', icon: <Heart size={19} /> },
+    { name: 'Reports', path: '/admin/reports', icon: <FileText size={19} /> },
 
     { section: 'MANAGEMENT' },
-    { name: 'Users & Roles',      path: '/admin/users',            icon: <Users size={19} /> },
-    { name: 'Trust Management',   path: '/admin/trust-management', icon: <Users size={19} /> },
-    { name: 'Volunteer Requests', path: '/admin/volunteers',       icon: <HandHeart size={19} /> },
-    { name: 'Contact Messages',   path: '/admin/contact',          icon: <Mail size={19} /> },
+    { name: 'Users & Roles', path: '/admin/users', icon: <Users size={19} /> },
+    { name: 'Trust Management', path: '/admin/trust-management', icon: <Users size={19} /> },
+    { name: 'Volunteer Requests', path: '/admin/volunteers', icon: <HandHeart size={19} /> },
+    { name: 'Contact Messages', path: '/admin/contact', icon: <Mail size={19} /> },
 
     { section: 'CONTENT & MEDIA' },
-    { name: 'Events',             path: '/admin/events',           icon: <Calendar size={19} /> },
-    { name: 'News',               path: '/admin/news',             icon: <Newspaper size={19} /> },
-    { name: 'Gallery',            path: '/admin/gallery',          icon: <ImageIcon size={19} /> },
-    { name: 'Home Carousel',      path: '/admin/carousel',         icon: <PanelsTopLeft size={19} /> },
-    { name: 'Homepage Content',   path: '/admin/site-content',     icon: <Settings2 size={19} /> },
-    { name: 'Live Stream',        path: '/admin/live',             icon: <Video size={19} /> },
-    { name: 'Notifications',      path: '/admin/notifications',    icon: <Bell size={19} /> },
+    { name: 'Events', path: '/admin/events', icon: <Calendar size={19} /> },
+    { name: 'News', path: '/admin/news', icon: <Newspaper size={19} /> },
+    { name: 'Gallery', path: '/admin/gallery', icon: <ImageIcon size={19} /> },
+    { name: 'Home Carousel', path: '/admin/carousel', icon: <PanelsTopLeft size={19} /> },
+    { name: 'Homepage Content', path: '/admin/site-content', icon: <Settings2 size={19} /> },
+    { name: 'Live Stream', path: '/admin/live', icon: <Video size={19} /> },
+    { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={19} /> },
 
     { section: 'SYSTEM & AUDIT' },
-    { name: 'Audit Logs',         path: '/admin/audit-logs',       icon: <ScrollText size={19} /> },
+    { name: 'Audit Logs', path: '/admin/audit-logs', icon: <ScrollText size={19} /> },
   ];
 
   // Get permissions from localStorage (set on login)
@@ -108,9 +114,9 @@ const AdminLayout = () => {
       />
       <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`} style={{ overflow: 'visible' }}>
         {/* Professional Outer Border Toggle Button */}
-        <button 
+        <button
           type="button"
-          onClick={toggleCollapse} 
+          onClick={toggleCollapse}
           className="sidebar-edge-toggle hide-mobile"
           title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
@@ -120,12 +126,12 @@ const AdminLayout = () => {
         <div className="admin-logo">
           <img src={logo} alt="Logo" style={{ height: isCollapsed ? '36px' : '38px', width: isCollapsed ? '36px' : '38px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, transition: 'all 0.3s' }} />
           {!isCollapsed && (
-            <div style={{ lineHeight: 1.2 }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 800, background: 'linear-gradient(135deg, #FF6B00, #FF8533)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '0.5px' }}>
-                MANDIR TRUST
+            <div style={{ lineHeight: 1.25 }}>
+              <div style={{ fontSize: '0.88rem', fontWeight: 900, background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.2px' }}>
+                श्री मन्वत बाबा
               </div>
-              <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                ADMIN CONTROL
+              <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 800, letterSpacing: '0.2px' }}>
+                महाशिव मंदिर ट्रस्ट
               </div>
             </div>
           )}
@@ -160,18 +166,31 @@ const AdminLayout = () => {
       </aside>
 
       <main className="admin-main">
-        <header className="admin-header glass" style={{ borderRadius: 0 }}>
-          <div className="admin-header-left">
+        <header className="admin-header glass" style={{ borderRadius: 0, padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="admin-header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
               className="admin-menu-btn"
               type="button"
               aria-label="Open admin navigation"
               onClick={() => setIsSidebarOpen(true)}
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                background: '#fff7ed',
+                border: '1px solid #fed7aa',
+                color: '#ea580c',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(234,88,12,0.12)'
+              }}
             >
-              <Menu size={18} />
+              <Menu size={19} color="#ea580c" />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-primary)', background: 'var(--color-primary-alpha)', padding: '0.15rem 0.45rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 ADMIN
               </span>
@@ -190,7 +209,15 @@ const AdminLayout = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* Centered Mandir Brand Badge (Visible on Mobile) */}
+          <div className="mobile-header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <img src={logo} alt="Mandir Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FF6000' }} />
+            <span style={{ fontWeight: 900, fontSize: '0.9rem', color: '#0f172a', letterSpacing: '-0.2px' }}>
+              श्री मन्वत बाबा
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}>
             <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.6rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '9999px', fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }}></span>
               <span>Online</span>
@@ -201,12 +228,44 @@ const AdminLayout = () => {
               target="_blank"
               rel="noopener noreferrer"
               title="Open Public Website"
-              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.65rem', borderRadius: '6px', fontSize: '0.76rem', fontWeight: 600, color: 'var(--color-primary)', border: '1px solid rgba(255,107,0,0.25)', background: 'rgba(255,107,0,0.06)', transition: 'all 0.2s' }}
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.35rem 0.65rem',
+                borderRadius: '9999px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#ea580c',
+                border: '1px solid #fed7aa',
+                background: '#fff7ed',
+                boxShadow: '0 2px 6px rgba(234,88,12,0.1)',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
+              }}
             >
-              <Globe size={14} /> <span className="hide-mobile">Website</span>
+              <Globe size={14} color="#ea580c" />
+              <span className="hide-mobile">Website</span>
             </a>
 
-            <div className="admin-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', border: '1px solid #e2e8f0', padding: '0.15rem 0.25rem 0.15rem 0.6rem', borderRadius: '9999px', boxShadow: '0 1px 4px rgba(0,0,0,0.02)' }}>
+            {/* Clickable Profile Badge with Dropdown State */}
+            <div
+              className="admin-profile"
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: showProfileMenu ? '#fff7ed' : '#fff',
+                border: showProfileMenu ? '1px solid #fed7aa' : '1px solid #e2e8f0',
+                padding: '0.15rem 0.25rem 0.15rem 0.6rem',
+                borderRadius: '9999px',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#1e293b', lineHeight: 1.1 }}>{user.name || 'User'}</div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 700 }}>{user.role || 'Super Admin'}</div>
@@ -215,6 +274,82 @@ const AdminLayout = () => {
                 {user.name ? user.name[0].toUpperCase() : 'U'}
               </div>
             </div>
+
+            {/* Interactive Admin Profile Dropdown Menu */}
+            {showProfileMenu && (
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                width: '260px',
+                background: '#ffffff',
+                borderRadius: '14px',
+                boxShadow: '0 12px 36px rgba(0, 0, 0, 0.12)',
+                border: '1px solid #e2e8f0',
+                padding: '1rem',
+                zIndex: 1000,
+                animation: 'fadeIn 0.15s ease-in-out'
+              }}>
+                {/* User Summary Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingBottom: '0.85rem', borderBottom: '1px solid #f1f5f9', marginBottom: '0.75rem' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'linear-gradient(135deg, #FF6B00 0%, #ea580c 100%)', color: 'white', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)' }}>
+                    {user.name ? user.name[0].toUpperCase() : 'U'}
+                  </div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {user.name || 'User'}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {user.email || 'mahashivmandirtrusts@gmail.com'}
+                    </div>
+                    <span style={{ display: 'inline-block', marginTop: '0.2rem', fontSize: '0.65rem', fontWeight: 700, color: '#ea580c', background: '#fff7ed', padding: '0.1rem 0.45rem', borderRadius: '4px', border: '1px solid #fed7aa' }}>
+                      {user.role || 'Super Admin'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quick Navigation Links */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.75rem' }}>
+                  <Link
+                    to="/admin/users"
+                    onClick={() => setShowProfileMenu(false)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.75rem', borderRadius: '8px', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: '#f8fafc', transition: 'all 0.2s' }}
+                  >
+                    <Users size={16} color="#ea580c" />
+                    <span>Admin Users & Roles</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/audit-logs"
+                    onClick={() => setShowProfileMenu(false)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.75rem', borderRadius: '8px', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: '#f8fafc', transition: 'all 0.2s' }}
+                  >
+                    <ScrollText size={16} color="#2563eb" />
+                    <span>Security Audit Logs</span>
+                  </Link>
+
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setShowProfileMenu(false)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.75rem', borderRadius: '8px', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: '#f8fafc', transition: 'all 0.2s' }}
+                  >
+                    <Globe size={16} color="#059669" />
+                    <span>View Public Website</span>
+                  </a>
+                </div>
+
+                {/* Logout Button */}
+                <button
+                  onClick={() => { setShowProfileMenu(false); handleLogout(); }}
+                  style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fee2e2', color: '#dc2626', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem' }}
+                >
+                  <LogOut size={15} />
+                  <span>Logout Account</span>
+                </button>
+              </div>
+            )}
           </div>
         </header>
 

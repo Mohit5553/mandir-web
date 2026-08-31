@@ -139,10 +139,10 @@ const Donate = () => {
 
   return (
     <div className="donate-page">
-      <section className="section bg-primary" style={{ padding: '4rem 0', color: 'white', textAlign: 'center' }}>
+      <section className="section bg-primary" style={{ padding: '2rem 0', color: 'white', textAlign: 'center' }}>
         <div className="container">
-          <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '0.5rem' }}>Support the Trust</h1>
-          <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>Helping humanity through your devotion.</p>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 800, marginBottom: '0.35rem' }}>Support the Trust</h1>
+          <p style={{ fontSize: '1rem', opacity: 0.95, lineHeight: 1.4 }}>Helping humanity through your devotion.</p>
         </div>
       </section>
 

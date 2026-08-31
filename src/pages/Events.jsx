@@ -46,61 +46,76 @@ const Events = () => {
 
   return (
     <div className="events-page">
-      <section className="section bg-primary" style={{ padding: '4rem 0', color: 'white', textAlign: 'center' }}>
-        <div className="container">
-          <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem' }}>Upcoming Events</h1>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
-            Stay updated with our upcoming festivals, poojas, and community service events.
+      <section className="section bg-primary" style={{ padding: '1.75rem 0', background: 'linear-gradient(135deg, #FF6000 0%, #ea580c 50%, #c2410c 100%)', color: 'white', textAlign: 'center', boxShadow: '0 4px 20px rgba(255, 96, 0, 0.2)' }}>
+        <div className="container" style={{ maxWidth: '1320px', padding: '0 1.25rem' }}>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 900, marginBottom: '0.35rem', letterSpacing: '-0.3px', textShadow: '0 2px 4px rgba(0,0,0,0.15)' }}>आगामी कार्यक्रम एवं पूजा उत्सव</h1>
+          <p style={{ fontSize: '1rem', opacity: 0.96, maxWidth: '750px', margin: '0 auto', lineHeight: 1.45, fontWeight: 500 }}>
+            हमारे आगामी त्योहारों, विशेष पूजाओं, आरती समय एवं सामुदायिक सेवा कार्यक्रमों की नवीनतम जानकारी।
           </p>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="filter-panel" style={{ maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
+      <section className="section" style={{ padding: '1.25rem 0 3.5rem 0', background: '#fdfbf7' }}>
+        <div className="container" style={{ maxWidth: '1320px', padding: '0 1.25rem' }}>
+          <div className="filter-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1.25rem', width: '100%', flexWrap: 'nowrap' }}>
+            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '220px' }}>
+              <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#ea580c' }} />
               <input
                 className="filter-input"
                 type="search"
-                placeholder="Search events, location, or details"
+                placeholder="घटनाओं, स्थानों या विवरणों की खोज करें..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
+                style={{ paddingLeft: '2.75rem', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', height: '40px', fontSize: '0.9rem', background: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}
               />
             </div>
-            <select className="filter-select" value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
-              <option value="all">All events</option>
-              <option value="upcoming">Upcoming</option>
-              <option value="daily">Daily events</option>
-              <option value="past">Past events</option>
-            </select>
-            <button className="btn btn-outline" type="button" onClick={() => { setQuery(''); setTimeFilter('all'); }}>
-              <X size={16} /> Clear
-            </button>
-            <div className="filter-count">{filteredEvents.length} events found</div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+              <select className="filter-select" value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} style={{ borderRadius: '10px', border: '1px solid #cbd5e1', height: '40px', padding: '0 0.85rem', fontSize: '0.86rem', fontWeight: 600, color: '#334155', background: '#ffffff', cursor: 'pointer' }}>
+                <option value="all">सभी कार्यक्रम (All Events)</option>
+                <option value="upcoming">आगामी कार्यक्रम (Upcoming)</option>
+                <option value="daily">दैनिक कार्यक्रम (Daily)</option>
+                <option value="past">विगत कार्यक्रम (Past)</option>
+              </select>
+
+              {(query || timeFilter !== 'all') && (
+                <button className="btn btn-outline" type="button" onClick={() => { setQuery(''); setTimeFilter('all'); }} style={{ borderRadius: '10px', height: '40px', padding: '0 0.75rem', color: '#ea580c', borderColor: '#fed7aa', background: '#fff7ed', fontSize: '0.84rem', fontWeight: 700 }}>
+                  <X size={15} /> स्पष्ट
+                </button>
+              )}
+
+              <div className="filter-count" style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#c2410c', padding: '0 0.85rem', height: '40px', display: 'inline-flex', alignItems: 'center', borderRadius: '10px', fontWeight: 800, fontSize: '0.84rem', whiteSpace: 'nowrap' }}>
+                {filteredEvents.length} कार्यक्रम
+              </div>
+            </div>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-light)' }}>Loading events...</div>
+            <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b', fontWeight: 600 }}>कार्यक्रम लोड हो रहे हैं...</div>
           ) : filteredEvents.length === 0 ? (
-            <div className="empty-state" style={{ maxWidth: '900px', margin: '0 auto' }}>No events found. Try another search or filter.</div>
+            <div className="empty-state" style={{ width: '100%', padding: '3rem', borderRadius: '16px', background: '#ffffff', textAlign: 'center', border: '1px dashed #cbd5e1', color: '#64748b' }}>कोई कार्यक्रम नहीं मिला। कृपया अन्य खोज शब्द का प्रयास करें।</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.75rem', width: '100%' }}>
               {filteredEvents.map(event => (
-                <div key={event._id} className="content-card responsive-row" style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-                  <div style={{ background: 'var(--color-primary-alpha)', padding: '1.5rem', borderRadius: 'var(--radius-md)', textAlign: 'center', minWidth: '100px' }}>
-                    <CalendarIcon size={32} color="var(--color-primary)" style={{ marginBottom: '0.5rem' }} />
-                    <div style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.85rem' }}>
-                      {event.date && event.date !== 'Everyday' ? new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Daily'}
+                <div key={event._id} className="content-card" style={{ padding: '1.5rem', borderRadius: '18px', border: '1px solid #e2e8f0', background: '#ffffff', boxShadow: '0 8px 24px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.25s ease' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
+                      <div style={{ background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', border: '1px solid #fed7aa', padding: '0.85rem 1rem', borderRadius: '14px', textAlign: 'center', minWidth: '85px', boxShadow: '0 2px 6px rgba(234,88,12,0.08)' }}>
+                        <CalendarIcon size={24} color="#ea580c" style={{ marginBottom: '0.25rem' }} />
+                        <div style={{ fontWeight: 800, color: '#c2410c', fontSize: '0.82rem', letterSpacing: '0.3px' }}>
+                          {event.date && event.date !== 'Everyday' ? new Date(event.date).toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' }) : 'दैनिक'}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.35rem 0', color: '#0f172a', lineHeight: 1.3 }}>{event.title}</h3>
+                        {event.location && (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#64748b', fontSize: '0.84rem', fontWeight: 600 }}>
+                            <MapPin size={14} color="#ea580c" /> {event.location}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div style={{ flexGrow: 1 }}>
-                    <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>{event.title}</h3>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem', color: 'var(--color-text-light)', fontSize: '0.9rem' }}>
-                      {event.location && <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={16} /> {event.location}</div>}
-                    </div>
-                    <p className="text-light">{event.description}</p>
+                    <p className="text-light" style={{ fontSize: '0.94rem', lineHeight: 1.6, color: '#475569', margin: 0 }}>{event.description}</p>
                   </div>
                 </div>
               ))}
